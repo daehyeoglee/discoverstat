@@ -1,0 +1,245 @@
+---
+title: "SMT_Ch10"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+```{r}
+library(compute.es); library(car); library(ggplot2); library(multcomp);
+library(pastecs); library(WRS2)
+```
+
+## SMT1
+
+Factor: Punish, Reward, Indifferent
+
+Variable: Percentage
+
+Hypothesis 1: Reward results in better exam results than either punishment or indifference.
+
+Hypothesis 2: Indifference will lead to significantly better exam results than punishment.
+
+```{r}
+teachData <- read.delim("Teach.dat", header = TRUE)
+head(teachData)
+teachData$group <- factor(
+  teachData$group, levels = c(1:3), labels = c("Punish","Indifferent", "Reward")
+  )
+
+head(teachData)
+
+teachDatascatter <- ggplot(teachData, aes(group, exam))
+teachDatascatter +
+  geom_point() +
+  stat_summary(
+    fun = mean, geom = "line", size = 1, color = "black"
+    ) +
+  geom_smooth(method = "lm", aes(), color = "Red") +
+  stat_summary(
+    fun.data = mean_cl_boot, geom = "errorbar",
+    width = 0.2, size = 0.75, color = "blue"
+    ) +
+  stat_summary(fun = mean, geom = "point", size = 4, color = "blue") +
+  stat_summary(fun = mean, geom = "point", size = 3, color = "red") +
+  labs(x = "Groups", y = "Percentage")
+
+leveneTest(teachData$exam, teachData$group, center = median)
+
+teachModel <- aov(exam ~ group, data = teachData)
+summary(teachModel)
+```
+
+Levene's test was not significant, which indicates the assumption of homogeneity of variance has met.
+
+The result of `summary(teachModel)` tells us that there was a significant effect of teaching style on exam marks. However, we don't know what the exact effect was yet.
+
+```{r}
+contrast1 <- c(1, 1, -2)
+contrast2 <- c(1, -1, 0)
+contrasts(teachData$group) <- cbind(contrast1, contrast2)
+teachData$group
+```
+
+The first contrast compares `Reward` and against `Punish` and `Indifferent`. The second contrast compares `Punish` and `Indifferent`.
+
+```{r}
+teachPlanned <- aov(exam ~ group, data = teachData)
+summary.lm(teachPlanned)
+```
+
+The output tells us that the exam mark from `Reward` was significantly different from that of `Punish` and `Indifferent` method. Also, the exam mark from `Punish` was significantly different from that of `Indifferent` method.
+
+```{r}
+rcontrast <- function(t, df)
+  {
+  r <- sqrt(t^2/(t^2+df))
+  print(paste("r = ", r))
+  }
+omegaSquared <- function(ssm, ssr, msr, dfm)
+  {
+  omega <- (ssm - dfm*msr)/(ssm + ssr + msr)
+  print(paste("omega^2 = ", omega))
+  }
+
+omegaSquared(1205.1, 774.4, 28.7, 2)
+contrast1_effectSize = rcontrast(-5.978, 27)
+contrast2_effectSize = rcontrast(-2.505, 27)
+```
+
+By calculating **omega squared**, $\omega^2$ and $r_{contrast}$,
+
+$\omega^2 = \frac{SS_M - (df_M)MS_R}{SS_T + MS_R}$ , $r_{contrast} = \sqrt{\frac{t^2}{t^2+df}}$
+
+we can report the result like:
+
+-   All significant values are reported at p \< .05.There was a significant effect of teaching style on exam marks, F(2, 27) = 21.01, ω2 = .57. Planned contrasts revealed that reward produced significantly better exam grades than punishment and indifference, t(27) = --5.98, r = .75, and that punishment produced significantly worse exam marks than indifference, t(27) = −2.51, r = .43.
+
+## SMT2
+
+```{r}
+superheroData <- read.delim("Superhero.dat", header = TRUE)
+head(superheroData)
+superheroData$hero <- factor(
+  superheroData$hero, levels = c(1:4),
+  labels = c("Spiderman", "Superman", "Hulk", "Teenage Mutant Ninja")
+  )
+
+head(superheroData)
+
+superheroDatascatter <- ggplot(superheroData, aes(hero, injury))
+superheroDatascatter +
+  geom_point() +
+  stat_summary(
+    fun = mean, geom = "bar", fill = "white", color = "Black"
+    ) +
+  stat_summary(
+    fun.data = mean_cl_normal, geom = "errorbar",
+    width = 0.2, size = 0.75, color = "black"
+    ) +
+  stat_summary(fun = mean, geom = "point", size = 1, color = "black") +
+  stat_summary(fun = mean, geom = "point", size = 1, color = "red") +
+  labs(x = "Hero", y = "Injury")
+
+leveneTest(superheroData$injury, superheroData$hero, center = median)
+
+superheroModel <- aov(injury ~ hero, data = superheroData)
+summary(superheroModel)
+summary.lm(superheroModel)
+```
+
+The output of ANOVA indicates that there is a significant effect of superhero costume on injury severity.
+
+However, we don't know the exact effect of superhero costume on injury severity. We don't know which group differed.
+
+```{r}
+pairwise.t.test(
+  superheroData$injury, superheroData$hero, p.adjust.method = "bonferroni"
+  )
+
+omegaSquared <- function(ssm, ssr, msr, dfm)
+  {
+  omega <- (ssm - dfm*msr)/(ssm + ssr + msr)
+  print(paste("omega^2 = ", omega))
+  }
+
+omegaSquared(4181, 4357, 167.6, 3)
+```
+
+Result
+
+-   There was a significant effect of superhero costume on severity of injury, F(3, 26) = 8.32, $\omega^2 = .42$
+
+-   Bonferroni test revealed that wearing a Superman costume resulted in significantly more injury than wearing a Hulk or Ninja turtle costume (p \< .05).
+
+-   Wearing Spiderman or Hulk costume didn't resulted in significantly more injury than wearing any other costumes.
+
+## SMT 4
+
+Links between mobile phone use and brain tumours.
+
+Factor: Six groups (0, 1, 2, 3, 4, 5 hours per day)
+
+Outcome: Size
+
+```{r}
+tumourData <- read.delim("Tumour.dat", header = TRUE)
+head(tumourData)
+tumourData$usage <- factor(
+  tumourData$usage, levels = c(0:5),
+  labels = c("0H", "1H", "2H", "3H", "4H", "5H")
+  )
+
+tumourDatagraph <- ggplot(tumourData, aes(usage, tumor))
+tumourDatagraph +
+  geom_point() +
+  stat_summary(
+    fun = mean, geom = "bar", fill = "white", color = "Black"
+    ) +
+  stat_summary(
+    fun.data = mean_cl_normal, geom = "errorbar",
+    width = 0.2, size = 0.75, color = "black"
+    ) +
+  stat_summary(fun = mean, geom = "point", size = 1, color = "black") +
+  stat_summary(fun = mean, geom = "point", size = 1, color = "red") +
+  labs(x = "Usage", y = "Tumor")
+
+leveneTest(tumourData$tumor, tumourData$usage, center = "median")
+
+```
+
+The assumption of homogeneity of variance has violated (p\<.05). Therefore, we have to transform the data or choose Welch's *F.*
+
+```{r}
+tumourModel <- aov(tumor ~ usage, data = tumourData)
+summary(tumourModel)
+```
+
+The main ANOVA summary shows that there is a significant effect of mobile phone usage on the size of brain tumors. However, we still don't know the exact effect (which group differed).
+
+`oneway.test()` doesn't assume the variances to be equal. (Still, we can set that the variances are equal by `var.equal = TRUE`)
+
+```{r}
+oneway.test(tumor ~ usage, data = tumourData, var.equal = FALSE)
+```
+
+The output shows Wehch's F, which is significant (p \< .05)
+
+```{r}
+pairwise.t.test(tumourData$tumor, tumourData$usage, p.adjust.method = "BH")
+
+omegaSquared <- function(ssm, ssr, msr, dfm)
+  {
+  omega <- (ssm - dfm*msr)/(ssm + ssr + msr)
+  print(paste("omega^2 = ", omega))
+  }
+
+omegaSquared(450.7, 38.1, 0.33, 5)
+```
+
+## SMT 5
+
+One-way ANOVA to see if the change in hygiene is significantly different across people with different musical tastes.
+
+Predictor: music
+
+Outcome: change
+
+```{r}
+festivalData <- read.delim("GlastonburyFestivalRegression.dat", header = TRUE)
+
+leveneTest(festivalData$change, festivalData$music, center = "median")
+
+festivalModel <- aov(change ~ music, data = festivalData)
+summary(festivalModel)
+
+festivalData$music <- factor(
+  festivalData$music, levels = c(1:4),
+  labels = c("Crusty", "Indie Kid", "Metaller", "No Musical Affiliation")
+  )
+
+# Each category is compared to the last category, which is 'No Affiliation'
+contrasts(festivalData$music) <- contr.SAS(4)
+festivalContrast <- aov(change ~ music, data = festivalData, na.rm = TRUE)
+summary.lm(festivalContrast)
+```

@@ -1,0 +1,209 @@
+---
+title: "SMT_Ch8"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+## Task 1
+
+```{r}
+displayData <- read.delim("Display.dat", header = TRUE)
+head(displayData)
+is.factor(displayData$age)
+is.factor(displayData$fb)
+is.factor(displayData$display)
+as.factor(displayData$age)
+as.factor(displayData$fb)
+as.factor(displayData$display)
+displayData$display <- factor(displayData$display, ordered = FALSE)
+displayData$display <- relevel(displayData$display, "No")
+displayModel.1 <- 
+  glm(display ~ fb, data = displayData, family = binomial())
+displayModel.2 <- 
+  glm(display ~ fb + age + fb:age, data = displayData, family = binomial())
+summary(displayModel.1)
+summary(displayModel.2)
+```
+
+The residual deviance tells us about the model when the predictor fb has been added to the model. At this stage of the analysis the value of residual deviance should be less than the value when only the constant was included in the model. When only the constant was included, -2LL = 96.124, but now fb has been included this value has been reducted to 70.042. This reduction tells us that the model is better at predicting display rule understanding than it was before fb was added.
+
+About model 2, when our new predictor (**age**) and the interaction (**fb x age**) are added, the residual deviance reduced 2.412 from model 1, suggesting that including them in the model has not improved our ability to predict whether a child will have display rule understanding or not. Also, we can see that the AIC is slightly higher in model 2 than model 1, indicating that model 1 is the better model.
+
+```{r}
+modelChi <- displayModel.1$null.deviance - displayModel.1$deviance
+chidf <- displayModel.1$df.null - displayModel.1$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+```
+
+The change in the amount of information explained by the model (26.08) is significant, so using false belief understanding as a predictor significantly improves our ability to predict display rule understanding., $\chi^2(1)=26.08, p<.0001$
+
+```{r}
+logisticPseudoR2s(displayModel.1)
+exp(displayModel.1$coefficients)
+exp(confint(displayModel.1))
+
+modelChi <- displayModel.1$deviance - displayModel.2$deviance
+chidf <- displayModel.1$df.residual - displayModel.2$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+
+anova(displayModel.1, displayModel.2)
+
+logisticPseudoR2s(displayModel.2)
+exp(displayModel.2$coefficients)
+exp(confint(displayModel.2))
+```
+
+The difference between the models (`modelChi`) is 2.407671, with 2 degrees of freedom (`chidf`), and a p-value (`chisq.prob`) of .3000412. As the value is greater than .05, we can conclude that model 2 is not a significant improvement over model 1.
+
+## Task 2
+
+```{r}
+burnoutData<-read.delim("Burnout.dat", header = TRUE)
+
+head(burnoutData)
+is.factor(burnoutData$burnout)
+is.factor(burnoutData$loc)
+is.factor(burnoutData$cope)
+is.factor(burnoutData$teaching)
+is.factor(burnoutData$research)
+is.factor(burnoutData$pastoral)
+
+as.factor(burnoutData$burnout)
+
+burnoutData$burnout <- factor(burnoutData$burnout, ordered = FALSE)
+burnoutData$burnout <- relevel(burnoutData$burnout, "Not Burnt Out")
+
+burnoutModel.1 <- glm(burnout ~ loc + cope, data = burnoutData, family = binomial())
+summary(burnoutModel.1)
+
+
+modelChi <- burnoutModel.1$null.deviance - burnoutModel.1$deviance
+chidf <- burnoutModel.1$df.null - burnoutModel.1$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+
+exp(burnoutModel.1$coefficients)
+exp(confint(burnoutModel.1))
+```
+
+**Model 1)**
+
+The reduction of the deviance tells us that including **loc** and **cope** in the model is better at predicting burnout.
+
+Chi-square statistic measures the difference between the model as it currently stands and the model when only the constant was included.
+
+The change in the amount of information explained by the model (165.93) is significant (p \< .0001), so using coping ability and perceived control as predictors significantly improves our ability to predict whether someone will be burnt out or not, $\chi^2(2) = 165.93, p<.0001$.
+
+Next, we consider the coefficients. If the coefficient is significantly different from zero then we can assume that the predictor is making a significant contribution to the prediction of the outcome. Perceived control: b = 0.06, z = 5.60, p \< .001 and Coping ability: b = 0.08, z = 8.83, p \< .001, are both significant predictors of burnout.
+
+The confidence interval for **loc** ranges from 1.04 to 1.08, so we can be very confident that the value of the odds ratio in the population lies somewhere between these two values. What's more, because both values are greater than 1 we can also be confident that the relationship between **loc** (perceived coping ability) and burnout found in this sample is true of the whole population of lecturers. The confidence interval for **cope** ranges from 1.06 to 1.10, so we can be very confident that the value of the odds ratio in the population lies somewhere between these two values. In addition, because both values are greater than 1 we can be confident that the relationship between **cope** and burnout found in this sample is true of the whole population of lecturers. If we had found that the confidence interval ranged from less than 1 to more than 1, then this would limit the generalizability of our findings because the odds ratio in the population could indicate either a positive (odds ratio \> 1) or negative (odds ratio \< 1) relationship.
+
+```{r}
+burnoutModel.2 <- update(burnoutModel.1, .~. + teaching + research + pastoral)
+summary(burnoutModel.2)
+
+modelChi <- burnoutModel.2$null.deviance - burnoutModel.2$deviance
+chidf <- burnoutModel.2$df.null - burnoutModel.2$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+
+exp(burnoutModel.2$coefficients)
+exp(confint(burnoutModel.2))
+```
+
+**Model 2)**
+
+Including the other predictors in the model has improved our ability to predict whether a lecturer will be burnt out or not.
+
+The overall fit of the model is significant, $\chi^2(5) = 208.91, p < .0001$.
+
+We can see that all the predictors significantly predict burn out except for **research**.
+
+## Task 3
+
+```{r}
+condomData<-read.delim("condom.dat", header = TRUE)
+head(condomData)
+
+is.factor(condomData$use)
+is.factor(condomData$gender)
+is.factor(condomData$previous)
+as.factor(condomData$use)
+as.factor(condomData$gender)
+as.factor(condomData$previous)
+
+condomData$use <- factor(condomData$use, ordered = FALSE)
+condomData$gender <- factor(condomData$gender, ordered = FALSE)
+condomData$previous <- factor(condomData$previous, ordered = FALSE)
+condomData$use <- relevel(condomData$use, "Unprotected")
+condomData$gender <- relevel(condomData$gender, "Male")
+condomData$previous <- relevel(condomData$previous, "No Condom")
+```
+
+```{r}
+condomModel.1 <- glm(use ~ perceive + safety + gender, data = condomData, family = binomial())
+summary(condomModel.1)
+modelChi <- condomModel.1$null.deviance - condomModel.1$deviance
+chidf <- condomModel.1$df.null - condomModel.1$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+
+#Compute odds ratios and confidence intervals
+exp(condomModel.1$coefficients)
+exp(confint(condomModel.1))
+```
+
+```{r}
+condomModel.2 <- update(condomModel.1, .~. + previous + selfcon + sexexp)
+summary(condomModel.2)
+modelChi <- condomModel.1$deviance - condomModel.2$deviance
+chidf <- condomModel.1$df.residual - condomModel.2$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+#Compute odds ratio model 2
+exp(condomModel.2$coefficients)
+exp(confint(condomModel.2))
+```
+
+```{r}
+#Multicolinearity:
+car::vif(condomModel.2)
+1/car::vif(condomModel.2)
+
+# linearity of the logit
+condomData$logsafety<-log(condomData$safety +1)
+condomData$logsexexp<-log(condomData$sexexp +1)
+condomData$logselfcon<-log(condomData$selfcon + 1)
+condomData$logperceive<-log(condomData$perceive +1)
+
+head(condomData)
+
+condomTest.1 <- glm(use ~ safety + sexexp + selfcon + perceive + safety:logsafety + sexexp:logsexexp + selfcon:logselfcon + perceive:logperceive, data = condomData, family=binomial())
+summary(condomTest.1)
+
+# Diagnostics
+condomData$predicted.probabilities<-fitted(condomModel.2)
+condomData$standardized.residuals<-rstandard(condomModel.2)
+condomData$studentized.residuals<-rstudent(condomModel.2)
+condomData$dfbeta<-dfbeta(condomModel.2)
+condomData$dffit<-dffits(condomModel.2)
+condomData $leverage<-hatvalues(condomModel.2)
+
+# Interpreting Residuals:
+condomData[, c("leverage", "studentized.residuals", "dfbeta")]
+# There are no influential cases having an effect on the model,
+# because all cases have DFBetas less than 1,
+# and leverage statistics are very close to the calculated expected value
+# of 0.018.
+# This means that there are no influential cases having an effect on the model.
+
+(condomData[c(12,53,75), c("use", "safety", "sexexp","selfcon", "perceive",
+                           "previous", "gender", "predicted.probabilities")])
+```
+
+Any interaction that is significant indicates that the main effect has violated the assumption of linearity of the logit. Since the significance of the interactions are over .05, the assumption of linearity of the logit has been met for **safety, sexexp, selfcon** and **perceive**.
+
+\(4\) We can use *b*s from `condomModel.2` and multiply them with X_i. The intercept is -4.9597 from `condomModel.2`. By adding biXis, we get z, which is 1.9146. We put z into the logistic regression equation to get the probability, which is 87.2%.

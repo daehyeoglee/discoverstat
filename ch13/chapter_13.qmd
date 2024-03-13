@@ -1,0 +1,541 @@
+---
+title: "Chapter 13. Repeated-measured designs (GLM 4)"
+author: "Daehyeog Lee"
+date: "2023-01-19"
+date-modified: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+## 13.1. What will this chapter tell me?
+
+## 13.2. Introduction to repeated-measures designs
+
+**'Repeated measures'** is a term used when the same entities participate in all conditions of an experiment or provide data at multiple time points.
+
+The accuracy of the *F*-test in ANOVA depends upon the assumption that scores in different conditions are independent. When repeated measures are used, this assumption is violated: the outcome is likely to be related because they come from the same participants.
+
+Therefore, we need an additional assumption, which is that the relationship between pairs of experimental conditions is similar. In other words, the level of dependence between experimental conditions are roughly equal. This assumption is called the assumption of **sphericity**.
+
+### 13.2.1. The assumption of sphericity
+
+Sphericity refers to the equality of variances of *the differences between treatment levels.*
+
+The assumption of sphericity can be likened to the assumption of homogeneity of variance in between-group ANOVA. Sphericity is a more general condition of **compound symmetry**. Compound symmetry holds true when both the variances across conditions are equal and the covariances between pairs of conditions are equal. So, we assume that the variation within experimental conditions is fairly similar and that no two conditions are any more dependent than any other two. Therefore, we need at least three conditions for sphericity to be an issue.
+
+### 13.2.2. How is sphericity measured?
+
+If we were going to check the assumption of sphericity by hand, we could start by calculating the differences between pairs of scores in all combinations of the treatment levels.
+
+$Variance_{A-B} = Variance_{A-C} = Variance_{B-C}$
+
+### 13.2.3. Assessing the severity of departures from sphericity
+
+We can assess the sphericity by using **Mauchly's test**, which tests the hypothesis that the variances of the differences between conditions are equal. If Mauchly's test statistic is non-significant then it is reasonable to conclude that the variances of differences are not significantly different.
+
+### 13.2.4. What is the effect of violating the assumption of sphericity?
+
+The violation of the sphericity causes the loss of power. When sphericity is violates, the Bonferroni method seems to be generally the most robust of the univariate techniques, especially in terms of power and control of the Type I error rate.
+
+### 13.2.5. What do you do if you violate sphericity?
+
+If data violate the sphericity assumption, there are several corrections that can be applied to produce a valid *F*-ratio. These estimates give rise to a correction factor that is applied to the degrees of freedom used to assess the observed *F*-ratio.
+
+-   **Greenhouse-Geisser correction** $\epsilon$ varies between $1/(k-1)$ and $1$, where $k$ is the number of repeated-measures conditions. The closer $\epsilon$ is to 1, the more homogeneous the variances of differences. When the Greenhouse-Geisser estimate is greater than .75 too many false null hypotheses fail to be rejected.
+
+-   **Huynh-Feldt correction** is used when estimates of sphericity are greater than .75.
+
+-   **MANOVA** is not dependent upon the assumption of sphericity, but there are trade-offs in power between these univariate and multivariate tests.
+
+-   **Multilevel model** dummy-codes our grouping variables to ensure that these coefficients only ever compare two things. When we have a large violation of sphericity ($\epsilon <.7$) and our sample size is greater than ($a+10$) then multivariate procedures are more powerful, but with small sample sizes or when sphericity holds ($\epsilon >.7$) the univariate approach is preferred.
+
+## 13.3. Theory of one-way repeated-measured ANOVA
+
+In independent ANOVA, the within-participant variance is our residual variance $SS_R$; it is the variance created by individual differences in performance. However, when we carry out our experimental manipulation on the same people, the within-participant variance will be made up of two things: **the effect of our manipulation** and **individual differences in performance**. Because we did the same thing to everyone within a particular condition, any variation that cannot be explained by the manipulation we've carried out must be due to random factors outside our control, unrelated to our experimental manipulations.
+
+The *only* difference between repeated-measures and independent ANOVA is from where those sums of squares came: in repeated-measures ANOVA the model and residual sums of squares are both part of the within-participant variance.
+
+### 13.3.1. The total sum of squares $SS_T$
+
+The total sum of squares is calculated in exactly the same way as in one-way independent ANOVA.
+
+$SS_T = s^2_{grand}(N-1)$
+
+### 13.3.2. The within-participant sum of squares $SS_W$
+
+In independent ANOVA, the residual sum of squares $SS_R$ is an estimate of individual differences within a particular group.
+
+In repeated-measures designs, we've subjected people to more than one experimental condition. Therefore, we're interested in the variation not within a group of people (as in independent ANOVA) but within an actual person.
+
+$SS_W = SS_M + SS_R$
+
+We are looking at $SS_W$, which is the variation in an individual's scores and then adding these variances for all the people in the study. The degrees of freedom for each person are $n-1$. To get the total degrees of freedom, we add the *df*s for all participants. So, with eight participants and four conditions, there are 3 *df*s for each participant and 8 x 3 = 24 degrees of freedom in total.
+
+### 13.3.3. The model sum of squares $SS_M$
+
+In independent ANOVA, we worked out how much variation could be explained by our experiment by looking at the means for each group and comparing these to the overall mean. So, we measured the variance resulting from the differences between group means and the overall mean. We do exactly the same thing with a repeated-measures design.
+
+For $SS_M$, the degrees of freedom $df_M$ are again one less than the number of things used to calculate the sum of squares.
+
+### 13.3.4. The residual sum of squares $SS_R$
+
+$SS_R$ tells us how much of the variation cannot be explained by the model, and it is calculated by subtracting $SS_M$ from $SS_W$.
+
+$SS_R = SS_W - SS_M$
+
+$df_R = df_W - df_M$
+
+### 13.3.5. The mean squares
+
+Same as the calculation used in the independent ANOVA. We divide the $SS_M$ and $SS_R$ with $df_M$ and $df_R$, respectively.
+
+### 13.3.6. The *F*-ratio
+
+$F = \frac{MS_M}{MS_R}$
+
+### 13.3.7. The between-participant sum of squares
+
+The between-participant sum of squares is calculated by:
+
+$SS_B = SS_T - SS_W$
+
+It reflects the differences between individuals.
+
+## 13.4. One-way repeated-measures designs using R
+
+### 13.4.1. Packages for repeated measures designs in R
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme)
+```
+
+`lme()` enables us to do a regression in which observations can be correlated. We can forget about sphericity when using `lme()`.
+
+### 13.4.2. General procedure for repeated-measures designs
+
+### 13.4.3. Repeated-measures ANOVA using R commander
+
+We can't do repeated-measures ANOVA using R Commander.
+
+### 13.4.4. Entering the data
+
+```{r}
+bushData <- read.delim(here("ch13", "Bushtucker.dat"), header = TRUE)
+head(bushData)
+
+longBush <-
+  melt(
+    bushData,
+    id = "participant",
+    measured = c(
+      "stick_insect", "kangaroo_testicle", "fish_eye", "witchetty_grub"
+      )
+    )
+head(longBush)
+
+names(longBush) <- c("Participant", "Animal", "Retch")
+head(longBush)
+
+# Observing for each participant
+longBush<-longBush[order(longBush$Participant),]
+head(longBush)
+
+longBush$Animal <- factor(
+  longBush$Animal,
+  labels = c("Stick Insect", "Kangaroo Testicle", "Fish Eye", "Witchetty Grub")
+  )
+```
+
+Now, these four scores are not represented by four different rows rather than four columns as they were before.
+
+### 13.4.5. Exploring the data
+
+```{r}
+bar <- ggplot(longBush, aes(Animal, Retch))
+bar +
+  stat_summary(fun.y = mean, geom = "bar", fill = "White", colour = "Black") +
+  stat_summary(fun.data = mean_cl_normal, geom = "pointrange") +
+  labs(x = "Animal", y = "Retch") +
+  scale_y_continuous(breaks = seq(0, 20, by = 10))
+
+boxplot <- ggplot(longBush, aes(Animal, Retch))
+boxplot +
+  geom_boxplot() +
+  labs(x = "Animal", y = "Retch") +
+  scale_y_continuous(breaks = seq(0, 12, 2))
+```
+
+### 13.4.6. Choosing contrasts
+
+Let's pretend that our first contrast might comparing the fish eye and kangaroo testicle (combined) to the witchetty grub and stick insect (combined). Then, we need a second contrast to separate the fish eye from the kangaroo testicle, and a third contrast to separate the witchetty grub from the stick insect.
+
+| Group             | Contrast 1 | Contrast 2 | Contrast 3 |
+|-------------------|:----------:|:----------:|:----------:|
+| Stick insect      |     1      |     0      |     -1     |
+| Kangaroo testicle |     -1     |     -1     |     0      |
+| Fish eye          |     -1     |     1      |     0      |
+| Witchetty grub    |     1      |     0      |     1      |
+
+: Orthogonal contrast
+
+```{r}
+PartvsWhole <- c(1, -1, -1, 1)
+TesticlevsEye <- c(0, -1, 1, 0)
+StickvsGrub <- c(-1, 0, 0, 1)
+contrasts(longBush$Animal) <- cbind(PartvsWhole, TesticlevsEye, StickvsGrub)
+longBush$Animal
+```
+
+### 13.4.7. Analysing repeated measures: two ways to skin a .dat
+
+#### 13.4.7.1. The easier (but slightly limited) way: repeated-measures ANOVA
+
+`ezANOVA` computes sphericity estimates and the aforementioned corrections for sphericity. It takes the general format of:\
+`newModel <- ezANOVA(data = dataFrame, dv = .(outcome variable_, wid = .(variable that identifies participants), within = .(repeated measured predictors), between = .(between-group predictors), detailed = FALSE, type = 2)`
+
+`within` is a variable or list of variables representing the independent variables or predictors that were manipulated as repeated measures. In the current data this would be the variable `Animal`.
+
+`between` is a variable or list of variables representing the independent variables or predictors that were manipulated as between-group variables. In the current data we don't have a variable manipulated in this way.
+
+```{r}
+bushModel <-
+  ezANOVA(
+    data = longBush,
+    dv = .(Retch),
+    wid = .(Participant),
+    within = .(Animal),
+    detailed = TRUE,
+    type = 3
+    )
+bushModel
+```
+
+The Mauchly's test for sphericity is significant, so we reject the assumption that the variances of the differences between levels are equal.
+
+The lower limit of $\epsilon$ will be 1/(4-1), or .33. The output shows that the calculated value of $\epsilon$ is .533 (GGe in the output). This is closer to the lower limit of .33 than it is to the upper limit of 1 and it therefore represents a substantial deviation from sphericity.
+
+The model sum of squares $SS_M$ is noted as SSn, and $SS_R$ as SSd.
+
+The *df* for the effect of `Animal` is $k-1$, and the error *df* is $(n-1)(k-1)$, where $k$ is the number of levels of the independent variable, and $n$ is the number of participants.
+
+The *p\[GG\]* and *p\[HF\]* represent the corrected *p*-values using the Greenhouse-Geisser and Huynh-Feldt corrections. The Greenhouse-Geisser correction is more conservative than Huynh-Feldt correction.
+
+The *F*-ratio itself remains unchanged when adjusting the Greenhouse-Geisser and Huynh-Feldt correction. **The *df* are adjusted by multiplying them by the estimate of sphericity.** For example, the Greenhouse estimate of sphericity was .533. The original degrees of freedom for the model were 3. Therefore, the value is corrected by multiplying by the estimate of sphericity (3\*.533 = 1.599)
+
+In terms of *post hoc* tests, we can use the `pairwise.t.test()` function.
+
+```{r}
+pairwise.t.test(
+  longBush$Retch, longBush$Animal, paired = TRUE, p.adjust.method = "bonferroni"
+  )
+```
+
+We can see that the time to retch was significantly longer after eating a stick insect compared to a kangaroo testicle (*p* = .012) and a fish eye (*p* = .006) but not compared to a witchetty grub.
+
+#### 13.4.7.2. The slightly more complicated way: the multilevel approach
+
+A multilevel model is simply a regression or linear model that considers dependency in the data. It is an extension of regression that handles dependent data by explicitly modeling the dependency. One of the assumptions of regression was that residuals needed to be independent. Repeated-measures designs have dependent data, therefore dependent residuals.
+
+`bushModel2 <- aov(Retch ~ Animal, data = longBush)` takes no account of the fact that the predictor (`Animal`) is made up of data from the same people. Therefore, we need to factor this dependency into the model.
+
+The current context a random effect is an effect that can vary across different entities. For example, if we want to model the fact that people's overall threshold to retch will vary, we can write this as\
+`random = ~ 1|Participant/Animal`. By including this term, we're telling the model that data with the same value of `Participant` within different levels of `Animal` are dependent:
+
+```{r}
+bushModel2 <- lme(
+  Retch ~ Animal, random = ~1|Participant/Animal, data = longBush, method = "ML"
+  )
+baseline <- lme(
+  Retch ~ 1, random = ~1|Participant/Animal, data = longBush, method = "ML"
+  )
+anova(baseline, bushModel2)
+summary(bushModel2)
+```
+
+```{r}
+postHocs <- glht(bushModel2, linfct = mcp(Animal = "Tukey"))
+summary(postHocs)
+confint(postHocs)
+```
+
+We can see that the time to retch was significantly longer after eating a stick insect compared to a kangaroo testicle (*p* = .004) and a fish eye (*p* = .003) but not compared to a witchetty grub.
+
+### 13.4.8. Robust one-way repeated-measures ANOVA
+
+```{r}
+head(bushData)
+bushData2 <- bushData[, -c(1)]
+head(bushData2)
+```
+
+## 13.5. Effect sizes for repeated measures designs
+
+```{r}
+rcontrast <- function(t, df)
+  {
+  r <- sqrt(t^2/(t^2+df))
+  print(paste("r = ", r))
+  }
+
+rcontrast(3.149752, 21)
+rcontrast(-0.101237, 21)
+rcontrast(-1.923500, 21)
+```
+
+## 13.6. Reporting one-way repeated-measures designs
+
+-   Mauchly's test indicated that the assumption of sphericity had been violated, $\chi^2(5) = 11.41, p < .05$ , therefore Greenhouse-Geisser corrected tests are reported ($\epsilon = .53$). The results show that the time to retch was not significantly affected by the type of animal eaten, *F*(1.60, 11.19) = 3.79, *p* \> .05, $\eta^2 = .327$.
+
+-   The type of animal consumed had a significant effect on the time taken to retch, $\chi^2(3) = 12.69, p = .005$. Orthogonal contrasts revealed that retching times were significantly quicker for animal parts (testicle and eye) compared to whole animals (stick insect and witchetty grub), $b = 1.38, t(21) = 3.15, p = .005$; there was no significant difference in the time to retch after eating a kangaroo testicle and a fish eye, $b = -0.063, t(21) = -0.101, p = .920$, or between eating a witchetty grub or a stick insect, $b = -1.188, t(21) = -1.924, p = .068$.
+
+## 13.7. Factorial repeated-measures designs
+
+Two independent variables: The type of drink (beer, wine, water), and the type of imagery used (positive, negative, neutral)
+
+### 13.7.1. Entering the data
+
+```{r}
+attitudeData <- read.delim(here("ch13", "Attitude.dat"), header = TRUE)
+head(attitudeData)
+
+longAttitude <-
+  melt(
+    attitudeData,
+    id = "participant",
+    measured = c(
+      "beerpos", "beerneg", "beerneut", "winepos", "wineneg", "wineneut",
+      "waterpos", "waterneg", "waterneu", "participant"
+      )
+    )
+head(longAttitude)
+
+names(longAttitude) <- c("participant", "groups", "attitude")
+head(longAttitude)
+
+longAttitude$drink <- gl(3, 60, labels = c("Beer", "Wine", "Water"))
+head(longAttitude)
+
+longAttitude$imagery <-
+  gl(3, 20, 180, labels = c("Positive", "Negative", "Neutral"))
+head(longAttitude)
+```
+
+### 13.7.2. Exploring the data
+
+```{r}
+attitudeBoxplot <- ggplot(longAttitude, aes(drink, attitude))
+attitudeBoxplot +
+  geom_boxplot() +
+  facet_wrap(~imagery, nrow = 1) +
+  labs(x = "Type of Drink", y = "Mean Preference Score")
+
+by(
+  longAttitude$attitude,
+  list(longAttitude$drink, longAttitude$imagery), stat.desc, basic = FALSE
+  )
+```
+
+### 13.7.3. Setting contrasts
+
+For `drink`, Our first contrast should compare the alcoholic drinks (beer&wine) to water. Then the second contrast should separate the beer and wine to water.
+
+| Group | Contrast 1 | Contrast 2 |
+|:-----:|:----------:|:----------:|
+| Beer  |     1      |     -1     |
+| Wine  |     1      |     1      |
+| Water |     -2     |     0      |
+
+```{r}
+AlcoholvsWater <- c(1, 1, -2)
+BeervsWine <- c(-1, 1, 0)
+contrasts(longAttitude$drink) <- cbind(AlcoholvsWater, BeervsWine)
+longAttitude$drink
+```
+
+For `image`, our first contrast should compare negative imagery to other forms (positive&neutral). Then the second contrast should separate the positive and neutral imagery.
+
+|  Group   | Contrast 1 | Contrast 2 |
+|:--------:|:----------:|:----------:|
+| Positive |     1      |     -1     |
+| Negative |     -2     |     0      |
+| Neutral  |     1      |     1      |
+
+```{r}
+NegativevsOther <- c(1, -2, 1)
+PositivevsNeutral <- c(-1, 0, 1)
+contrasts(longAttitude$imagery) <- cbind(NegativevsOther, PositivevsNeutral)
+longAttitude$imagery
+```
+
+### 13.7.4. Factorial repeated-measures ANOVA
+
+```{r}
+attitudeModel <-
+  ezANOVA(
+    data = longAttitude,
+    dv = .(attitude),
+    wid = .(participant),
+    within = .(imagery, drink),
+    type = 3,
+    detailed = TRUE
+    )
+attitudeModel
+```
+
+The significance values of Mauchly's sphericity test indicate that both the main effects of `drink` and `imagery` have violated this assumption and so the *F*-values should be corrected. For the interaction, the assumption of sphericity is met (*p* = .436) so we need not correct the *F*-ratio for this.
+
+#### 13.7.4.1. The effect of drink
+
+```{r}
+drinkBar <- ggplot(longAttitude, aes(drink, attitude))
+drinkBar +
+  stat_summary(fun.y = mean, geom = "bar", fill = "White", colour = "Black") +
+  ylim(-20, 40) +
+  stat_summary(fun.data = mean_cl_boot, geom = "pointrange") +
+  labs(x = "Type of Drink", y = "Mean Attitude")
+```
+
+#### 13.7.4.2. The effect of imagery
+
+```{r}
+imageryBar <- ggplot(longAttitude, aes(imagery, attitude))
+imageryBar +
+  stat_summary(fun.y = mean, geom = "bar", fill = "White", colour = "Black") +
+  ylim(-20, 40) +
+  stat_summary(fun.data = mean_cl_boot, geom = "pointrange") +
+  labs(x = "Type of Imagery", y = "Mean Attitude") 
+```
+
+Because we have a significant interaction effect it does not makes sense to interpret this main effect because it is superseded by the interaction between `drink` and `imagery`.
+
+#### 13.7.4.3. The interaction effect (drink x imagery)
+
+```{r}
+attitudeInt <- ggplot(longAttitude, aes(drink, attitude, colour = imagery))
+attitudeInt +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= imagery)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  ylim(-20, 40) +
+  labs(x = "Type of Drink", y = "Mean Attitude", colour = "Type of Imagery")
+```
+
+The interaction is likely to reflect the fact that negative imagery has a different effect than both positive and neutral imagery.
+
+To get *post hoc* tests for the interaction term we need to use a variable that combines `imagery` and `drink` into a single coding variable.
+
+```{r}
+pairwise.t.test(
+  longAttitude$attitude,
+  longAttitude$groups,
+  paired = TRUE,
+  p.adjust.method = "bonferroni"
+  )
+```
+
+### 13.7.5. Factorial repeated-measures designs as a GLM
+
+```{r}
+# Baseline model
+baseline <-
+  lme(
+    attitude ~ 1,
+    random = ~1|participant/drink/imagery,
+    data = longAttitude,
+    method = "ML"
+    )
+```
+
+The random part of model (`random = ~1|participant/drink/imagery`) simply tells **R** that the variables `drink` and `imagery` are nested within the variable `participant`.
+
+If we want to see the overall effect of each predictor then we need to add them one at a time:
+
+```{r}
+baseline <-
+  lme(
+    attitude ~ drink,
+    random = ~1|participant/drink/imagery,
+    data = longAttitude,
+    method = "ML"
+    )
+
+# or,
+drinkModel <- update(baseline, .~. + drink)
+imageryModel <- update(drinkModel, .~. + imagery)
+attitudeModel <- update(imageryModel, .~. + drink:imagery)
+
+anova(baseline, drinkModel, imageryModel, attitudeModel)
+summary(attitudeModel)
+```
+
+#### 13.7.5.1. Alcohol vs. water, negative vs. other imagery
+
+The decreased liking found when negative imagery is used is the same for both alcoholic drinks and water. The effect of negative imagery in lowering attitudes is comparable in alcoholic and non-alcoholic drinks, $b = 0.19, t(114) = 0.69, p = .492$.
+
+#### 13.7.5.2. Beer vs. wine, negative vs. other imagery
+
+The decreased liking found when negative imagery is used is different in beer and wine. The effect of negative imagery in lowering attitudes to beer was significantly smaller than for wine, $b = 3.24, t(114) = 6.77, p < .001$.
+
+#### 13.7.5.3. Alcohol vs. water, positive vs. neutral imagery
+
+The increased liking found when positive imagery is used is similar for both alcoholic drinks and water. Positive imagery has a similar effect in increasing attitudes in both alcoholic and non-alcoholic drinks, $b = 0.45, t(114) = 0.93, p = .353$.
+
+#### 13.7.5.4. Beer vs. wine, positive vs. neutral imagery
+
+The increased liking found when positive imagery is used is comparable in beer and wine. The effect of positive imagery in increasing attitudes to beer was not significantly different to that for wine, $b = -0.66, t(114) = -0.80, p = .426$.
+
+#### 13.7.5.5. Limitations of these contrasts
+
+If we need more comparisons, we could run *post hoc* tests.
+
+### 13.7.6. Robust factorial repeated-measures ANOVA
+
+There aren't any functions that deal with factorial repeated-measures designs.
+
+## 13.8. Effect sizes for factorial repeated-measures designs
+
+```{r}
+rcontrast <- function(t, df)
+  {
+  r <- sqrt(t^2/(t^2+df))
+  print(paste("r = ", r))
+}
+
+# alcohol vs water
+rcontrast(3.18, 38)
+
+# beer vs wine
+rcontrast(-1.47, 38)
+
+# negative vs other
+rcontrast(17.26, 114)
+
+# positive vs neutral
+rcontrast(-9.81, 114)
+
+# alcohol vs water with negative vs other imagery
+rcontrast(0.69, 114)
+
+# beer vs wine with negative vs oother imagery
+rcontrast(6.77, 114)
+
+# alcohol vs water with positive vs neutral imagery
+rcontrast(0.93, 114)
+
+# beer vs wine with positive vs neutral imagery
+rcontrast(-0.80, 114)
+```
+
+## 13.9. Reporting the results from factorial repeated-measures designs
+
+-   Mauchly's test indicated that the assumption of sphericity had been violated for the main effects of drink, $W = 0.267, p < .001, \epsilon = .58$ and imagery, $W = 0.662, p < .05, \epsilon = .75$. Therefore degrees of freedom were corrected using Greenhouse-Geisser estimates of sphericity.
+
+-   All effects are reported as significant at $p < .05$. There was a significant main effect of the type of drink on ratings of the drink, $F(1.15, 21.93) = 5.11$.
+
+-   There was also a significant main effect of the type of imagery on ratings of the drinks, $F(1.50, 28.40) = 122.57$.
+
+-   There was a significant interaction interaction effect between the type of drink and the type of imagery used, $F(4, 76) = 17.16$. This indicates that imagery had different effects on people's ratings, depending on which type of drink was used. Bonferroni *post hoc* tests revealed that fore beer there were significant differences between positive imagery and both negative ($p = .002$) and neutral ($p = .020$), but not between negative and neutral ($p = 1.00$); for wine, there were significant differences between positive imagery and both negative ($p < .001$) and neutral ($p < .001$), and between negative and neutral ($p < .001$); and for water, there were significant differences between positive imagery and both negative ($p < .001$) and neutral ($p < .001$), and between negative and neutral ($p < .001$). Theses findings suggest that beer is unusual in that negative imagery does appear to reduce attitudes compared to neutral imagery.
+
+-   The type of drink had a significant effect on attitudes, $\chi^2(2) = 9.1, p = .010$, as did the type of imagery used in the advert, $\chi^2(2) = 151.9, p < .001$. Most important, the drink x imagery interaction was significant, $\chi^2(4) = 42.0, p < .001$. Contrasts revealed that (1) the effect of negative imagery (compared to other forms) in lowering attitudes is comparable in alcoholic and non-alcoholic drinks, $b = 0.19, t(114) = 0.69, p = .492$; (2) the effect of negative imagery (compared to other forms) in lowering attitudes to beer was significantly smaller than for wine, \$b = 3.24, t(114) = 6.77, p \< .001; (3) positive imagery has a similar effect in increasing attitudes (compared to neutral imagery) in both alcoholic and non-alcoholic drinks, $b = 0.45, t(114) = 0.93, p = .353$; and (4) the effect of positive imagery (compared to neutral) in increasing attitudes to beer was not significantly different from that for wine, $b = -0.66, t(114) = -0.80, p = .426$.

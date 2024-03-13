@@ -1,0 +1,382 @@
+---
+title: "Chapter 11. Analysis of covariance, ANCOVA (GLM 2)"
+author: "Daehyeog Lee"
+date: "2023-12-19"
+date-modified: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+## 11.1. What will this chapter tell me?
+
+This chapter describes analysis of covariance, which extends the basic idea of ANOVA from the previous chapter to situations when we want to factor in other variables that influence the outcome variable.
+
+## 11.2. What is ANCOVA?
+
+**Covariates** are the continuous variables that are not part of the main experimental manipulation but have an influence on the dependent variable. When we measure covariates and include them in ANOVA, we call it analysis of covariance, or **ANCOVA**.
+
+If we enter the covariate into the regression model first, and then enter the dummy variables representing the experimental manipulation, we can see what effect an independent variable has *after* the effect of the covariate. As such, we *partial out* the effect of the covariate.
+
+There are two reasons for including covariates in ANOVA:
+
+-   **To reduce within-group error variance**: ANOVA and *t*-tests assess the effect of an experiment by comparing the amount of variability in the data that the experiment can explain against the variability that it cannot explain. If we can explain some of the 'unexplained' variance in terms of other variables (covariates), then we can reduce the error variance, allowing us to more accurately assess the effect of the independent variable.
+
+-   Elimination of confounds: There may be unmeasured variables that confound the results. If any variables are known to influence the dependent variable being measured, then ANCOVA is ideally suited to remove the bias of these variables. Once a confounding variable has been identified, it can be measured and entered into the ANCOVA.
+
+By including the covariate 'partner's libido', the equation
+
+$libido_i = b_0 + b_2 high_i + b_1 low_i + \epsilon_i$ can be extended to
+
+$libido_i = b_0 + b_3 partner's libido + b_2 high_i + b_1 low_i + \epsilon_i$
+
+## 11.3. Assumptions and issues in ANCOVA
+
+### 11.3.1. Independence of the covariate and treatment effect
+
+The covariate must be independent of the experimental effect. In previous chapter, the total variance in libido was separated into the variance explained by Viagra, and the unexplained variance. To perform ANCOVA, the covariate should share its variance **only with** the bit of libido that is currently unexplained. In other words, it should be completely independent of the treatment effect,
+
+### 11.3.2. Homogeneity of regression slopes
+
+In ANCOVA, we look at the overall relationship between the outcome (dependent variable) and the covariate. In fitting this overall model, therefore, we assume that this overall relationship is **true for all groups** of participants. The homogeneity of regression slopes assumption means that we assume that the relationship between the outcome and the covariate is the same in each of our treatment groups. If this relationship differs across the groups, the overall regression model is inaccurate.
+
+## 11.4. ANCOVA using R
+
+### 11.4.1. Packages for ANCOVA in R
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here)
+```
+
+### 11.4.2. General procedure for ANCOVA
+
+1.  Enter data.
+2.  Explore data: Graph the data, compute some descriptive statistics, check distributional assumptions.
+3.  **Check that the covariate and any independent variables are independent**: Check that the covariate does not differ significantly across levels of these variables.
+4.  Do the ANCOVA.
+5.  Compute contrasts or *post hoc* tests.
+6.  **Check for homogeneity of regression slopes**: If the interaction between the independent variable and the covariate is significant, we cannot assume homogeneity of regression slopes.
+
+### 11.4.3. Entering data
+
+We would develop the example from the previous chapter, **but covary the effect of partner's libido**.
+
+```{r}
+viagraData <- read.delim(here("ch11", "ViagraCovariate.dat"), header = TRUE)
+head(viagraData)
+libido <- c(3, 2, 5, 2, 2, 2, 7, 2, 4, 7, 5, 3, 4, 4, 7, 5, 4, 9, 2, 6, 3, 4, 4,
+            4, 6, 4, 6, 2, 8, 5)
+partnerLibido <- c(4, 1, 5, 1, 2, 2, 7, 4, 5, 5, 3, 1, 2, 2, 6, 4, 2, 1, 3, 5, 
+                   4, 3, 3, 2, 0, 1, 3, 0, 1, 0)
+dose <- c(rep(1,9),rep(2,8), rep(3,13))
+dose <- factor(
+  dose, levels = c(1:3), labels = c("Placebo", "Low Dose", "High Dose")
+  )
+viagraData <- data.frame(dose, libido, partnerLibido)
+viagraData
+```
+
+### 11.4.4. ANCOVA using R Commander
+
+Since ANCOVA is simply regression, we could theoretically run it through the **Statistics -\> Fit models\
+-\> Linear regression...** menu. However, the author doesn't recommend using R Commander for ANCOVA because it doesn't deal very well with categorical predictors, and we can't control the order in which variables are entered.
+
+### 11.4.5. Exploring the data
+
+```{r}
+restructuredData <- melt(
+  viagraData, id = c("dose"), measured = c("libido", "partnerLibido")
+  )
+names(restructuredData) <- c("dose", "libido_type", "libido")
+
+boxplot <- ggplot(restructuredData, aes(dose, libido))
+boxplot + geom_boxplot() + facet_wrap(~libido_type) +
+  labs(x = "Dose", y = "Libido")
+```
+
+We can use the `by()`function and combine it with the `stat.desc()` function in the `pastecs` packages to get descriptive statistics for each group separately.
+
+```{r}
+by(viagraData$libido, viagraData$dose, stat.desc)
+by(viagraData$partnerLibido, viagraData$dose, stat.desc)
+```
+
+The final thing to do at this stage is to compute Levene's test.
+
+```{r}
+leveneTest(viagraData$libido, viagraData$dose, center = median)
+```
+
+The output shows that Levene's test is very non-significant, which means that the variances are not very similar.
+
+### 11.4.6. Are the predictor variable and covariate independent?
+
+We have to check that the covariate (partner's libido) is roughly equal across levels of our independent variable. The mean level of partner's libido should be roughly equal across our three Viagra groups. We can test this by runing an ANOVA with `partnerLibido` as the outcome and `dose` as the predictor.
+
+```{r}
+checkIndependency <- aov(partnerLibido ~ dose, data = viagraData)
+summary(checkIndependency)
+summary.lm(checkIndependency)
+```
+
+### 11.4.7. Fitting an ANCOVA model
+
+```{r}
+viagraModel2 <- aov(libido ~ dose, data = viagraData)
+viagraModel <- aov(libido ~ dose + partnerLibido, data = viagraData)
+```
+
+There are three types of sums of squares.
+
+-   **Type I** sums of squares is used when the variables are completely independent. It is not used to evaluate hypothesis about main effects and interactions because the order of predictors will affect the results,
+
+-   **Type II** sums of squares is used to check the main effects. It evaluates ignoring the effect of any interactions involving the main effect under consideration. However, if the interaction we are interested in is present, then Type II sums of squares cannot reasonably evaluate main effects.
+
+-   **Type III** sums of squares is the default in many statistical packages. It is preferable to other types when sample sizes are unequal. However, it works only when predictors are encoded with orthogonal contrasts.
+
+The default **R** will use a non-orthogonal contrast (dummy coding), therefore, we have to set the contrast codes by executing:
+
+```{r}
+contrasts(viagraData$dose) <- contr.helmert(3)
+contrasts(viagraData$dose) <- cbind(c(-2, 1, 1), c(0, -1, 1))
+viagraModel <- aov(libido ~ partnerLibido + dose, data = viagraData)
+Anova(viagraModel, type = "III")
+```
+
+### 11.4.8. Interpreting the main ANCOVA model
+
+We can't interpret these group means because they have not been adjusted for the effect of the covariate. To get the **adjusted means** we need to use the `effect()` function.
+
+```{r}
+adjustedMeans <- effect("dose", viagraModel, se = TRUE)
+summary(adjustedMeans)
+adjustedMeans$se
+```
+
+These adjusted means for the low-dose and high-dose groups are fairly different.
+
+### 11.4.9. Planned contrasts in ANCOVA
+
+The overall ANCOVA does not tell us which means differ, so to break down the overall effect of `dose` we need to look at the contrasts that we specified before we created the ANCOVA model.
+
+```{r}
+summary.lm(viagraModel)
+```
+
+The first dummy variable `dose1` compares the placebo group with the low- **and** high-dose groups. It compares the adjusted mean of the placebo group (2.93) with the average of the adjusted means for the low- and high-dose groups ((4.71 + 5.15)/2 = 4.93). The *b*-value for the first dummy variable should therefore be the difference between these values (4.9 - 2.93 = 2) divided by the number of groups within the contrasts (3), and so will be 2/3 = .67. The associated *t*-statistic is significant, which means the placebo group was significantly different from the combined mean of the Viagra groups.
+
+The second dummy variable `dose2` compares the low- and high-dose groups, and so the *b*-value should be the difference between the adjusted means of these groups divided by the number of groups within the contrast ((5.15 - 4.71)/2 = 0.22). Since the *t*-statistic is not significant, the high-dose group did not produced a significantly higher libido than the low-dose group.
+
+The *b* value for the covariate (0.416) tells us, other things being equal, if a partner's libido increases by one unit, then the person's libido should increase by just under half a unit. The sign of this coefficient tells us the direction of the relationship between the covariate and the outcome.
+
+### 11.4.10. Interpreting the covariate
+
+We can visualize the sign of the covariate's coefficient by drawing a scatterplot of the covariate against the outcome.
+
+```{r}
+scatter <- ggplot(viagraData, aes(partnerLibido, libido))
+scatter +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", alpha = 0.2) +
+  labs(x = "Partner's Libido", y = "Participant's Libido")
+```
+
+The slope of the regression line is the *b* value for the covariate.
+
+### 11.4.11. *Post hoc* tests in ANCOVA
+
+Since we want to test differences between the *adjusted* means, we can use only the `glht()` function.
+
+```{r}
+postHocs <- glht(viagraModel, linfct = mcp(dose = "Tukey"))
+summary(postHocs)
+confint(postHocs)
+```
+
+The output suggests significant differences between the high-dose and placebo groups, but not between the low-dose group and the placebo, and the high-dose groups. The confidence intervals also confirm this conclusion.
+
+### 11.4.12. Plots in ANCOVA
+
+The `aov()` function automatically generates some plots that we can use to test the assumptions. We can see these graphs by executing:
+
+```{r}
+plot(viagraModel)
+```
+
+Our plot does show funnelling, which implies that the residuals might be heteroscedastic (variance is not constant). These plots suggest that a robust version of ANCOVA might be in order.
+
+### 11.4.13. Some final remarks
+
+```{r}
+anovaModel <- aov(libido ~ dose, data = viagraData)
+summary(anovaModel)
+```
+
+This ANOVA model shows the data when the covariate is not included. Viagra seems to have no significant effect on libido. Therefore, without taking account of the libido of the participants' partners we would have concluded that Viagra had no significant effect on libido, **yet it does**.
+
+### 11.4.14. Testing for homogeneity of regression slopes
+
+We saw earlier that the assumption of homogeneity of regression slopes means that the relationship between that covariate and outcome variable should be similar at different levels of the predictor variable.
+
+```{r}
+scatter <- ggplot(viagraData, aes(partnerLibido, libido, colour = dose))
+scatter +
+  geom_point(aes(shape = dose), size = 2) +
+  geom_smooth(method = "lm", aes(fill = dose), alpha = 0.1) +
+  labs(x = "Partner's Libido", y = "Participant's Libido")
+```
+
+This scatterplot showed that although this relationship was comparable in the low-dose and placebo group, it appeared different in the high-dose group. To test the assumption of homogeneity of regression slopes we need to run the ANCOVA again, but include the interaction between the covariate and predictor variable. There are three ways to do this.
+
+```{r}
+# Execute
+hoRS <-
+  aov(libido ~ partnerLibido + dose + dose:partnerLibido, data = viagraData)
+# Or,
+hoRS <- aov(libido ~ partnerLibido*dose, data = viagraData)
+# Or,
+# Update our original ANCOVA model
+hoRS <- update(viagraModel, .~. + partnerLibido:dose)
+
+Anova(hoRS, type = "III")
+```
+
+The `.~.` means 'keep the same outcome variable and predictor as before'.
+
+The output includes the interaction term. The effect of interaction is significant, which means that the assumption of homogeneity of regression slopes has been broken.
+
+## 11.5. Robust ANCOVA
+
+`ancova()` and `ancboot()` compares trimmed means at different points along the covariate. Rather than assuming that the relationship between the covariate and outcome variable is constant in the two groups, it finds five points where the slopes are the same. It then compares the trimmed means at these five points to see whether they differ.
+
+```{r}
+invisibilityData <- read.delim(
+  here("ch11", "CloakofInvisibility.dat"),
+  header = TRUE
+)
+head(invisibilityData)
+invisibilityData$cloak <- factor(
+  invisibilityData$cloak,
+  levels = c(1:2),
+  labels = c("No Cloak", "Cloak")
+)
+```
+
+```{r}
+restructuredData <-
+  melt(
+    invisibilityData, id = c("cloak"), measured = c("mischief1", "mischief2")
+    ) 
+names(restructuredData) <- c("cloak", "Time", "mischief")
+
+boxplot <- ggplot(restructuredData, aes(cloak, mischief))
+boxplot +
+  geom_boxplot() +
+  facet_wrap(~Time) +
+  labs(x = "Cloak of Invisibility", y = "Number of Mischievous Acts")
+```
+
+```{r}
+leveneTest(invisibilityData$mischief2, invisibilityData$cloak, center = median)
+
+checkIndependenceModel <- aov(mischief1 ~ cloak, data = invisibilityData)
+summary(checkIndependenceModel)
+summary.lm(checkIndependenceModel)
+
+#ANCOVA
+invisibilityModel <- aov(mischief2~ mischief1 + cloak, data = invisibilityData)
+Anova(invisibilityModel, type = "III")
+summary.lm(invisibilityModel)
+
+adjustedMeans <- effect("cloak", invisibilityModel, se = TRUE)
+summary(adjustedMeans)
+adjustedMeans$se
+
+hoRS <- update(invisibilityModel, .~. + mischief1:cloak)
+Anova(hoRS, type = "III")
+```
+
+The main effect of `cloak` is not significant. This means that it is appropriate to use the baseline mischief as a covariate in the analysis. The covariate significantly predicts the dependent variable. Therefore, the tendency for mischief after the experimental manipulation was influenced by their baseline tendency for mischief.
+
+The main difficulty in running robust regression is getting the data into the right format. The functions for robust ANCOVA require us to create four variables:
+
+```{r}
+noCloak <- subset(invisibilityData, cloak == "No Cloak")
+invisCloak <- subset(invisibilityData, cloak == "Cloak")
+covGrp1 <- invisCloak$mischief1
+dvGrp1 <- invisCloak$mischief2
+covGrp2 <- noCloak$mischief1
+dvGrp2 <- noCloak$mischief2
+```
+
+```{r}
+# ancova(covGrp1, dvGrp1, covGrp2, dvGrp2)
+# ancboot(covGrp1, dvGrp1, covGrp2, dvGrp2, nboot = 2000)
+ancova(mischief2 ~ cloak + mischief1, data = invisibilityData)
+ancboot(mischief2 ~ cloak + mischief1, data = invisibilityData, nboot = 2000)
+```
+
+## 11.6. Calculating the effect size
+
+In ANOVA, we used eta squared as an effect size measure. It was calculated by dividing the effect of interest, $SS_M$, by the total amount of variance in the data, $SS_T$.
+
+In ANCOVA (and some of the more complex ANOVA), we use **partial eta squared** as an effect size measure. Partial eta squared doesn't look at the proportion of total variance that a variable explains. It rather looks at the proportion of variance that a variable explains that *is not explained by other variables in the analysis*.
+
+For example, if we want to know the effect size of the dose of Viagra, partial eta squared is the proportion of variance in libido that the dose of Viagra shares that is **not attributed to partner's libido (the covariate)**.
+
+If we think about the variance that toe covariate cannot explain, there are two sources:
+
+-   The variance attributable to the dose of Viagra (effect), $SS_{Effect}$
+
+-   The error variability, $SS_R$
+
+Therefore, the difference between eta squared and partial eta squared is shown as:
+
+${\eta}^2 = \frac{SS_{Effect}}{SS_{Total}}$ , partial ${\eta}^2=\frac{SS_{Effect}}{SS_{Effect}+SS_{Residual}}$
+
+To calculate it for our Viagra example, we need to use the sums of squares for the effect of dose (25.19), the covariate (15.08) and the error (79.05). Then, the partial eta squared for Dose can be calculated as .24, and partial eta squared for Partner libido as .16. These values show that `dose` explained a bigger proportion of the variance not attributable to other variables than `partnerLibido`.
+
+We can perform focused comparisons by using *t* and *df* :
+
+```{r}
+# Value t for covariate (2.227) and our contrasts comparing different groups.
+t <- c(2.227, 2.785, 0.541)
+df <- 26
+
+rcontrast <- function(t, df)
+  {
+  r <- sqrt(t^2/(t^2+df))
+  print(paste("r = ", r))
+  }
+
+rcontrast(t, df)
+```
+
+The effect of the covariate (.400) and the difference between the combined dose groups and the placebo (.479) both represent medium to large size effect sizes. The difference between the high- and low-dose groups (.106) was a fairly small effect.
+
+An alternative is to calculate effect sizes between all combinations of groups, just as we did for ANOVA:
+
+```{r}
+n <- c(9, 8, 13) # Three group's sample sizes
+adjustedMeans$se*sqrt(n) # SD of adjusted means
+
+# Comparing each group
+mes(5.988117, 4.151886, 1.755879, 1.788613, 8, 9) # Low - Placebo
+mes(6.184427, 4.151886, 1.812267, 1.788613, 13, 9) # High - Placebo
+mes(6.184427, 5.988117, 1.812267, 1.755879, 13, 8) # High - Low
+```
+
+## 11.7. Reporting results
+
+Reporting ANCOVA is much the same as reporting ANOVA, except we now have to report the effect of the covariate as well. The *F*-ratio was derived from dividing the mean squares for the effect by the mean squares for the residual. Therefor, the degrees of freedom used to assess the *F*-ratio are the degrees of freedom for the effect of the model and the degrees of freedom for the residuals of the model.
+
+-   The covariate, partner's libido, was significantly related to the participant's libido, *F*(1, 26) = 4.96, *p* \< .05, *r* = .40. There was also a significant effect of the dose of Viagra on levels of libido after controlling for the effect of partner's libido, *F*(2, 26) = 4.14, *p* \< .05, partial ${\eta}^2$ =.24.
+
+We can also report some contrasts:
+
+-   Planned contrasts revealed that taking a high or low dose of Viagra significantly increased libido compared to taking a placebo, *t*(26) = 2.79, *p* \< .01, *r* = .48; there was no significant difference between the high and low doses of Viagra, *t*(26) = 0.54, *p* = .59, *r* = .11.
+
+*Post hoc* tests could be reported as follows:
+
+-   Tukey *post hoc* tests revealed that the covariate adjusted mean of the high-dose group was significantly greater than that of the placebo (difference = 2.22, *t* = 2.77, *p* \< .05, *d* = 1.13). However, there was no significant difference between the low-dose and placebo groups (difference = 1.79, *t* = 2.10, *p* = .11, *d* = 1.04) and between the low-dose and high-dose groups (difference = 0.44, *t* = 0.54, *p* = .85, *d* = 0.11). Despite the lack of significance between the low-dose and placebo groups, the effect size was quite large.

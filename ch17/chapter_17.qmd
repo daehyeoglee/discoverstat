@@ -1,0 +1,527 @@
+---
+title: "Chapter 17. Exploratory factor analysis"
+author: "Daehyeog Lee"
+date: "2023-02-28"
+date-modified: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+## 17.1. What will this chapter tell me?
+
+In factor analysis we take a lot of information (variables) and the **R** program effortlessly reduces this mass of confusion into a simple message (fewer variables) that is easier to digest.
+
+## 17.2. When to use factor analysis
+
+**Latent variables**: Things that cannot directly be measured (example: burnout).
+
+It would be helpful to know whether these differences really do reflect a single variable.
+
+**Factor analysis**: A technique for identifying groups or clusters of variables.
+
+Three purposes of factor analysis
+
+-   To understand the structure of a set of variables.
+
+-   To construct a questionnaire to measure an underlying variable.
+
+-   To reduce a data set to a more manageable size while retaining as much of the original information as possible.
+
+-   
+
+## 17.3. Factors
+
+We learned that the *R-matrix* is a correlation matrix. The off-diagonal elements are the correlation coefficients between pairs of variables. The existence of clusters of large correlation coefficients between subsets of variables suggests that those variables could be measuring aspects of the same **underlying dimension**. These underlying dimensions are known as **factors**.
+
+Factor analysis achieves parsimony by explaining the maximum amount of common variance in a correlation matrix using the smallest number of explanatory constructs.
+
+In factor analysis we strive to reduce this R-matrix down into its underlying dimensions by looking at which variables seem to cluster together in a meaningful way. This can be achieved by looking for variables that correlate highly with a group of other variables, but do not correlate with variables outside of that group.
+
+In this example, there are two clusters:
+
+-   The first factor seems to relate to general sociability.
+
+-   The second factor seems to relate to the way in which a person treats others socially.
+
+It might therefore be assumed that popularity depends not only on our ability to socialize, but also on whether we are genuine towards others.
+
+### 17.3.1. Graphical representation of factors
+
+Factors are statistical entities that can be visualized as classification axes along which measurement variables can be plotted. If we imagine factors as being the axis of a graph, then we can plot variables along these axes. The axis line ranges from -1 to 1, which are the outer limits of a correlation coefficient. The coordinates of a variable, therefore, represent its relationship to the factors. The coordinate of a variable along a classification axis is known as a **factor loading**.
+
+### 17.3.2. Mathematical representation of factors
+
+Factors can be described in terms of equation like a linear model.
+
+Factor = b1 Variable1 + b2 Variable 2 + ... + Error term
+
+The *b*s in the equation represent the factor loadings.
+
+There is no intercept in the equation, because the lines intersect at zero.
+
+The factor plot and these equations represent the same thing: the factor loadings in the plot are simply the *b*-values in these equations. These factor loadings can be placed in a matrix in which the columns represent each factor and the rows represent the loadings of each variable on each factor. This matrix is called the **factor matrix** or **component matrix**.
+
+### 17.3.3. Factor scores
+
+Having discovered which factors exist, and estimated the equation that describes them, it should be possible to also estimate a person's score on a factor, based on their scores for the constituent variables. These scores are known as **factor scores**.
+
+The *weighted average* method can be used, but it cannot prevent the scales of measurement influencing the resulting scores. Also, if different variables use different measurement scales, then factor scores for different factors cannot be compared.
+
+#### 17.3.3.1. The regression method
+
+In the regression method, the *b*s in the equation are replaced with factor score coefficients. To obtain the matrix of factor score coefficients (B), we multipy the matrix of factor loadings by the inverse (R\^(-1)) of the original correlation matrix (R).
+
+However, the downside of the regression method is that the scores can correlate not only with factors other than the one on which they are based, but also with other factor scores from a different orthogonal factor.
+
+#### 17.3.3.2. Uses of factor scores
+
+Several uses of factor scores.
+
+-   Factor scores tell us an individual's score on this subset of measures. Therefore, any further analysis can be carried out on the factor scores rather than the original data.
+
+-   We can overcome collinearity problems in regression. The variables causing the multicollinearity will combine to form a factor.
+
+### 17.3.4. Choosing a method
+
+When factor analysis was originally developed it was assumed that it would be used to explore data to generate future hypotheses. It was assumed that the technique would be applied to the entire population of interest, so results cannot be extrapolated beyond that particular sample. Principal components (factor) analysis is an example of one of these techniques. When these methods are used, conclusions are restricted to the sample collected and generalization of the results can be achieved only if analysis using different samples reveals the same factor structure.
+
+Another approach has been to assume that participants are randomly selected and that the variables measured constitute the population of variables in which we're interested. Techniques in this category include the maximum-likelihood.
+
+### 17.3.5. Communality
+
+The total variance for a particular variable has two components:
+
+-   Common variance: Variance shared with other variables or measures.
+
+-   Unique variance: Variance specific to that measure.
+
+However, there is also variance that is specific to one measure but not reliably so, which can be considered as an error (random variance).
+
+**Communality** is the proportion of common variance present in a variable.
+
+In factor analysis, we are primarily interested only in the common variance. It is fundamental that we know how much of the variance present in our data is common variance. However, this is a logical impasse because to do the factor analysis we need to know the proportion of common variance present in our data, while the only way to find out the proportion is by carrying out a factor analysis.
+
+There are two ways to approach this problem:
+
+-   Assume that all of the variance is common variance. By making this assumption, we merely transpose our original data into constituent linear components, known as **principal components analysis**.
+
+-   Estimate the amount of common variance by estimating communality values for each variable. For example, we run a multiple regression using one measure as the outcome and the other measures as predictors. The resulting multiple $R^2$ would be used as an estimate of the communality for that variable. This approach is used in **factor analysis**.
+
+### 17.3.6. Factor analysis vs. principal components analysis
+
+Factor analysis
+
+-   derives a mathematical model from which factors are estimated.
+
+-   Only factor analysis can estimate the underlying factors, and it relies on various assumptions for these estimates to be accurate.
+
+Principal components analysis
+
+-   merely decomposes the original data into a set of linear variates.
+
+-   PCA is concerned only with establishing which linear components exist within the data and how a particular variable might contribute to that component.
+
+-   Less complex than factor analysis.
+
+-   This chapter deals with PCA.
+
+### 17.3.7. Theory behind principal components analysis
+
+We usually deal with correlation matrices, which much represents the same information as an SSCP matrix in MANOVA.
+
+We begin with a matrix representing the relationships between variables.\
+The linear components of that matrix are then calculated by determining the eigenvalues of the matrix.\
+These eigenvalues are used to calculate eigenvectors, the elements of which provide the loading of a particular variable on a particular factor.
+
+### 17.3.8. Factor extraction: eigenvalues and the scree plot
+
+We should retain only factors with large eigenvalues because eigenvalues associated with a variate indicate the substantive importance of that factor. Retaining factors is known as factor **extraction**.
+
+A **scree plot** is a graph of each eigenvalue against the factor with which it is associated.
+
+By graphing the eigenvalues, the relative importance of each factor becomes apparent. We extract the eigenvalues before the point of inflextion.
+
+There are some other criteria of extraction based on the sample sizes and eigenvalues.
+
+In principal components analysis we begin with communalities of 1 with all factors retained. However, to discover what common variance really exists between variables we must decide which factors are meaningful and discard any that are too trivial to consider. Therefore, the communalities after extraction will always be less than 1. The greater the number of factors retained, the greater the communalities will be. The communalities are good indices of whether too few factors have been retained.
+
+### 17.3.9. Improving interpretation: factor rotation
+
+Once factors have been extracted, we will find that most variables have high loadings on the most important factor and small loadings on all other factors. This makes interpretation difficult, so we perform **factor rotation** to discriminate between factors.
+
+Factor rotation effectively rotates factor axes such that variables are loaded maximally on only one factor.
+
+-   **Orthogonal rotation** rotates factors while keeping them independent.
+
+-   **Oblique rotation** allows factors to correlate (axes not perpendicular)
+
+The choice of rotation depends on whether there is a good theoretical reason to suppose that the factors should be related or independent and also how the variables cluster on the factors before rotation.
+
+#### 17.3.9.1. Choosing a method of factor rotation
+
+Four methods of orthogonal rotation, Five methods of oblique rotation.
+
+There are strong grounds to believe that orthogonal rotations are a complete nonsense for naturalistic data, and certainly for any data involving humans, because it is hard to say the one psychological construct is independent with any other constructs.
+
+#### 17.3.9.2. Substantive importance of factor loadings
+
+Once a factor structure has been found, it is important to decide which variables make up which factors. The significance of a factor loading will depend on the sample size.
+
+## 17.4. Research example
+
+The questionnaire was designed to predict how anxious a given individual would be about learning how to use **R**. We want to know whether anxiety about **R** could be broken down into specific forms of anxiety. In other words, what latent variables contribute to anxiety about **R**?
+
+### 17.4.1. Sample size
+
+The reliability of factor analysis is also dependent on sample size.
+
+The Kaiser-Meyer-Olkin (KMO) measure of sampling adequacy can be calculated for individual and multiple variables and represents the ratio of the squared correlation between variables to the squared partial correlation between variables.
+
+### 17.4.2. Correlations between variables
+
+The first thing to do when conducting a factor analysis or principal components analysis is to look at the correlations of the variables. There are two potential problems:
+
+-   Correlations that are not high enough.
+
+    -   Solution: visually scan the correlation matrix and look for correlations below about .3.
+
+    -   Bartlett's test tells us whether our correlation matrix is significantly different from an identity matrix.
+
+-   Correlations that are too high enough (extreme multicollinearity).
+
+    -   Solution: Detect multicollinearity by looking at the determinant of the *R*-matrix (determinant of the *R*-matrix should be greater than 0.00001).
+
+### 17.4.3. The distribution of data
+
+The assumption of normality is most important if we wish to generalize the results of our analysis beyond the sample collected.
+
+## 17.5. Running the analysis with R Commander
+
+Factor analysis with R Commander is not recommended.
+
+## 17.6. Running the analysis with R
+
+### 17.6.1. Packages used in this chapter
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme); library(clinfun); library(pgirmess)
+library(MASS); library(mvoutlier); library(mvnormtest)
+library(corpcor); library(GPArotation); library(psych); library(DSUR.noof)
+```
+
+### 17.6.2. Initial preparation and analysis
+
+```{r}
+raqData <- read.delim(here("ch17", "raq.dat"), header = TRUE)
+head(raqData)
+```
+
+We can calculate the correlation matrix by executing:
+
+```{r}
+raqMatrix <- cor(raqData)
+#raqMatrix
+#round(raqMatrix, 2)
+```
+
+We need to have variables that correlate fairly well, but not perfectly. Also, any variables that correlate with no others should be eliminated.
+
+-   First, scan the matrix for correlations greater than .3.
+
+-   Scan the correlation coefficients themselves and look for any greater than .9. Be aware of multicolinearity in the data.
+
+-   Run Bartlett's test and KMO on the correlation matrix.
+
+```{r}
+cortest.bartlett(raqData)
+
+#or
+#cortest.bartlett(raqMatrix, n = 2571)
+```
+
+The result is significant, $\chi^2(253) = 19.334, p < .001$, which indicates that the *R*-matrix is not an identity matrix.
+
+```{r}
+kmo(raqData)
+```
+
+According to rules of thumbs, we can be confident that the sample size and the data are adequate for factor analysis.
+
+To find the determinant, we use the `det()` function:
+
+```{r}
+det(raqMatrix)
+```
+
+The value is greater than the necessary value of 0.00001, so our determinant does not seem problematic. After checking the determinant, we can, if necessary, eliminate variables that we think are causing the problem.
+
+### 17.6.3. Factor extraction using R
+
+Principal component analysis is carried out using the `principal()` function. Our starting point is to create a principal components model that has the same number of factors as there are variables in the data. By extracting as many factors as there are variables, we can inspect their eigenvalues and make decisions about which factors to extract.\
+
+```{r}
+pc1 <- principal(raqData, nfactors = 23, rotate = "none")
+
+#or
+#pc1 <- principal(raqMatrix, nfactors = 23, rotate = "none")
+```
+
+The first command creates the model from the raw data and the second from the correlation matrix. Both methods gives us identical results.
+
+From the result, `h2` is the communalities, and these are all equal to 1. `u2` is the uniqueness column, and it's 1 - (communality).
+
+`SS loadings` (Sums of squared loadings) are the eigenvalues. The eigenvalues associated with each factor represent the variance explained by that particular linear component. Factor 1 explains 7.29 units of variance out of a possible 23. So, as a proportion, this is 7.29/23 = 0.32 (`proportion Var` of `PC1`).
+
+The eigenvalues show us that four components have eigenvalues greater than 1, suggesting that we extract four components if we use Kaiser's criterion.
+
+```{r}
+plot(pc1$values, type = "b")
+```
+
+Now that we know how many components we want to extract (4), we can rerun the analysis:
+
+```{r}
+pc2 <- principal(raqData, nfactors = 4, rotate = "none")
+#pc2 <- principal(raqMatrix, nfactors = 4, rotate = "none")
+
+pc2
+```
+
+Nothing but communalities (`h2`) and uniqueness (`u2`) column are changed. The communality is the proportion of common variance within a variable. Before extraction, the communality of all factors was 1, according to the assumption. Once factors have been extracted, we have a better idea of how much variance is, in reality, common. The amount of variance in each variable that can be explained by the retained factors is represented by the communalities after extraction.
+
+Now that we have the communalities, we can go back to Kaiser's criterion to see whether we still think that four factors should have been extracted. Based on the rules of thumb and the ambiguity of the scree plot, we might like to rerun the analysis specifying that **R** extract only two factors and compare the results.
+
+We can use `factor.model()` function to see if we've extracted the correct number of factors. This function gives us the reproduced correlation matrix. `factor.residuals()` gives us the difference between the reproduced correlation matrix and the correlation matrix in the data:
+
+```{r}
+factor.model(pc2$loadings)
+```
+
+The diagonal of this matrix contains the communalities after extraction of each variable.
+
+```{r}
+factor.residuals(raqMatrix, pc2$loadings)
+```
+
+The output contains the differences between the observed correlation coefficients and the ones predicted from the model. The diagonal of this matrix is the uniqueness.
+
+One measure of the residuals is to compare the residuals with the original correlations. Because residuals are positive and negative, they should be squared before doing that. A measure of the fit of the model is therefore the sum of the squared residuals divided by the sum of the squared correlations. We subtract the measure of fit from 1, and this statistic is given as `Fit based upon off diagonal values = 0.96`.
+
+We can make the **R** commands to look at the residuals.
+
+```{r}
+# Extract the residuals into a new object
+residuals <- factor.residuals(raqMatrix, pc2$loadings)
+
+# Extract the upper triangle of the matrix
+residuals <- as.matrix(residuals[upper.tri(residuals)])
+
+# Check how many large residuals there are
+large.resid <- abs(residuals) > 0.05
+
+# Add up the number of TRUE responses
+sum(large.resid)
+
+# If we want to know this as a portion,
+sum(large.resid)/nrow(residuals)
+# If more than 50% are greater than 0.05, we should have grounds for concern
+
+# Find root-mean-square residual
+sqrt(mean(residuals^2))
+# If this were much higher (>0.08) we might want to consider extracting
+# more factors.
+
+# Plot a quick histogram
+hist(residuals)
+```
+
+We can combine these commands into our own **R** function:
+
+```{r}
+residual.stats <- function(matrix){
+	residuals <- as.matrix(matrix[upper.tri(matrix)])
+	large.resid <- abs(residuals) > 0.05
+	numberLargeResids <- sum(large.resid)
+	propLargeResid <- numberLargeResids/nrow(residuals)
+	rmsr <- sqrt(mean(residuals^2))
+	
+	cat("Root means squared residual = ", rmsr, "\n")
+	cat("Number of absolute residuals > 0.05 = ", numberLargeResids, "\n")
+	cat("Proportion of absolute residuals > 0.05 = ", propLargeResid, "\n")
+	hist(residuals)
+}
+
+# Execute the function
+resids <- factor.residuals(raqMatrix, pc2$loadings )
+residual.stats(resids)
+residual.stats(factor.residuals(raqMatrix, pc2$loadings))
+```
+
+### 17.6.4. Rotation
+
+Rotation maximizes the loading of each variable on one of the extracted factors while minimizing the loading on all other factors, therefore improving the interpretability of factors.
+
+The exact choice of rotation will depend on whether or not the underlying factors are correlated. If theory suggests that our factors might correlate, then one of the oblique rotations should be selected.
+
+#### 17.6.4.1. Orthogonal rotation (varimax)
+
+We change the `rotate` option in the `principal()` function from `none` to `varimax`:
+
+```{r}
+pc3 <- principal(raqMatrix, nfactors = 4, rotate = "varimax")
+pc3
+```
+
+The loadings have changed, but the `h2` and `u2` columns has not. The eigenvalues have changed, but the sum of the eigenvalues didn't change during rotation.
+
+`print.psych()` function makes us easier to interpret the factor loading matrix. It removes loadings that are below a certain value that we specify, and it reorders the items to try to put them into their factors.
+
+```{r}
+print.psych(pc3, cut = 0.3, sort = TRUE)
+```
+
+The rotation of the factor structure has clarified things that there are four factors and variables load very highly onto only one factor.
+
+The questions that load highly on factor 1 are Q6, 18, 13, 7, 14, 10, and 15. These items seem to relate to using computers or **R**. Therefore, we might label this factor '*fear of computers*'. In a similar way, we can label factor 2 as '*fear of statistics*'.
+
+**These are the factors we extracted:**
+
+-   Factor 1: Q6, 18, 13, 7, 14, 10, 15 / *Fear of computers*
+
+-   Factor 2: Q20, 21, 3, 12, 4, 16, 1, 5 / *Fear of statistics*
+
+-   Factor 3: Q8, 17, 11 / *Fear of mathematics*
+
+-   Factor 4: Q9, 22, 2, 19 / *Peer evaluation*
+
+This analysis seems to reveal that the initial questionnaire, in reality, is composed of four subscales. There are two possibilities here.
+
+-   The RAQ failed to measure what it set out to but does measure some related constructs.
+
+-   These four constructs are sub-components of **R** anxiety.
+
+However, the factor analysis does not indicate which of these possibilities is true.
+
+#### 17.6.4.2. Oblique rotation
+
+However, it is strange that the components that we extracted are uncorrelated because all of our factors are related to fear. In this case, we should perform oblique rotation rather than orthogonal rotation:
+
+```{r}
+pc4 <- principal(raqMatrix, nfactors = 4, rotate = "oblimin")
+print.psych(pc4, cut = 0.3, sort = TRUE)
+```
+
+The output indicates that the same four factors seem to have emerged although they are in a different order.
+
+-   Factor 1: *Fear of computers*
+
+-   Factor 2: *Fear of peer evaluation*
+
+-   Factor 3: *Fear of statistics*
+
+-   Factor 4: *Fear of mathematics*
+
+There is also a correlation matrix between the factors. This matrix tells us that Factor 2 has little relationship with any other factors, but all other factors are interrelated to some degree. Therefore, we can conclude that the constructs measured can be interrelated, and we cannot assume independence. The orthogonal rotation should not be trusted.
+
+When an oblique rotation is conducted the factor matrix is split into two matrices.
+
+-   The pattern matrix contains the factor loadings and is comparable to the factor matrix that we interpreted for the orthogonal rotation.
+
+-   The structure matrix takes into account the relationship between factors.
+
+Most researchers interpret the pattern matrix, but the structure matrix can be a useful double-check.
+
+To get the structure matrix, we should multiply the factor loading matrix by the correlation matrix of the factors. The correlations of the factors are called the `Phi`, and the notation for multiplying matrices is `%*%`:
+
+```{r}
+pc4$loadings %*% pc4$Phi
+factor.structure(pc4, cut = 0.3, decimals = 2)
+```
+
+The outcome became more complicated in the structure matrix because with the exception of factor 2, several variables load quite highly onto more than one factor.
+
+### 17.6.5. Factor scores
+
+Having reached a suitable solution and rotated that solution, we can look at the factor scores. Factor scores can be obtained by adding `scores = TRUE` to the `principal()` function:
+
+```{r}
+pc5 <- principal(raqData, nfactors = 4, rotate = "oblimin", scores = TRUE)
+pc5$scores
+head(pc5$scores, 10)
+
+round(cor(pc5$scores), 2)
+```
+
+### 17.6.6. Summary
+
+The use of factor analysis is purely exploratory; it should be used only to guide future hypotheses, or to inform researchers about patterns within data sets.
+
+## 17.7. How to report factor analysis
+
+-   A principal components analysis (PCA) was conducted on the 23 items with orthogonal rotation (varimax). The Kaiser-Meyer-Olkin measure verified the sampling adequacy for the analysis KMO = .93, and all KMO values for individual items were \> .77, which is well above the acceptable limit of .5. Bartlett's test of sphericity, $\chi^2(253) = 19.334, p < .001$ indicated that correlations between items were sufficiently large for PCA. An initial analysis was run to obtain eigenvalues for each component in the data. Four components had eigenvalues over Kaiser's criterion of 1 and in combination explained 50.32% of the variance. The scree plot was slightly ambiguous and showed inflexions that would justify retaining both two and four components. Given the large sample size, and the convergence of the scree plot and Kaiser's criterion on four components, four components were retained in the final analysis. Table shows the factor loadings after rotation. The items that cluster on the same components suggest that component 1 represents a fear of computers, component 2 a fear of statistics, component 3 a fear of maths and component 4 peer evaluation concerns.
+
+-   
+
+## 17.8. Reliability analysis
+
+### 17.8.1. Measures of reliability
+
+Reliability means that a measure should consistently reflect the construct that it is measuring. In statistical terms, the usual way to look at reliability is based on the idea that individual items should produce results consistent with the overall questionnaire.
+
+The simplest way to do this in practice is to use **split-half reliability**. This method randomly splits the data set into two. A score fore each participant is then calculated based on each half of the scale. Therefore, across several participants, scores from the two halves of the questionnaire should correlate highly. However, the problem of this method is that the results could be a product of the way in which the data were split.
+
+**Cronbach's alpha** overcomes this problem, which is loosely equivalent to splitting data in two in every possible way and computing the correlation coefficient for each split. It constructs a variance-covariance matrix of all items. The diagonal elements will be the variance within a particular item, and the off-diagonal elements will be the covariances between pairs of items.
+
+### 17.8.2. Interpreting Cronbach's $\alpha$ (Some cautionary tales ...)
+
+-   The value of $\alpha$ depends on the number of items on the scale because $\alpha$ includes the number of items squared.
+
+-   $\alpha$ measures 'unidimensionality' or the extent to which the scale measures one underlying the data. If our questionnaire has subscales, $\alpha$ should be applied separately to these subscales.
+
+-   The reverse-scored items make a difference in $\alpha$.
+
+### 17.8.3. Reliability analysis with R Commander
+
+It is possible to use R Commander to calculate $\alpha$, but it is not recommended.
+
+### 17.8.4. Reliability analysis using R
+
+First, we create four data sets, containing the subscales for the items.
+
+```{r}
+computerFear <- raqData[,c(6, 7, 10, 13, 14, 15, 18)]
+statisticsFear<- raqData[, c(1, 3, 4, 5, 12, 16, 20, 21)]
+mathFear <- raqData[, c(8, 11, 17)]
+peerEvaluation <- raqData[, c(2, 9, 19, 22, 23)]
+```
+
+For example, the first command creates an object called `computerFear` that contains only columns 6, 17, 10, 13, 14, 15 and 18 of the dataframe `raqData`.
+
+An additional complication we need is that pesky item 3, which is negatively scored. We can reverse the variable in the data set, or we can tell `alpha()` that it is negative, using the `keys` option. The latter option is better because we leave the initial data unchanged.
+
+```{r}
+psych::alpha(computerFear)
+psych::alpha(statisticsFear, keys = c(1, -1, 1, 1, 1, 1, 1, 1))
+psych::alpha(mathFear)
+psych::alpha(peerEvaluation)
+```
+
+### 17.8.5. Interpreting the output
+
+The value of `alpha` at the very top is Cronbach's $\alpha$: the overall reliability of the scale. We're looking for values in the range of .7 to .8.
+
+Along with alpha, there is a measure labelled G6, short for Guttman's lambda 6. This is calculated from the squared multiple correlation (smc).
+
+The `average_r` is the average inter-term correlation.
+
+The `raw_alpha` is the value of the overall $\alpha$ if that item isn't included in the calculation. What we're actually looking for is values of alpha greater than the overall $\alpha$. If the deletion of an item increases Cronbach's $\alpha$ then this means that the deletion of that item improves reliability.
+
+From the table labelled `item statistics`, the column `r` is the correlations between each item and the total score from the questionnaire. However, there is a problem with this statistic that the item is included in the total. The `r.drop` is the correlation of that item with the scale total if that item isn't included in the scale total. In a reliable scale all items should correlate with the total. If any of these values of `r.drop` are less than about .3, these items should be dropped.
+
+The final table is about the `frequencies`, which tells us what percentage of people gave each response to each of the items. It is usually the case than an item where everyone gives the same response will almost certainly have poor reliability statistics.
+
+## 17.9. Reporting reliability analysis
+
+-   The fear of computers, fear of statistics and fear of maths subscales of the RAQ all had high reliabilities, all Cronbach's $\alpha$ = .82. However, the fear of negative peer evaluation subscale had relatively low reliability, Cronbach's $\alpha$ = .57.

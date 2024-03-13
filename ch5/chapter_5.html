@@ -1,0 +1,2082 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Daehyeog Lee">
+<meta name="dcterms.date" content="2023-09-12">
+
+<title>Chapter 5. Exploring assumptions</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="chapter_5_files/libs/clipboard/clipboard.min.js"></script>
+<script src="chapter_5_files/libs/quarto-html/quarto.js"></script>
+<script src="chapter_5_files/libs/quarto-html/popper.min.js"></script>
+<script src="chapter_5_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="chapter_5_files/libs/quarto-html/anchor.min.js"></script>
+<link href="chapter_5_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="chapter_5_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="chapter_5_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="chapter_5_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="chapter_5_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Chapter 5. Exploring assumptions</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Daehyeog Lee </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 12, 2023</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">September 21, 2023</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="importing-libraries" class="level2">
+<h2 class="anchored" data-anchor-id="importing-libraries">5.0. Importing libraries</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car); <span class="fu">library</span>(ggplot2); <span class="fu">library</span>(pastecs); <span class="fu">library</span>(psych)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'psych'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:ggplot2':
+
+    %+%, alpha</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:car':
+
+    logit</code></pre>
+</div>
+</div>
+</section>
+<section id="what-will-this-chapter-tell-me" class="level2">
+<h2 class="anchored" data-anchor-id="what-will-this-chapter-tell-me">5.1. What will this chapter tell me?</h2>
+<p>How can we turn the ugly data into a beautiful swan?</p>
+</section>
+<section id="what-are-assumptions" class="level2">
+<h2 class="anchored" data-anchor-id="what-are-assumptions">5.2. What are assumptions?</h2>
+<p>Different statistical models assume different things.</p>
+<p>The assumptions need to be true when statistical models are going to reflect reality accurately.</p>
+</section>
+<section id="assumptions-of-parametric-data" class="level2">
+<h2 class="anchored" data-anchor-id="assumptions-of-parametric-data">5.3. Assumptions of parametric data</h2>
+<p>Parametric statistics are based on assumption about the distribution of population from which the sample was taken.</p>
+<p>Nonparametric statistics are not based on assumptions, that is, the data can be collected from a sample that does not follow a specific distribution.</p>
+<p>Parametric test requires data from one of the large catalogue of distributions that statisticians have described.</p>
+<p>According to the <strong>central limit theorem</strong>, as samples get large, the sampling distribution has a normal distribution with a mean equal to the population mean.</p>
+<p>Most parametric tests based on the normal distribution have four basic assumptions that must be met for the test to be accurate.</p>
+<ol type="1">
+<li><p><strong>Normally distributed data</strong></p></li>
+<li><p><strong>Homogeneity of variance</strong>: Variances should be the dame throughout the data.</p></li>
+<li><p><strong>Interval data</strong>: Data should be measured at least at the interval level.</p></li>
+<li><p><strong>Independence</strong> (This assumption is different depending on the test we’re using)</p></li>
+</ol>
+</section>
+<section id="packages-used-in-this-chapter" class="level2">
+<h2 class="anchored" data-anchor-id="packages-used-in-this-chapter">5.4. Packages used in this chapter</h2>
+<p><code>car</code>, <code>ggplot2</code>, <code>pastecs</code>, <code>psych</code>, <code>Rcmdr</code></p>
+</section>
+<section id="the-assumption-of-normality" class="level2">
+<h2 class="anchored" data-anchor-id="the-assumption-of-normality">5.5. The assumption of normality</h2>
+<p>We assume that the sampling distribution is normally distributed, but we don’t have access to this distribution.</p>
+<p>Central limit theorem: If the sample data are approximately normal then the sampling distribution will be also normal.</p>
+<p>General linear models assume that errors in the model are normally distributed.</p>
+<section id="oh-no-its-that-pesky-frequency-distribution-again-checking-normality-visually" class="level3">
+<h3 class="anchored" data-anchor-id="oh-no-its-that-pesky-frequency-distribution-again-checking-normality-visually">5.5.1. Oh no, it’s that pesky frequency distribution again: checking normality visually</h3>
+<p>First, let’s plot a histogram of <strong>DownloadFestival.dat</strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dlf <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"dfno.dat"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  hist.day1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(day1)) <span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..density..),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"white"</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Hygiene score on day 1"</span>, <span class="at">y =</span> <span class="st">"Density"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>hist.day1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The dot-dot notation (`..density..`) was deprecated in ggplot2 3.4.0.
+ℹ Please use `after_stat(density)` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can add a normal curve, and we need to tell <em>ggplot2</em> what mean and SD we’d like on that curve.</p>
+<p>The <code>stat_function()</code> command draws the normal curve using the function <code>dnorm()</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>hist.day1 <span class="sc">+</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>day1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>day1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">### SELF-</span><span class="al">TEST</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># DAY 2</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>hist.day2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(day2)) <span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..density..),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"white"</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Hygiene score on day 2"</span>, <span class="at">y =</span> <span class="st">"Density"</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>hist.day2 <span class="sc">+</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>day2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>day2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>                            <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                            <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 546 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DAY 3</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>hist.day3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(day3)) <span class="sc">+</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..density..),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"white"</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Hygiene score on day 3"</span>, <span class="at">y =</span> <span class="st">"Density"</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>hist.day3 <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>day3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>day3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 687 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>Q-Q plot</strong> (quantile-quantile plot) is another useful graph that we can inspect to see if a distribution is normal. Q-Q plots the cumulative values we have in our data against the cumulative probability of a particular distribution. Each value is compared to the expected value that the score should have in a normal distribution and they are plotted against one another. The x axis of Q-Q plot represents the z-scores of each point:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>qqplot.day1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dlf, <span class="fu">aes</span>(<span class="at">sample =</span> day1)) <span class="sc">+</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>()</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>qqplot.day1 <span class="co"># Updated code</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>For day 2 and day 3:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>qqplot.day2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dlf, <span class="fu">aes</span>(<span class="at">sample =</span> day2)) <span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>()</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>qqplot.day2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 546 rows containing non-finite values (`stat_qq()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>qqplot.day3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dlf, <span class="fu">aes</span>(<span class="at">sample =</span> day3)) <span class="sc">+</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>()</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>qqplot.day3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 687 rows containing non-finite values (`stat_qq()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="quantifying-normality-with-numbers" class="level3">
+<h3 class="anchored" data-anchor-id="quantifying-normality-with-numbers">5.5.2. Quantifying normality with numbers</h3>
+<p>We can explore the distribution of the variables using the <code>describe()</code> function in the <em>psych</em> package, or the <code>stat.desc()</code> function of the <em>pastecs</em> package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(dlf<span class="sc">$</span>day1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   vars   n mean   sd median trimmed mad  min  max range skew kurtosis   se
+X1    1 810 1.77 0.69   1.79    1.77 0.7 0.02 3.69  3.67    0    -0.42 0.02</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stat.desc</span>(dlf<span class="sc">$</span>day1, <span class="at">basic =</span> <span class="cn">FALSE</span>, <span class="at">norm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+  1.79000000   1.77113580   0.02436847   0.04783289   0.48099624   0.69353892 
+    coef.var     skewness     skew.2SE     kurtosis     kurt.2SE   normtest.W 
+  0.39157862  -0.00442835  -0.02577395  -0.42159405  -1.22838457   0.99591522 
+  normtest.p 
+  0.03198482 </code></pre>
+</div>
+</div>
+<p>We can combine two or more variables by using <code>cbind()</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="fu">cbind</span>(dlf<span class="sc">$</span>day1, dlf<span class="sc">$</span>day2, dlf<span class="sc">$</span>day3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   vars   n mean   sd median trimmed  mad  min  max range skew kurtosis   se
+X1    1 810 1.77 0.69   1.79    1.77 0.70 0.02 3.69  3.67 0.00    -0.42 0.02
+X2    2 264 0.96 0.72   0.79    0.87 0.61 0.00 3.44  3.44 1.08     0.76 0.04
+X3    3 123 0.98 0.71   0.76    0.90 0.61 0.02 3.41  3.39 1.01     0.59 0.06</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stat.desc</span>(<span class="fu">cbind</span>(dlf<span class="sc">$</span>day1, dlf<span class="sc">$</span>day2, dlf<span class="sc">$</span>day3), <span class="at">basic =</span> <span class="cn">FALSE</span>, <span class="at">norm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      V1           V2           V3
+median        1.79000000 7.900000e-01 7.600000e-01
+mean          1.77113580 9.609091e-01 9.765041e-01
+SE.mean       0.02436847 4.436095e-02 6.404352e-02
+CI.mean.0.95  0.04783289 8.734781e-02 1.267805e-01
+var           0.48099624 5.195239e-01 5.044934e-01
+std.dev       0.69353892 7.207801e-01 7.102770e-01
+coef.var      0.39157862 7.501022e-01 7.273672e-01
+skewness     -0.00442835 1.082811e+00 1.007813e+00
+skew.2SE     -0.02577395 3.611574e+00 2.309035e+00
+kurtosis     -0.42159405 7.554615e-01 5.945454e-01
+kurt.2SE     -1.22838457 1.264508e+00 6.862946e-01
+normtest.W    0.99591522 9.083191e-01 9.077516e-01
+normtest.p    0.03198482 1.281630e-11 3.804486e-07</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OR,</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(dlf[, <span class="fu">c</span>(<span class="st">"day1"</span>, <span class="st">"day2"</span>, <span class="st">"day3"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     vars   n mean   sd median trimmed  mad  min  max range skew kurtosis   se
+day1    1 810 1.77 0.69   1.79    1.77 0.70 0.02 3.69  3.67 0.00    -0.42 0.02
+day2    2 264 0.96 0.72   0.79    0.87 0.61 0.00 3.44  3.44 1.08     0.76 0.04
+day3    3 123 0.98 0.71   0.76    0.90 0.61 0.02 3.41  3.39 1.01     0.59 0.06</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stat.desc</span>(dlf[, <span class="fu">c</span>(<span class="st">"day1"</span>, <span class="st">"day2"</span>, <span class="st">"day3"</span>)], <span class="at">basic =</span> <span class="cn">FALSE</span>, <span class="at">norm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    day1         day2         day3
+median        1.79000000 7.900000e-01 7.600000e-01
+mean          1.77113580 9.609091e-01 9.765041e-01
+SE.mean       0.02436847 4.436095e-02 6.404352e-02
+CI.mean.0.95  0.04783289 8.734781e-02 1.267805e-01
+var           0.48099624 5.195239e-01 5.044934e-01
+std.dev       0.69353892 7.207801e-01 7.102770e-01
+coef.var      0.39157862 7.501022e-01 7.273672e-01
+skewness     -0.00442835 1.082811e+00 1.007813e+00
+skew.2SE     -0.02577395 3.611574e+00 2.309035e+00
+kurtosis     -0.42159405 7.554615e-01 5.945454e-01
+kurt.2SE     -1.22838457 1.264508e+00 6.862946e-01
+normtest.W    0.99591522 9.083191e-01 9.077516e-01
+normtest.p    0.03198482 1.281630e-11 3.804486e-07</code></pre>
+</div>
+</div>
+<p>We can select rows and columns using <code>[rows, colomns]</code>, therefore, <code>dlf[, c("day1", "day2", "day3")]</code> means from the <code>dlf</code> dataframe select all of the rows <strong>(because nothing is specified before the comma)</strong> and select the columns labelled <code>day1</code>, <code>day2</code>, <code>day3</code> .</p>
+<p>If the skew divided by its standard error is greater than 2 then it is significant (at p&lt; 0.05).</p>
+<p>If we want to change our output’s decimal places, we can use the <code>round()</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">stat.desc</span>(dlf[, <span class="fu">c</span>(<span class="st">"day1"</span>, <span class="st">"day2"</span>, <span class="st">"day3"</span>)],</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">basic =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">norm =</span> <span class="cn">TRUE</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">digits =</span> <span class="dv">3</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>      )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               day1  day2  day3
+median        1.790 0.790 0.760
+mean          1.771 0.961 0.977
+SE.mean       0.024 0.044 0.064
+CI.mean.0.95  0.048 0.087 0.127
+var           0.481 0.520 0.504
+std.dev       0.694 0.721 0.710
+coef.var      0.392 0.750 0.727
+skewness     -0.004 1.083 1.008
+skew.2SE     -0.026 3.612 2.309
+kurtosis     -0.422 0.755 0.595
+kurt.2SE     -1.228 1.265 0.686
+normtest.W    0.996 0.908 0.908
+normtest.p    0.032 0.000 0.000</code></pre>
+</div>
+</div>
+</section>
+<section id="exploring-groups-of-data" class="level3">
+<h3 class="anchored" data-anchor-id="exploring-groups-of-data">5.5.3. Exploring groups of data</h3>
+<section id="running-the-analysis-for-all-data" class="level4">
+<h4 class="anchored" data-anchor-id="running-the-analysis-for-all-data">5.5.3.1. Running the analysis for all data</h4>
+<p><strong>RExam.dat</strong> contains data regarding students’ performance on an R exam. There are four variables measured: <strong>exam, computer, lecture</strong> and <strong>numeracy</strong>. A variable <strong>uni</strong> indicates whether the student attended Sussex university of Duncetown university.</p>
+<p>Let’s open the file and set the variable <strong>uni</strong> to be a factor by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>rexam <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"rexam.dat"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>rexam<span class="sc">$</span>uni <span class="ot">&lt;-</span> <span class="fu">factor</span>(rexam<span class="sc">$</span>uni,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span> <span class="dv">1</span>),</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Duncetown University"</span>, <span class="st">"Sussex University"</span>)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>                    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="self-test" class="level4">
+<h4 class="anchored" data-anchor-id="self-test">SELF-TEST</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Self test task:</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">stat.desc</span>(rexam[, <span class="fu">c</span>(<span class="st">"exam"</span>, <span class="st">"computer"</span>, <span class="st">"lectures"</span>, <span class="st">"numeracy"</span>)],</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">basic =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">norm =</span> <span class="cn">TRUE</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">digits =</span> <span class="dv">3</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>      )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                exam computer lectures numeracy
+median        60.000   51.500   62.000    4.000
+mean          58.100   50.710   59.765    4.850
+SE.mean        2.132    0.826    2.168    0.271
+CI.mean.0.95   4.229    1.639    4.303    0.537
+var          454.354   68.228  470.230    7.321
+std.dev       21.316    8.260   21.685    2.706
+coef.var       0.367    0.163    0.363    0.558
+skewness      -0.104   -0.169   -0.410    0.933
+skew.2SE      -0.215   -0.350   -0.849    1.932
+kurtosis      -1.148    0.221   -0.285    0.763
+kurt.2SE      -1.200    0.231   -0.298    0.798
+normtest.W     0.961    0.987    0.977    0.924
+normtest.p     0.005    0.441    0.077    0.000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>hexam <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(rexam, <span class="fu">aes</span>(exam)) <span class="sc">+</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"First Year Exam Score"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(rexam<span class="sc">$</span>exam, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(rexam<span class="sc">$</span>exam, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"red"</span>,</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>hexam</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>hcomputer <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(rexam, <span class="fu">aes</span>(computer)) <span class="sc">+</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Computer Literacy"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(rexam<span class="sc">$</span>computer, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(rexam<span class="sc">$</span>computer, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"red"</span>,</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>hcomputer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-11-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>hlectures <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(rexam, <span class="fu">aes</span>(lectures)) <span class="sc">+</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Percentage of Lectures Attended"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(rexam<span class="sc">$</span>lectures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(rexam<span class="sc">$</span>lectures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"red"</span>,</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>hlectures</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-11-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>hnumeracy <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(rexam, <span class="fu">aes</span>(numeracy)) <span class="sc">+</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Numeracy"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span> </span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(rexam<span class="sc">$</span>numeracy, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(rexam<span class="sc">$</span>numeracy, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"red"</span>,</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>hnumeracy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-11-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The exam scores’ distribution is quite not normal; it looks bimodal (two peaks).</p>
+<p>The bimodal distribution of R exam scores instantly indicates a trend that students are typically either very good at statistics or struggle with it.</p>
+</section>
+<section id="running-the-analysis-for-different-groups" class="level4">
+<h4 class="anchored" data-anchor-id="running-the-analysis-for-different-groups">5.5.3.2. Running the analysis for different groups</h4>
+<p>If we want to obtain separate descriptive statistics for each of the universities, we can use the <code>by()</code>function. We can simply enter the name of our dataframe or variables that we’d like to analyse, we can specify a variable by which we want to split the output (in this case, it’s <strong>uni</strong>). We then tell it which function we want to apply to the data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(<span class="at">data =</span> rexam<span class="sc">$</span>exam, <span class="at">INDICES =</span> rexam<span class="sc">$</span>uni, <span class="at">FUN =</span> describe)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>rexam$uni: Duncetown University
+   vars  n  mean    sd median trimmed  mad min max range skew kurtosis   se
+X1    1 50 40.18 12.59     38   39.85 12.6  15  66    51 0.29    -0.72 1.78
+------------------------------------------------------------ 
+rexam$uni: Sussex University
+   vars  n  mean    sd median trimmed mad min max range skew kurtosis   se
+X1    1 50 76.02 10.21     75    75.7 8.9  56  99    43 0.26    -0.46 1.44</code></pre>
+</div>
+</div>
+<p>We can do the same thing by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(<span class="at">data =</span> rexam<span class="sc">$</span>exam, <span class="at">INDICES =</span> rexam<span class="sc">$</span>uni, <span class="at">FUN =</span> stat.desc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>rexam$uni: Duncetown University
+     nbr.val     nbr.null       nbr.na          min          max        range 
+  50.0000000    0.0000000    0.0000000   15.0000000   66.0000000   51.0000000 
+         sum       median         mean      SE.mean CI.mean.0.95          var 
+2009.0000000   38.0000000   40.1800000    1.7803210    3.5776890  158.4771429 
+     std.dev     coef.var 
+  12.5887705    0.3133094 
+------------------------------------------------------------ 
+rexam$uni: Sussex University
+     nbr.val     nbr.null       nbr.na          min          max        range 
+  50.0000000    0.0000000    0.0000000   56.0000000   99.0000000   43.0000000 
+         sum       median         mean      SE.mean CI.mean.0.95          var 
+3801.0000000   75.0000000   76.0200000    1.4432079    2.9002348  104.1424490 
+     std.dev     coef.var 
+  10.2050208    0.1342413 </code></pre>
+</div>
+</div>
+<p><code>by(rexam$exam, rexam$uni, describe)</code> and <code>by(rexam$exam, rexam$uni, stat.desc</code> have the same effect as those above.</p>
+<p>We can also include any options for the function we’re using by adding them in at the end. For example:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(rexam<span class="sc">$</span>exam, rexam<span class="sc">$</span>uni, stat.desc, <span class="at">basic =</span> <span class="cn">FALSE</span>, <span class="at">norm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>rexam$uni: Duncetown University
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+  38.0000000   40.1800000    1.7803210    3.5776890  158.4771429   12.5887705 
+    coef.var     skewness     skew.2SE     kurtosis     kurt.2SE   normtest.W 
+   0.3133094    0.2906760    0.4317816   -0.7230849   -0.5462122    0.9721662 
+  normtest.p 
+   0.2828984 
+------------------------------------------------------------ 
+rexam$uni: Sussex University
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+  75.0000000   76.0200000    1.4432079    2.9002348  104.1424490   10.2050208 
+    coef.var     skewness     skew.2SE     kurtosis     kurt.2SE   normtest.W 
+   0.1342413    0.2559866    0.3802527   -0.4609644   -0.3482086    0.9837115 
+  normtest.p 
+   0.7151182 </code></pre>
+</div>
+</div>
+<p>If we want descriptive statistics for multiple variables, then we can use <code>cbind()</code> to include them within the <code>by()</code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(rexam[, <span class="fu">c</span>(<span class="st">"exam"</span>, <span class="st">"numeracy"</span>)],</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>   rexam<span class="sc">$</span>uni,</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>   stat.desc,</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>   <span class="at">basic =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>   <span class="at">norm =</span> <span class="cn">TRUE</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>   )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>rexam$uni: Duncetown University
+                    exam    numeracy
+median        38.0000000  4.00000000
+mean          40.1800000  4.12000000
+SE.mean        1.7803210  0.29226770
+CI.mean.0.95   3.5776890  0.58733393
+var          158.4771429  4.27102041
+std.dev       12.5887705  2.06664472
+coef.var       0.3133094  0.50161280
+skewness       0.2906760  0.48165960
+skew.2SE       0.4317816  0.71547621
+kurtosis      -0.7230849 -0.65166313
+kurt.2SE      -0.5462122 -0.49226083
+normtest.W     0.9721662  0.94081692
+normtest.p     0.2828984  0.01451518
+------------------------------------------------------------ 
+rexam$uni: Sussex University
+                    exam     numeracy
+median        75.0000000  5.000000000
+mean          76.0200000  5.580000000
+SE.mean        1.4432079  0.434332704
+CI.mean.0.95   2.9002348  0.872824247
+var          104.1424490  9.432244898
+std.dev       10.2050208  3.071196004
+coef.var       0.1342413  0.550393549
+skewness       0.2559866  0.746369109
+skew.2SE       0.3802527  1.108686183
+kurtosis      -0.4609644 -0.006440059
+kurt.2SE      -0.3482086 -0.004864766
+normtest.W     0.9837115  0.932346126
+normtest.p     0.7151182  0.006786803</code></pre>
+</div>
+</div>
+<p>Now, let’s look at the histograms. We can create plots for different groups by using the <code>subset()</code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>dunceData <span class="ot">&lt;-</span> <span class="fu">subset</span>(rexam, rexam<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"Duncetown University"</span>)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>sussexData <span class="ot">&lt;-</span> <span class="fu">subset</span>(rexam, rexam<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"Sussex University"</span>)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>dunceData</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   exam computer lectures numeracy                  uni
+1    18       54     75.0        7 Duncetown University
+2    30       47      8.5        1 Duncetown University
+3    40       58     69.5        6 Duncetown University
+4    30       37     67.0        6 Duncetown University
+5    40       53     44.5        2 Duncetown University
+6    15       48     76.5        8 Duncetown University
+7    36       49     70.0        3 Duncetown University
+8    40       49     18.5        7 Duncetown University
+9    63       45     43.5        4 Duncetown University
+10   31       62    100.0        6 Duncetown University
+11   22       67     48.0        3 Duncetown University
+12   47       62     10.5        3 Duncetown University
+13   38       38     57.5        1 Duncetown University
+14   34       37     61.5        8 Duncetown University
+15   54       54     54.0        4 Duncetown University
+16   35       48     71.0        5 Duncetown University
+17   33       48     14.0        9 Duncetown University
+18   38       42     55.5        3 Duncetown University
+19   29       57     72.5        2 Duncetown University
+20   36       55     38.0        4 Duncetown University
+21   59       41     40.0        1 Duncetown University
+22   31       42     85.5        4 Duncetown University
+23   34       48     52.0        4 Duncetown University
+24   28       44      8.0        3 Duncetown University
+25   50       42     62.5        6 Duncetown University
+26   59       42     70.5        3 Duncetown University
+27   33       40     98.0        4 Duncetown University
+28   57       52     34.5        2 Duncetown University
+29   25       56     62.5        3 Duncetown University
+30   53       54     91.5        2 Duncetown University
+31   65       52     97.5        7 Duncetown University
+32   47       55     31.5        2 Duncetown University
+33   28       61     80.5        7 Duncetown University
+34   43       56     66.5        4 Duncetown University
+35   47       52     57.5        2 Duncetown University
+36   60       49     67.0        4 Duncetown University
+37   45       43     48.5        4 Duncetown University
+38   22       51     61.0        4 Duncetown University
+39   39       49     76.0        3 Duncetown University
+40   43       56     30.5        2 Duncetown University
+41   66       41     45.0        2 Duncetown University
+42   36       67     21.5        4 Duncetown University
+43   26       35     72.5        5 Duncetown University
+44   58       49     66.0        8 Duncetown University
+45   53       62     90.5        6 Duncetown University
+46   37       66     48.5        4 Duncetown University
+47   48       48     62.0        3 Duncetown University
+48   32       46     49.0        1 Duncetown University
+49   42       46     60.0        5 Duncetown University
+50   34       58     21.0        5 Duncetown University</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>sussexData</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    exam computer lectures numeracy               uni
+51    56       30     84.5        7 Sussex University
+52    76       48     51.0        8 Sussex University
+53    72       54     58.5        5 Sussex University
+54    77       44     42.0        6 Sussex University
+55    77       54     65.5        9 Sussex University
+56    66       58     56.0        7 Sussex University
+57    62       59     71.5        2 Sussex University
+58    86       54     48.5        5 Sussex University
+59    97       35     84.5        5 Sussex University
+60    72       56     47.5        2 Sussex University
+61    69       53     54.0        3 Sussex University
+62    87       56     70.5        6 Sussex University
+63    88       65     73.0        5 Sussex University
+64    72       50     79.0       12 Sussex University
+65    75       39     82.5        8 Sussex University
+66    74       40     74.5        3 Sussex University
+67    68       50     85.0        2 Sussex University
+68    81       57     69.5       10 Sussex University
+69    77       39     42.0        7 Sussex University
+70    71       41     43.0        8 Sussex University
+71    60       48     46.5        6 Sussex University
+72    74       46     36.5        8 Sussex University
+73    80       54     72.5        4 Sussex University
+74    68       55     62.0        4 Sussex University
+75    64       27     81.5        5 Sussex University
+76    94       57    100.0       13 Sussex University
+77    65       73     27.0       14 Sussex University
+78    72       54     59.5        2 Sussex University
+79    75       54     75.0        3 Sussex University
+80    92       50     34.0        2 Sussex University
+81    89       56     78.0        4 Sussex University
+82    83       57     80.5        5 Sussex University
+83    80       54     84.0        2 Sussex University
+84    95       55     37.5        4 Sussex University
+85    99       54     57.0        3 Sussex University
+86    80       52     66.0        8 Sussex University
+87    81       67     59.0       10 Sussex University
+88    75       44     68.5        5 Sussex University
+89    78       57     88.5        3 Sussex University
+90    65       54     55.0        8 Sussex University
+91    80       51     86.0        5 Sussex University
+92    86       55     68.5       10 Sussex University
+93    73       51     64.0        7 Sussex University
+94    81       45     12.5        1 Sussex University
+95    69       59     52.5        7 Sussex University
+96    60       43     37.0        5 Sussex University
+97    69       57     46.0        2 Sussex University
+98    71       50     97.5        2 Sussex University
+99    82       50     70.5        4 Sussex University
+100   58       47     78.0        3 Sussex University</code></pre>
+</div>
+</div>
+<p>These commands each create a new dataframe that is based on a subset of the <em>rexam</em> dataframe. We need to be careful that the term we specify to select cases exactly matches the labelling in the dataset otherwise we’ll end up with an empty dataset.</p>
+<p>Having created our separate dataframes, we can generate histograms using the same commands as before, but specifying the dataframe for the subset of data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>hist.numeracy.duncetown <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dunceData, <span class="fu">aes</span>(numeracy)) <span class="sc">+</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..density..),</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"white"</span>,</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">binwidth =</span> <span class="dv">1</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Numeracy Score"</span> , <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dunceData<span class="sc">$</span>numeracy, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dunceData<span class="sc">$</span>numeracy, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"blue"</span>,</span>
+<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb60-13"><a href="#cb60-13" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb60-14"><a href="#cb60-14" aria-hidden="true" tabindex="-1"></a>hist.numeracy.duncetown</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can see that for exam marks the distributions are both fairly normal. This is because the two samples are combined and these two normal distributions created a bimodal one at the previous figure.</p>
+</section>
+<section id="self-test-1" class="level4">
+<h4 class="anchored" data-anchor-id="self-test-1">SELF-TEST</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>hist.computer.duncetown <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dunceData, <span class="fu">aes</span>(computer)) <span class="sc">+</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..density..),</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"white"</span>,</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">binwidth =</span> <span class="dv">1</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Computer Literacy"</span> , <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dunceData<span class="sc">$</span>computer, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dunceData<span class="sc">$</span>computer, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"blue"</span>,</span>
+<span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb61-13"><a href="#cb61-13" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb61-14"><a href="#cb61-14" aria-hidden="true" tabindex="-1"></a>hist.computer.duncetown</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="testing-whether-a-distribution-is-normal" class="level2">
+<h2 class="anchored" data-anchor-id="testing-whether-a-distribution-is-normal">5.6. Testing whether a distribution is normal</h2>
+<p>The <strong>Shapiro-Wilk</strong> test compares the scores in the sample to a normally distributed set of scores with the same mean and standard deviation. If the test is significant (<em>p</em> &lt; .05), then the distribution in question is significantly different from a normal distribution.</p>
+<section id="doing-the-shapiro-wilk-test-in-r" class="level3">
+<h3 class="anchored" data-anchor-id="doing-the-shapiro-wilk-test-in-r">5.6.1. Doing the Shapiro-Wilk test in R</h3>
+<p><code>shapiro.test()</code> function tests the variables for normality:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(rexam<span class="sc">$</span>exam)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  rexam$exam
+W = 0.96131, p-value = 0.004991</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(rexam<span class="sc">$</span>numeracy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  rexam$numeracy
+W = 0.92439, p-value = 2.424e-05</code></pre>
+</div>
+</div>
+<p>Although the distributions seemed quite normal, the Shapiro-Wilk tests was highly significant, indicating that both distributions are not normal. The value of <em>W</em> corresponds to the value of <em>normtest.W</em>, and the p-value corresponds to <em>normtest.p</em> from the <code>stat.desc</code> function.</p>
+<p>We can adjust <code>shapiro.test</code> to <code>by()</code> function we came across earlier, using it instead of FUN:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(rexam<span class="sc">$</span>exam, rexam<span class="sc">$</span>uni, shapiro.test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>rexam$uni: Duncetown University
+
+    Shapiro-Wilk normality test
+
+data:  dd[x, ]
+W = 0.97217, p-value = 0.2829
+
+------------------------------------------------------------ 
+rexam$uni: Sussex University
+
+    Shapiro-Wilk normality test
+
+data:  dd[x, ]
+W = 0.98371, p-value = 0.7151</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(rexam<span class="sc">$</span>numeracy, rexam<span class="sc">$</span>uni, shapiro.test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>rexam$uni: Duncetown University
+
+    Shapiro-Wilk normality test
+
+data:  dd[x, ]
+W = 0.94082, p-value = 0.01452
+
+------------------------------------------------------------ 
+rexam$uni: Sussex University
+
+    Shapiro-Wilk normality test
+
+data:  dd[x, ]
+W = 0.93235, p-value = 0.006787</code></pre>
+</div>
+</div>
+<p>This result shows that the percentages on the R exam are indeed normal within the two groups.</p>
+<p>We can also draw Q-Q plots for the variables to help us to interpret the results of the Shapiro-Wilk test.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> rexam, <span class="fu">aes</span>(<span class="at">sample =</span> exam)) <span class="sc">+</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> rexam, <span class="fu">aes</span>(<span class="at">sample =</span> numeracy)) <span class="sc">+</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>If the data are normally distributed (Numeracy), then the observed values should fall exactly along a straight line.</p>
+</section>
+<section id="reporting-the-shapiro-wilk-test" class="level3">
+<h3 class="anchored" data-anchor-id="reporting-the-shapiro-wilk-test">5.6.2. Reporting the Shapiro-Wilk test</h3>
+<p>” The percentage on the R exam, W = 0.96, p = 0.005, and the numeracy scores, W = 0.92, p &lt; .001, were both significantly non-normal.”</p>
+</section>
+</section>
+<section id="testing-for-homogeneity-of-variance" class="level2">
+<h2 class="anchored" data-anchor-id="testing-for-homogeneity-of-variance">5.7. Testing for homogeneity of variance</h2>
+<p>The <em>homogeneity of variance</em>: Although the means increase, the spread of scores is the same at each level of the concert variable.</p>
+<p>The <em>heterogeneity of variance</em>: At some levels of the variable the variance of scores is different than other levels.</p>
+<section id="levenes-test" class="level3">
+<h3 class="anchored" data-anchor-id="levenes-test">5.7.1. Levene’s test</h3>
+<p><strong>Levene’s test</strong> tests the null hypothesis that the variances in different groups are equal. If Levene’s test is significant at p&lt;= .05 then we can conclude that the null hypothesis is incorrect and that the variances are significantly different.</p>
+<section id="levenes-test-with-r-commander" class="level4">
+<h4 class="anchored" data-anchor-id="levenes-test-with-r-commander">5.7.1.1. Levene’s test with R Commander</h4>
+<p>Data -&gt; Import data -&gt; from text file, clipboard, or URL …, and then select the file <strong>RExam.dat</strong></p>
+<p>We need to convert <strong>uni</strong> to a factor because at the moment it is simply 0s and 1s so <strong>R</strong> doesn’t know that it’s a factor.</p>
+<p>Data -&gt; Manage variables in active data set -&gt; Convert numeric variables to factors</p>
+<p>Statistics -&gt; Variances -&gt; Levene’s test, and select a grouping variable, which is <strong>uni</strong> here. For the centring, the median tends to be more accurate and is the default.</p>
+</section>
+<section id="levenes-test-with-r" class="level4">
+<h4 class="anchored" data-anchor-id="levenes-test-with-r">5.7.1.2. Levene’s test with R</h4>
+<p>To use Levene’s test, we use the <code>leveneTest()</code> function from the <em>car</em> package. This function takes the general form: <code>leveneTest(outcome variable, group, center = median/mean)</code>. The outcome variable is what we want to test the variances. The grouping variable must be a factor:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">leveneTest</span>(rexam<span class="sc">$</span>exam, rexam<span class="sc">$</span>uni)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Levene's Test for Homogeneity of Variance (center = median)
+      Df F value Pr(&gt;F)
+group  1  2.0886 0.1516
+      98               </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">leveneTest</span>(rexam<span class="sc">$</span>exam, rexam<span class="sc">$</span>uni, <span class="at">center =</span> mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Levene's Test for Homogeneity of Variance (center = mean)
+      Df F value Pr(&gt;F)
+group  1  2.5841 0.1112
+      98               </code></pre>
+</div>
+</div>
+</section>
+<section id="levenes-test-output" class="level4">
+<h4 class="anchored" data-anchor-id="levenes-test-output">5.7.1.3. Levene’s test output</h4>
+<p>The result is non-significant for the <strong>R</strong> exam scores. This indicates that the variances are not significantly different. However, for the numeracy scores, Levene’s test is significant, indicating that the variances are significantly different.</p>
+</section>
+</section>
+<section id="reporting-levenes-test" class="level3">
+<h3 class="anchored" data-anchor-id="reporting-levenes-test">5.7.2. Reporting Levene’s test</h3>
+<p>For the percentage on the <strong>R</strong> exam, the variances were similar for Duncetown and Sussex University students, <em>F</em>(1, 98) = 2.09, <em>ns</em>, but for numeracy scores the variances were significantly different in the two groups, <em>F</em>(1, 98) = 5.37, <em>p</em> = .023</p>
+</section>
+<section id="hartleys-f_max-the-variance-ratio" class="level3">
+<h3 class="anchored" data-anchor-id="hartleys-f_max-the-variance-ratio">5.7.3. Hartley’s F_max: the variance ratio</h3>
+<p>As with the Shapiro-Wilk test, when the sample size is large, small differences in group variances can produce a Levene’s test that is significant. We can double check by looking at Hartley’s F_max, which is the ratio of the variances between the group with the biggest variance and the group with the smallest variance.</p>
+</section>
+</section>
+<section id="correcting-problems-in-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="correcting-problems-in-the-data">5.8. Correcting problems in the data</h2>
+<p>What can we do about outliers and heterogeneity of variance?</p>
+<section id="dealing-with-outliers" class="level3">
+<h3 class="anchored" data-anchor-id="dealing-with-outliers">5.8.1. Dealing with outliers</h3>
+<p>There are three main options dealing with outliers</p>
+<ol type="1">
+<li>Remove the case: If we have a good reason to believe that a case is not from the population that we intended to sample, we can delete that case.</li>
+<li>Transform the data: The skew occurred by the outlier can be reduced by applying <strong>transformations</strong> to the data.</li>
+<li>Change the score: If transformation fails, we can consider replacing the score. There are three options: The next highest score plus one, Convert back from a z-score, and The mean plus two standard deviations.</li>
+</ol>
+</section>
+<section id="dealing-with-non-normality-and-unequal-variances" class="level3">
+<h3 class="anchored" data-anchor-id="dealing-with-non-normality-and-unequal-variances">5.8.2. Dealing with non-normality and unequal variances</h3>
+<section id="transforming-data" class="level4">
+<h4 class="anchored" data-anchor-id="transforming-data">5.8.2.1. Transforming data</h4>
+<p>The idea behind transformations is that we do something to every score to correct for distributional problems, outliers or unequal variances. Transforming the data won’t change the relationships between variables, but it does change the differences between different variables. If we are looking at differences within variables, then we need to transform all levels of those variables.</p>
+<p>Data transformations and their uses</p>
+<ul>
+<li><p>Log transformation: It reduces positive skew by squashing the right tail of the distribution. We need to set all numbers positive because we can’t take the log of zero or negative numbers.</p></li>
+<li><p>Square root transformation: It brings any large scores closer to the center, rather like the log transformation.</p></li>
+<li><p>Reciprocal transformation: It reduces the impact of large scores, but it reverses the scores.</p></li>
+<li><p>Reverse score transformations: Any one of the above transformations can be used to correct negatively skewed data, but first we have to reverse the scores. To do this, we can subtract each score from the highest score obtained.</p></li>
+</ul>
+<p>We need to know whether the statistical models we apply perform better on transformed data than they do when applied to data that violate the assumption that the transformation corrects. If a statistical model is still accurate even when its assumptions are broken it is said to be a <strong>robust test</strong>.</p>
+</section>
+<section id="choosing-a-transformation" class="level4">
+<h4 class="anchored" data-anchor-id="choosing-a-transformation">5.8.2.2. Choosing a transformation</h4>
+<p>We have to decide which transformation is best by trial and error.</p>
+</section>
+</section>
+<section id="transforming-the-data-using-r" class="level3">
+<h3 class="anchored" data-anchor-id="transforming-the-data-using-r">5.8.3. Transforming the data using R</h3>
+<section id="computing-new-variables" class="level4">
+<h4 class="anchored" data-anchor-id="computing-new-variables">5.8.3.1. Computing new variables</h4>
+<p><strong>Addition:</strong> We can add two variables together, or add a constant to our variables.</p>
+<p><strong>Subtraction:</strong> We can subtract one variable from another.</p>
+<p><strong>Multiply:</strong> We can multiply two variables together, or multiply a variable by any number.</p>
+<p><strong>Exponentiation:</strong> We can raise the preceding term by the power of the succeeding term.</p>
+<p><strong>Less than:</strong> It gives the answer TRUE (or 1) or FALSE (or 0)</p>
+<p><strong>Double equals:</strong> It creates a variable <strong>male</strong> in the <em>dlf</em> dataframe that contains the value TRUE if the variable <strong>gender</strong> was the word ‘Male’</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Addition</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>day1PlusDay2 <span class="ot">&lt;-</span> dlf<span class="sc">$</span>day1 <span class="sc">+</span> dlf<span class="sc">$</span>day2</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Subtraction</span></span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>day2MinusDay1 <span class="ot">&lt;-</span> dlf<span class="sc">$</span>day2 <span class="sc">-</span> dlf<span class="sc">$</span>day1</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Multiply</span></span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>day2Times5 <span class="ot">&lt;-</span> dlf<span class="sc">$</span>day1 <span class="sc">*</span> <span class="dv">5</span></span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Exponentiation</span></span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>day2Squared <span class="ot">&lt;-</span> dlf<span class="sc">$</span>day2 <span class="sc">^</span> <span class="dv">2</span></span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Less than</span></span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>day1LessThenOne <span class="ot">&lt;-</span> dlf<span class="sc">$</span>day1 <span class="sc">&lt;</span> <span class="dv">1</span></span>
+<span id="cb76-11"><a href="#cb76-11" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>day1LessThenOne</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE
+ [13] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+ [25] FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE
+ [37] FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+ [49] FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+ [61] FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+ [73] FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+ [85] FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE
+ [97] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
+[109] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE
+[121] FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
+[133] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[145] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[157] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[169] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE
+[181]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[193] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE
+[205] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[217] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[229] FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE
+[241] FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE  TRUE
+[253]  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[265] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[277] FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+[289]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[301] FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[313] FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+[325] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[337] FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[349] FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+[361]  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+[373] FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE
+[385]  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+[397] FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+[409] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+[421] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE
+[433] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
+[445] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[457] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[469]  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[481] FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[493] FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE
+[505]  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE
+[517] FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE
+[529] FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE
+[541] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[553] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[565] FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+[577] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
+[589] FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
+[601] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[613]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[625] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE
+[637] FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE
+[649] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[661] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE
+[673] FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[685] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE
+[697] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
+[709] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[721] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[733] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE
+[745]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+[757]  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
+[769] FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[781] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[793] FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+[805]  TRUE FALSE FALSE FALSE FALSE FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Double equals ("!=" for "Not equal to")</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>male <span class="ot">&lt;-</span> dlf<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">"Male"</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>male</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1]  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE
+ [13]  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE
+ [25] FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE
+ [37] FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE  TRUE
+ [49]  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE
+ [61] FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+ [73]  TRUE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE  TRUE
+ [85] FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE
+ [97] FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE  TRUE  TRUE
+[109] FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+[121]  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
+[133]  TRUE  TRUE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE
+[145] FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+[157]  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
+[169] FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE
+[181] FALSE  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
+[193] FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+[205]  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE
+[217] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE
+[229]  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE  TRUE  TRUE
+[241]  TRUE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE
+[253] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+[265]  TRUE  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE
+[277] FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE
+[289]  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE
+[301] FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE
+[313]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+[325] FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE
+[337] FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE
+[349]  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+[361]  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE
+[373]  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE
+[385]  TRUE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
+[397] FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE
+[409]  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE
+[421]  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE
+[433]  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+[445]  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE
+[457] FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE
+[469]  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE
+[481]  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE
+[493]  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE
+[505]  TRUE FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE
+[517]  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE
+[529]  TRUE FALSE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+[541] FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE
+[553]  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
+[565] FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE
+[577] FALSE FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE
+[589] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+[601] FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE
+[613]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
+[625]  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+[637] FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE
+[649] FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE
+[661]  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE
+[673]  TRUE FALSE FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+[685] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE
+[697] FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+[709] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE
+[721] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE
+[733] FALSE  TRUE  TRUE  TRUE FALSE FALSE  TRUE FALSE  TRUE  TRUE  TRUE FALSE
+[745]  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE
+[757]  TRUE FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE
+[769] FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE  TRUE
+[781]  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE
+[793]  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE FALSE
+[805] FALSE FALSE FALSE FALSE  TRUE FALSE</code></pre>
+</div>
+</div>
+<p><code>rowMeans(cbind(dlf$day1, dlf$day2, dlf$day3), na.rm = TRUE)</code>: Mean for a row</p>
+<p><code>rowSums(``cbind(dlf$day1, dlf$day2, dlf$day3), na.rm = TRUE``)</code>: Sums for a row</p>
+<p><code>na.rm = TRUE</code> tells <strong>R</strong> to exclude missing values from the calculation.</p>
+<p><code>sqrt(dlf$day2)</code>: Produces a column containing the sqrt of each value in the column labelled <em>day2.</em></p>
+<p><code>abs(dlf$day1)</code>: Produces a variable that contains the absolute value of the values in the column labelled <em>day1</em>.</p>
+<p><code>is.na(dlf$day1)</code>: If a variable is missing, the case will be assigned TRUE (or 1); if the case is not missing, the case will be assigned FALSE (or 0):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>missingDay2 <span class="ot">&lt;-</span> <span class="fu">is.na</span>(dlf<span class="sc">$</span>day2)</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>missingDay2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE
+ [13]  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE
+ [25]  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE FALSE  TRUE
+ [37] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE
+ [49]  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE
+ [61]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE
+ [73]  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE
+ [85] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+ [97] FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+[109]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
+[121]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[133] FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE
+[145]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+[157]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE
+[169]  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+[181]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE
+[193]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+[205]  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE
+[217]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[229]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+[241] FALSE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE  TRUE  TRUE
+[253]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE
+[265]  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE
+[277]  TRUE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE
+[289] FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
+[301]  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE FALSE
+[313]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[325]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[337]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE  TRUE  TRUE
+[349]  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE  TRUE  TRUE
+[361]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE
+[373] FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[385]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[397]  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE
+[409] FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE
+[421]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+[433] FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[445]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+[457]  TRUE  TRUE FALSE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[469] FALSE  TRUE FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE
+[481]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE
+[493]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE
+[505]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE
+[517] FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE
+[529]  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE FALSE
+[541]  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE
+[553]  TRUE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+[565] FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+[577]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+[589]  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[601]  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE
+[613] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+[625] FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE
+[637] FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE
+[649]  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE
+[661]  TRUE FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+[673]  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[685]  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE
+[697]  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+[709]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+[721] FALSE FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[733]  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE
+[745]  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE
+[757]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+[769] FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE
+[781] FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE
+[793]  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE
+[805]  TRUE FALSE FALSE  TRUE  TRUE  TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(dlf<span class="sc">$</span>missingDay2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 546</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">is.na</span>(dlf<span class="sc">$</span>day2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.6740741</code></pre>
+</div>
+</div>
+<p><code>mean(is.na(dlf$day2))</code> tells us that the mean is 0.674, so 67.4% of people are missing a hygiene score on day2.</p>
+</section>
+<section id="the-log-transformation-in-r" class="level4">
+<h4 class="anchored" data-anchor-id="the-log-transformation-in-r">5.8.3.2. The log transformation in R</h4>
+<p>To transform the variable <strong>day1</strong>, and create a new variable <strong>logday1</strong>, we execute this command:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>logday1 <span class="ot">&lt;-</span> <span class="fu">log</span>(dlf<span class="sc">$</span>day1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For the day2 hygiene scores there is a value of 0 in the original data, so we can’t transform it by taking log. To overcome this, we should add a constant to our original scores before we take the log of those scores:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>logday1 <span class="ot">&lt;-</span> <span class="fu">log</span>(dlf<span class="sc">$</span>day1 <span class="sc">+</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The advantage of adding 1 is that the logarithm of 1 is equal to 0, so people who scored a zero before the transformation score a zero after the transformation.</p>
+</section>
+<section id="self-test-2" class="level4">
+<h4 class="anchored" data-anchor-id="self-test-2">SELF-TEST</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>logday1 <span class="ot">&lt;-</span> <span class="fu">log</span>(dlf<span class="sc">$</span>day1 <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>logday2 <span class="ot">&lt;-</span> <span class="fu">log</span>(dlf<span class="sc">$</span>day2 <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>logday3 <span class="ot">&lt;-</span> <span class="fu">log</span>(dlf<span class="sc">$</span>day3 <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a>hist.logday1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(logday1)) <span class="sc">+</span></span>
+<span id="cb88-6"><a href="#cb88-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb88-7"><a href="#cb88-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb88-8"><a href="#cb88-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb88-9"><a href="#cb88-9" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb88-10"><a href="#cb88-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Log Transformed Hygiene Score on Day 1"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb88-11"><a href="#cb88-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb88-12"><a href="#cb88-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>logday1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb88-13"><a href="#cb88-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>logday1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb88-14"><a href="#cb88-14" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb88-15"><a href="#cb88-15" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb88-16"><a href="#cb88-16" aria-hidden="true" tabindex="-1"></a>hist.logday1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>hist.logday2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(logday2)) <span class="sc">+</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb90-4"><a href="#cb90-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb90-5"><a href="#cb90-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb90-6"><a href="#cb90-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Log Transformed Hygiene Score on Day 2"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb90-7"><a href="#cb90-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb90-8"><a href="#cb90-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>logday2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb90-9"><a href="#cb90-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>logday2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb90-10"><a href="#cb90-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb90-11"><a href="#cb90-11" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb90-12"><a href="#cb90-12" aria-hidden="true" tabindex="-1"></a>hist.logday2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 546 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-27-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>hist.logday3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(logday3)) <span class="sc">+</span></span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb93-5"><a href="#cb93-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb93-6"><a href="#cb93-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Log Transformed Hygiene Score on Day 3"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb93-7"><a href="#cb93-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb93-8"><a href="#cb93-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>logday3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb93-9"><a href="#cb93-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>logday3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb93-10"><a href="#cb93-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb93-11"><a href="#cb93-11" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb93-12"><a href="#cb93-12" aria-hidden="true" tabindex="-1"></a>hist.logday3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 687 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-27-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="the-square-root-transformation-in-r" class="level4">
+<h4 class="anchored" data-anchor-id="the-square-root-transformation-in-r">5.8.3.3. The square root transformation in R</h4>
+<p>To do a square root transformation, we can execute <code>dlf$sqrtday1 &lt;- sqrt(dlf$day1)</code>.</p>
+</section>
+<section id="self-test-3" class="level4">
+<h4 class="anchored" data-anchor-id="self-test-3">SELF-TEST</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>sqrtday1 <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(dlf<span class="sc">$</span>day1)</span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>sqrtday2 <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(dlf<span class="sc">$</span>day2)</span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>sqrtday3 <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(dlf<span class="sc">$</span>day3)</span>
+<span id="cb96-4"><a href="#cb96-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-5"><a href="#cb96-5" aria-hidden="true" tabindex="-1"></a>hist.sqrtday1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(sqrtday1)) <span class="sc">+</span></span>
+<span id="cb96-6"><a href="#cb96-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb96-7"><a href="#cb96-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb96-8"><a href="#cb96-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb96-9"><a href="#cb96-9" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb96-10"><a href="#cb96-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Sqrt Transformed Hygiene Score on Day 1"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb96-11"><a href="#cb96-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb96-12"><a href="#cb96-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>sqrtday1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb96-13"><a href="#cb96-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>sqrtday1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb96-14"><a href="#cb96-14" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb96-15"><a href="#cb96-15" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb96-16"><a href="#cb96-16" aria-hidden="true" tabindex="-1"></a>hist.sqrtday1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>hist.sqrtday2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(sqrtday2)) <span class="sc">+</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb98-6"><a href="#cb98-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Sqrt Transformed Hygiene Score on Day 2"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb98-7"><a href="#cb98-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb98-8"><a href="#cb98-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>sqrtday2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb98-9"><a href="#cb98-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>sqrtday2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb98-10"><a href="#cb98-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb98-11"><a href="#cb98-11" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb98-12"><a href="#cb98-12" aria-hidden="true" tabindex="-1"></a>hist.sqrtday2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 546 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-28-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>hist.sqrtday3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(sqrtday3)) <span class="sc">+</span></span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Sqrt Transformed Hygiene Score on Day 3"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb101-7"><a href="#cb101-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb101-8"><a href="#cb101-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>sqrtday3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb101-9"><a href="#cb101-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>sqrtday3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb101-10"><a href="#cb101-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb101-11"><a href="#cb101-11" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb101-12"><a href="#cb101-12" aria-hidden="true" tabindex="-1"></a>hist.sqrtday3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 687 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-28-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="the-reciprocal-transformation-in-r" class="level4">
+<h4 class="anchored" data-anchor-id="the-reciprocal-transformation-in-r">5.8.3.4. The reciprocal transformation in R</h4>
+<p>To do a reciprocal transformation, we use ‘1/variable’. However, if the data contain a zero value, we can add a constant to our variable and then divide it.</p>
+</section>
+<section id="self-test-4" class="level4">
+<h4 class="anchored" data-anchor-id="self-test-4">SELF-TEST</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>recday1 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(dlf<span class="sc">$</span>day1 <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>recday2 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(dlf<span class="sc">$</span>day1 <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>recday3 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(dlf<span class="sc">$</span>day1 <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb104-5"><a href="#cb104-5" aria-hidden="true" tabindex="-1"></a>hist.recday1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(recday1)) <span class="sc">+</span></span>
+<span id="cb104-6"><a href="#cb104-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb104-7"><a href="#cb104-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb104-8"><a href="#cb104-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb104-9"><a href="#cb104-9" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb104-10"><a href="#cb104-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Rec Transformed Hygiene Score on Day 1"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb104-11"><a href="#cb104-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb104-12"><a href="#cb104-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>recday1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb104-13"><a href="#cb104-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>recday1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb104-14"><a href="#cb104-14" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb104-15"><a href="#cb104-15" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb104-16"><a href="#cb104-16" aria-hidden="true" tabindex="-1"></a>hist.recday1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>hist.recday2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(recday2)) <span class="sc">+</span></span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb106-6"><a href="#cb106-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Rec Transformed Hygiene Score on Day 2"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb106-7"><a href="#cb106-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb106-8"><a href="#cb106-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>recday2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb106-9"><a href="#cb106-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>recday2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb106-10"><a href="#cb106-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb106-11"><a href="#cb106-11" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb106-12"><a href="#cb106-12" aria-hidden="true" tabindex="-1"></a>hist.recday2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-29-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>hist.recday3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dlf, <span class="fu">aes</span>(recday3)) <span class="sc">+</span></span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y=</span>..density..),</span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"white"</span></span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">+</span></span>
+<span id="cb108-6"><a href="#cb108-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Rec Transformed Hygiene Score on Day 3"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb108-7"><a href="#cb108-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb108-8"><a href="#cb108-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(dlf<span class="sc">$</span>recday3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb108-9"><a href="#cb108-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(dlf<span class="sc">$</span>recday3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb108-10"><a href="#cb108-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb108-11"><a href="#cb108-11" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb108-12"><a href="#cb108-12" aria-hidden="true" tabindex="-1"></a>hist.recday3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_5_files/figure-html/unnamed-chunk-29-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="the-ifelse-function-in-r" class="level4">
+<h4 class="anchored" data-anchor-id="the-ifelse-function-in-r">5.8.3.5. The ifelse() function in R</h4>
+<p>The <em>ifelse()</em> function is used to create a new variable, or change an old variable, depending on some other values. This function needs three arguments: a conditional argument to test, what to do if the test is true, and what to do if the test is false.</p>
+<p>For example, to remove the outliers in the <strong>day1</strong> hygiene score:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>day1NoOutlier <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dlf<span class="sc">$</span>day1 <span class="sc">&gt;</span> <span class="dv">4</span>, <span class="cn">NA</span>, dlf<span class="sc">$</span>day1)</span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>day1NoOutlier</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 2.64 0.97 0.84 3.03 0.88 0.85 1.56 3.02 2.29 1.11 2.17 0.82 1.41 1.76 1.38
+ [16] 2.79 1.50 1.91 2.32 2.05 2.17 2.05 1.61 1.66 2.30 2.76 1.44 1.06 3.23 0.97
+ [31] 2.57 0.26 0.47 1.73 1.94 1.91 2.08 1.91 1.42 1.50 0.11 1.67 2.08 2.05 2.00
+ [46] 1.52 1.58 1.28 1.88 1.32 2.09 2.00 2.64 0.85 2.47 1.79 1.64 1.32 2.97 1.44
+ [61] 2.02 1.79 1.34 2.29 1.66 0.60 1.76 1.50 2.08 1.00 1.73 1.05 2.81 1.52 1.47
+ [76] 2.64 2.20 0.55 2.29 2.00 2.23 2.45 1.20 2.91 1.14 1.88 0.94 1.85 2.58 0.61
+ [91] 0.70 1.38 1.94 2.29 1.59 2.46 1.67 2.02 1.50 2.70 1.61 2.29 0.97 1.85 2.76
+[106] 1.64 1.17 1.57 2.23 2.05 2.05 2.94 2.39 1.94 2.12 1.11 0.97 1.35 2.81 2.50
+[121] 1.87 1.33 1.26 1.44 0.55 1.75 2.08 0.85 2.52 3.00 1.41 1.08 1.20 1.94 2.26
+[136] 1.41 2.50 2.17 1.82 1.44 1.66 1.82 1.26 2.67 1.47 1.84 2.58 1.73 1.23 2.32
+[151] 2.67 1.02 1.66 1.88 1.91 1.64 1.34 1.85 2.08 1.02 1.79 1.94 3.26 1.14 1.50
+[166] 2.03 2.24 1.11 2.21 1.94 2.41 0.88 1.17 2.23 1.64 2.14 0.11 2.17 1.67 1.00
+[181] 0.88 2.20 2.17 2.32 1.64 3.00 2.38 1.60 1.58 2.61 1.44 1.57 2.32 1.14 1.93
+[196] 2.47 2.29 1.00 1.58 2.44 0.83 2.71 1.73 1.58 1.50 1.05 2.05 2.63 2.55 2.00
+[211] 2.00 1.32 3.14 1.44 1.85 1.41 1.94 2.91 1.85 1.70 2.23 1.11 1.47 2.20 1.82
+[226] 1.42 2.44 2.66 1.52 1.35 1.29 2.32 0.78 2.84 0.97 1.52 1.70 0.94 1.41 1.79
+[241] 1.08 1.47 1.79 2.00 0.76 2.20 0.94 1.38 1.38 0.32 2.58 0.51 0.32 0.91 1.51
+[256] 1.47 2.50 2.26 2.81 1.87 2.00 2.23 2.00 1.41 1.64 1.64 1.26 1.52 2.44 2.18
+[271] 3.02 1.02 2.88 1.54 1.64 2.44 1.29 1.61 1.77 0.91 0.85 0.85 1.50 1.05 3.38
+[286] 1.42 1.85 1.91 0.82 1.32 2.23 1.47 2.70 1.58 1.00 1.44 2.00 1.60 2.32 3.41
+[301] 2.02 0.64 3.58 1.50 1.08 1.52 1.26 1.68 1.47 1.47 1.67 2.47 1.82 2.17 3.21
+[316] 1.60 0.32 0.55 1.42 1.14 2.64 2.58 2.02 2.00 2.90 1.82 0.50 1.53 2.48 2.05
+[331] 2.52 1.88 2.73 2.88 1.67 1.93 1.67 1.20 2.75 1.94 0.59 1.50 1.58 2.23 2.35
+[346] 2.55 1.55 2.31 2.23 0.67 2.51 1.08 2.44 0.23 2.17 1.90 1.67 2.00 2.44 1.44
+[361] 0.82 2.50 1.82 1.97 2.52 0.05 2.08 2.39 1.45 2.58 2.12 2.02 1.78 0.73 2.26
+[376] 2.79 0.43 0.52 2.32 2.22 0.58 2.00 0.70 1.00 0.30 1.52 1.58 2.34 0.79 2.26
+[391] 2.35 1.70 3.09 1.52 0.35 2.70 1.64 0.82 2.73 2.23 1.06 2.05 1.73 0.93 2.50
+[406] 1.44 2.88 0.67 1.85 1.21 1.06 0.61 2.00 1.17 1.48 1.55 3.29 1.47 0.96 1.00
+[421] 1.47 2.55 0.44 2.35 1.71 1.84 1.11 1.38 0.88 0.94 1.91 2.76 1.55 2.67 1.03
+[436] 2.50 1.64 2.26 2.14 0.52 1.08 1.69 2.73 1.91 1.73 3.21 2.11 2.05 2.17 2.17
+[451] 2.30 2.56 2.11 1.70 1.23 3.20 2.02 2.64 2.52 1.61 1.50 1.15 1.82 1.50 2.32
+[466] 2.92 1.41 1.35 0.61 0.73 2.23 1.32 2.94 1.61 1.00 3.15 2.88 2.09 1.32 1.47
+[481] 1.61 2.20 2.78 2.06 0.47 2.87 1.14 3.32 2.08 2.38 2.08 1.85 1.38 1.14 1.58
+[496] 1.23 2.53 0.67 0.73 1.34 2.14 1.00 1.35 1.94 0.50 3.08 2.88 1.91 1.41 2.02
+[511] 0.76 1.94 0.67 2.41 2.17 2.67 1.94 2.05 2.17 0.47 0.62 2.00 0.45 2.29 2.55
+[526] 0.82 3.12 2.50 1.79 2.28 0.58 2.50 1.41 2.14 0.76 1.79 1.02 2.62 0.88 1.58
+[541] 2.20 1.14 1.47 1.41 1.44 1.23 1.82 2.44 1.94 2.41 2.27 1.79 1.88 1.85 2.21
+[556] 1.97 2.51 2.05 1.29 2.05 2.23 1.76 1.05 1.79 1.02 2.76 1.67 2.85 0.23 1.90
+[571] 1.23 1.97 1.50 3.69 0.50 2.18 2.17 1.58 2.88 2.52 2.20 1.73 2.23 1.97 1.20
+[586] 2.00 1.91 0.81 1.31 0.38 1.97 0.38 2.11 3.20 0.02 2.56 2.02 2.30 2.02 2.05
+[601] 1.70 1.61 0.73 2.50 2.18 2.46 1.50 1.73 1.44 1.64 2.02 1.20 0.38 1.58 1.67
+[616] 1.00 2.58 2.82 2.29 1.14 1.64 1.82 3.32 3.32 1.85 2.29 1.47 2.08 2.20 1.06
+[631] 0.97 2.00 1.67 2.94 1.55 0.88 1.35 0.61 1.00 1.52 1.00 1.76 2.52 2.00 2.63
+[646] 0.73 1.58 0.58 1.67 1.47 1.81 1.91 1.06 1.47 2.52 1.85 3.44 1.55 2.29 1.76
+[661] 1.90 2.52 2.52 2.82 2.02 1.29 1.26 0.94 2.00 0.73 2.26 2.23 2.35 0.55 1.85
+[676] 0.67 1.85 1.23 2.35 1.35 1.94 1.55 1.29 2.17 1.91 2.88 2.36 2.36 2.20 2.17
+[691] 0.52 0.32 1.52 2.00 1.32 2.05 1.73 1.94 1.81 0.90 1.58 2.29 2.57 1.58 2.33
+[706] 3.15 2.29 0.82 1.93 1.82 1.96 1.32 1.02 1.14 2.32 2.16 2.42 1.14 1.55 1.17
+[721] 1.00 1.05 1.38 1.93 2.73 2.02 2.81 2.47 1.35 2.08 2.50 2.45 2.17 1.70 0.70
+[736] 1.51 1.23 2.14 1.14 0.96 1.52 0.52 1.56 3.29 0.45 2.63 1.70 3.11 1.82 1.58
+[751] 2.73 1.50 1.78 2.02 0.67 1.41 0.90 1.23 2.70 1.97 0.84 1.79 2.84 2.02 1.64
+[766] 1.08 2.97 0.94 2.97 0.97 1.47 2.61 1.73 3.38 3.17 2.20 2.14 1.29 3.21 2.67
+[781] 1.85 1.35 2.14 1.24 2.02 2.32 1.08 1.14 2.14 2.88 1.35 1.00 2.02 0.64 0.29
+[796] 1.73 1.82 2.11 1.23 0.64 2.23 2.44 1.17 0.61 0.52 2.91 2.61 1.47 1.28 1.26</code></pre>
+</div>
+</div>
+<p>This command creates a new variable called <strong>day1NoOutlier</strong> which takes the value NA if <strong>day1</strong> is greater than 4, but is the value of day1 if day1 is less than 4</p>
+<p>The <code>rowSums()</code> and <code>rowMeans()</code> functions allow us to choose what to do with missing data, by using the <code>na.rm</code> option, which asks ‘should missing values (na) be removed (rm)?’</p>
+<p>To obtain the mean hygiene score across three days, removing anyone with any missing values, we would use:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>meanHygiene <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(<span class="fu">cbind</span>(dlf<span class="sc">$</span>day1, dlf<span class="sc">$</span>day2, dlf<span class="sc">$</span>day3))</span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>meanHygiene</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 1.8666667 0.8900000        NA        NA        NA        NA        NA
+  [8]        NA        NA 0.7000000        NA 0.4966667        NA 1.6600000
+ [15]        NA        NA        NA        NA        NA        NA 1.2100000
+ [22]        NA        NA        NA        NA        NA        NA        NA
+ [29]        NA 0.7033333 0.9000000        NA        NA        NA 1.4766667
+ [36]        NA 1.3166667        NA        NA        NA        NA        NA
+ [43]        NA        NA        NA        NA        NA 0.6000000        NA
+ [50]        NA        NA        NA        NA 0.5633333 1.0266667        NA
+ [57]        NA        NA        NA        NA        NA        NA        NA
+ [64]        NA        NA        NA 0.9366667        NA        NA        NA
+ [71]        NA        NA        NA        NA        NA        NA        NA
+ [78]        NA        NA        NA        NA        NA        NA 2.3666667
+ [85]        NA        NA        NA        NA        NA        NA        NA
+ [92]        NA        NA        NA        NA        NA        NA 1.0333333
+ [99]        NA 2.1033333        NA        NA 0.9300000        NA        NA
+[106]        NA        NA        NA        NA 1.9266667        NA        NA
+[113]        NA        NA        NA        NA        NA        NA        NA
+[120]        NA        NA        NA        NA        NA        NA        NA
+[127]        NA        NA        NA        NA        NA        NA 1.3600000
+[134]        NA 1.9066667        NA        NA        NA        NA        NA
+[141]        NA        NA        NA        NA        NA        NA        NA
+[148]        NA        NA        NA        NA        NA 2.1600000        NA
+[155]        NA        NA        NA        NA        NA        NA        NA
+[162]        NA 2.3000000 0.6100000 0.8600000        NA        NA        NA
+[169]        NA        NA        NA        NA        NA        NA        NA
+[176]        NA        NA        NA        NA        NA        NA        NA
+[183]        NA        NA        NA        NA        NA        NA        NA
+[190]        NA 0.5633333        NA        NA        NA        NA        NA
+[197]        NA        NA        NA        NA        NA 1.2733333        NA
+[204]        NA        NA        NA        NA        NA        NA        NA
+[211]        NA        NA        NA        NA        NA        NA        NA
+[218]        NA        NA        NA        NA        NA        NA        NA
+[225]        NA        NA        NA        NA        NA 0.8500000        NA
+[232]        NA        NA        NA        NA        NA        NA 1.1333333
+[239]        NA        NA 0.6533333        NA        NA        NA        NA
+[246]        NA        NA        NA        NA        NA        NA        NA
+[253]        NA 1.2400000        NA        NA        NA        NA        NA
+[260]        NA        NA 1.2200000        NA        NA        NA        NA
+[267]        NA 1.3166667 1.4066667        NA        NA        NA        NA
+[274]        NA        NA 2.2133333        NA 0.7300000        NA        NA
+[281] 0.4766667 0.6033333        NA        NA        NA 1.3133333        NA
+[288]        NA        NA        NA 1.1566667 1.0533333        NA        NA
+[295]        NA        NA        NA        NA 2.1733333        NA        NA
+[302]        NA        NA        NA        NA        NA        NA        NA
+[309] 1.0433333        NA        NA        NA        NA        NA        NA
+[316] 1.3333333        NA        NA        NA        NA        NA        NA
+[323]        NA        NA        NA        NA        NA        NA        NA
+[330]        NA        NA        NA        NA        NA        NA        NA
+[337]        NA        NA        NA        NA        NA        NA 1.1533333
+[344] 0.8366667        NA 1.2200000        NA        NA        NA        NA
+[351]        NA 0.7566667        NA        NA        NA        NA        NA
+[358] 1.0333333        NA        NA        NA        NA        NA        NA
+[365]        NA        NA        NA        NA        NA        NA        NA
+[372] 1.1100000 1.1200000 0.5533333 1.6700000        NA 0.4133333 0.5333333
+[379]        NA        NA        NA        NA        NA        NA        NA
+[386]        NA        NA        NA        NA        NA        NA        NA
+[393]        NA        NA        NA        NA        NA        NA        NA
+[400]        NA        NA 0.8666667        NA        NA        NA        NA
+[407]        NA 0.4466667        NA        NA 0.8400000 0.4000000        NA
+[414] 1.0233333 1.2733333        NA        NA        NA        NA 1.1033333
+[421]        NA        NA        NA        NA        NA 1.0400000 0.6300000
+[428]        NA        NA        NA        NA        NA 0.7800000        NA
+[435] 0.6800000        NA        NA        NA        NA        NA        NA
+[442]        NA        NA        NA        NA        NA        NA        NA
+[449]        NA        NA        NA        NA 0.9966667        NA        NA
+[456]        NA        NA        NA        NA        NA 1.2033333 0.6800000
+[463]        NA        NA        NA        NA        NA        NA        NA
+[470]        NA        NA        NA        NA        NA        NA        NA
+[477]        NA        NA 1.7700000        NA        NA 1.8600000        NA
+[484]        NA        NA        NA        NA        NA        NA        NA
+[491]        NA        NA        NA        NA        NA 0.9833333        NA
+[498]        NA        NA        NA        NA        NA        NA        NA
+[505]        NA        NA        NA        NA        NA        NA        NA
+[512]        NA        NA        NA        NA        NA        NA 1.5333333
+[519]        NA        NA        NA        NA        NA 1.5266667        NA
+[526]        NA        NA 1.7133333        NA        NA 0.7366667        NA
+[533]        NA        NA        NA        NA        NA        NA        NA
+[540] 0.6600000        NA        NA 0.7800000 0.6733333 1.4600000        NA
+[547]        NA        NA        NA        NA        NA        NA        NA
+[554] 1.2700000        NA        NA        NA        NA 1.0366667        NA
+[561]        NA        NA        NA        NA 0.7400000        NA        NA
+[568]        NA        NA        NA        NA        NA        NA        NA
+[575]        NA        NA        NA        NA        NA        NA        NA
+[582]        NA        NA        NA 0.9266667        NA        NA        NA
+[589]        NA        NA        NA        NA 1.2400000        NA        NA
+[596]        NA        NA        NA        NA        NA        NA        NA
+[603]        NA        NA 1.9466667 1.8166667        NA        NA        NA
+[610] 0.8266667        NA 0.5233333        NA 1.6266667        NA        NA
+[617]        NA 2.8166667        NA        NA        NA        NA 3.0833333
+[624]        NA 1.4500000        NA 1.1733333 1.1500000        NA        NA
+[631] 0.3766667        NA        NA        NA        NA        NA        NA
+[638] 0.3266667        NA 1.5866667        NA 1.0166667        NA 1.4400000
+[645]        NA        NA 1.1566667        NA        NA        NA        NA
+[652]        NA        NA 1.2133333        NA        NA        NA 1.3533333
+[659]        NA        NA        NA        NA        NA        NA        NA
+[666]        NA        NA        NA 1.2200000        NA        NA        NA
+[673]        NA        NA        NA        NA        NA        NA        NA
+[680]        NA        NA        NA        NA        NA        NA        NA
+[687]        NA        NA        NA 1.0066667        NA        NA        NA
+[694] 1.0066667 1.1800000        NA        NA        NA        NA        NA
+[701]        NA 1.6900000        NA        NA        NA        NA        NA
+[708]        NA        NA        NA        NA 0.8100000        NA        NA
+[715]        NA        NA        NA        NA 1.3666667        NA 0.6333333
+[722]        NA        NA        NA        NA        NA        NA        NA
+[729]        NA        NA        NA        NA        NA        NA 0.4600000
+[736]        NA        NA        NA        NA        NA 1.3066667        NA
+[743]        NA        NA        NA        NA        NA        NA        NA
+[750]        NA        NA        NA        NA        NA 0.8400000        NA
+[757]        NA 1.0333333        NA        NA        NA        NA        NA
+[764]        NA        NA        NA        NA        NA        NA        NA
+[771]        NA        NA 0.9466667 3.4100000 1.9666667        NA        NA
+[778] 1.2266667        NA        NA        NA        NA        NA        NA
+[785] 2.1166667        NA        NA 1.1700000        NA        NA 0.6533333
+[792]        NA        NA        NA        NA        NA        NA        NA
+[799]        NA        NA 1.9166667        NA        NA        NA        NA
+[806]        NA        NA        NA        NA        NA</code></pre>
+</div>
+</div>
+<p>But, a lot of people would be missing. If we want to use everyone who had at least one score for the three days, we can add <code>na.rm = TRUE</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>meanHygiene <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(<span class="fu">cbind</span>(dlf<span class="sc">$</span>day1, dlf<span class="sc">$</span>day2, dlf<span class="sc">$</span>day3), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>meanHygiene</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 1.8666667 0.8900000 0.8400000 3.0300000 0.4800000 0.8500000 1.5600000
+  [8] 3.0200000 2.2900000 0.7000000 2.1700000 0.4966667 1.4100000 1.6600000
+ [15] 0.7000000 2.7900000 1.5000000 1.9800000 2.3200000 2.0500000 1.2100000
+ [22] 2.0500000 1.6100000 1.2550000 2.3000000 2.7600000 1.4400000 1.0600000
+ [29] 3.2300000 0.7033333 0.9000000 0.2600000 0.4700000 1.7300000 1.4766667
+ [36] 1.9100000 1.3166667 1.9100000 1.4200000 1.5000000 0.1100000 1.6700000
+ [43] 2.0800000 2.0500000 2.0000000 1.5200000 1.5800000 0.6000000 1.8800000
+ [50] 1.3200000 2.0900000 2.0000000 2.6400000 0.5633333 1.0266667 1.7900000
+ [57] 1.6400000 1.3200000 2.9700000 0.7900000 2.0200000 1.7900000 1.3400000
+ [64] 2.0950000 1.6600000 0.6000000 0.9366667 1.5000000 1.3900000 0.7750000
+ [71] 1.7300000 0.7150000 2.8100000 1.5200000 1.4700000 2.6400000 1.6900000
+ [78] 0.6700000 2.2900000 2.0000000 2.2300000 2.4500000 1.2000000 2.3666667
+ [85] 1.0700000 1.8800000 0.9400000 1.8500000 2.5800000 0.6100000 0.7000000
+ [92] 1.3800000 1.9400000 2.2900000 1.5900000 2.4600000 0.9050000 1.0333333
+ [99] 1.5000000 2.1033333 1.6100000 2.2900000 0.9300000 1.8500000 2.7600000
+[106] 1.6400000 1.1700000 1.5700000 2.2300000 1.9266667 2.0500000 2.9400000
+[113] 2.3900000 1.9400000 2.1200000 1.1100000 0.9700000 1.3500000 2.4450000
+[120] 2.5000000 1.8700000 1.3300000 1.2600000 1.4400000 0.5500000 1.7500000
+[127] 2.0800000 0.8500000 2.5200000 3.0000000 1.4100000 1.0800000 1.3600000
+[134] 1.6900000 1.9066667 1.4100000 2.5000000 2.1700000 1.4650000 1.2900000
+[141] 1.6600000 1.8200000 1.2600000 2.6700000 1.4700000 1.8400000 2.5800000
+[148] 1.7300000 1.2300000 2.3200000 2.6700000 1.0200000 2.1600000 1.8800000
+[155] 1.9100000 1.6400000 1.3400000 1.8500000 2.0800000 1.0200000 1.7900000
+[162] 1.9400000 2.3000000 0.6100000 0.8600000 2.0300000 2.2400000 1.1100000
+[169] 2.2100000 1.9400000 2.4100000 0.8800000 1.2600000 2.2300000 1.6400000
+[176] 2.1400000 0.2000000 2.1700000 1.6700000 1.0000000 0.8800000 2.2000000
+[183] 2.1700000 2.3200000 1.6400000 3.0000000 1.6150000 1.3100000 1.5800000
+[190] 2.6100000 0.5633333 1.5700000 2.3200000 1.1400000 1.9300000 2.4700000
+[197] 2.2900000 1.0000000 1.5800000 2.4400000 0.8300000 1.2733333 1.7300000
+[204] 1.5800000 1.5000000 1.0500000 2.0500000 2.6300000 2.4200000 2.0000000
+[211] 2.0000000 1.3200000 3.1400000 1.4400000 1.0400000 0.9250000 1.9400000
+[218] 2.9100000 1.8500000 1.7000000 2.2300000 1.1100000 1.4700000 2.2000000
+[225] 1.8200000 1.4200000 2.4400000 2.6600000 1.5200000 0.8500000 1.2900000
+[232] 2.3200000 0.7800000 2.8400000 0.9700000 1.5200000 1.7000000 1.1333333
+[239] 1.4100000 1.7900000 0.6533333 1.4700000 1.1300000 2.0000000 0.7600000
+[246] 2.2000000 0.5550000 1.3800000 1.1150000 0.3200000 2.5800000 0.5100000
+[253] 0.3200000 1.2400000 1.5100000 1.4700000 2.5000000 2.2600000 2.8100000
+[260] 1.8700000 2.0000000 1.2200000 1.3800000 1.4100000 1.6400000 1.6400000
+[267] 1.2600000 1.3166667 1.4066667 2.1800000 3.0200000 1.0200000 2.8800000
+[274] 1.5400000 1.6400000 2.2133333 1.2900000 0.7300000 1.7700000 0.5400000
+[281] 0.4766667 0.6033333 1.5000000 0.6400000 3.3800000 1.3133333 1.8500000
+[288] 1.3750000 0.5400000 1.0400000 1.1566667 1.0533333 2.7000000 1.5800000
+[295] 1.0000000 1.4400000 2.0000000 1.6000000 2.1733333 3.4100000 2.0200000
+[302] 0.5800000 3.4650000 1.5000000 1.0800000 1.5200000 1.2600000 1.6800000
+[309] 1.0433333 1.4700000 1.6100000 2.2200000 1.8200000 2.1700000 3.2100000
+[316] 1.3333333 0.3200000 0.5500000 1.4200000 1.1400000 2.6400000 2.5800000
+[323] 2.0200000 2.0000000 2.9000000 1.8200000 0.5000000 1.5300000 2.4800000
+[330] 2.0500000 2.5200000 1.8800000 2.7300000 2.8800000 1.6700000 1.9300000
+[337] 1.6700000 1.2000000 2.7500000 1.4550000 0.5900000 1.5000000 1.1533333
+[344] 0.8366667 2.3500000 1.2200000 1.5500000 2.3100000 2.2300000 0.5850000
+[351] 2.5100000 0.7566667 2.4400000 0.1850000 2.1700000 1.5350000 1.0550000
+[358] 1.0333333 2.4400000 1.4400000 0.8200000 2.5000000 1.8200000 1.9700000
+[365] 2.5200000 0.0500000 2.0800000 2.3900000 1.1350000 2.5800000 2.1200000
+[372] 1.1100000 1.1200000 0.5533333 1.6700000 2.7900000 0.4133333 0.5333333
+[379] 2.3200000 2.2200000 0.5800000 2.0000000 0.7000000 1.0000000 0.3000000
+[386] 1.5200000 0.9650000 2.3400000 0.7900000 2.2600000 2.3500000 1.7000000
+[393] 3.0900000 1.5200000 0.3500000 2.7000000 1.6400000 0.8200000 2.7300000
+[400] 2.2300000 1.0600000 0.8666667 1.5850000 0.9200000 2.4700000 1.4400000
+[407] 2.8800000 0.4466667 1.1000000 1.0000000 0.8400000 0.4000000 2.0000000
+[414] 1.0233333 1.2733333 1.5500000 3.2900000 1.4700000 0.9600000 1.1033333
+[421] 1.4700000 2.4650000 0.2500000 2.3800000 1.2800000 1.0400000 0.6300000
+[428] 1.3800000 0.8800000 0.9400000 1.9100000 2.7600000 0.7800000 2.6700000
+[435] 0.6800000 2.5000000 1.6400000 2.2600000 2.1400000 0.5200000 1.0800000
+[442] 1.6900000 2.7300000 1.9100000 1.7300000 3.2100000 2.1100000 2.0500000
+[449] 2.1700000 2.1700000 2.3000000 2.5600000 0.9966667 1.7000000 1.2300000
+[456] 3.2000000 2.0200000 2.6400000 1.3300000 1.6100000 1.2033333 0.6800000
+[463] 1.8200000 1.5000000 2.3200000 2.9200000 1.4100000 1.3500000 0.3750000
+[470] 0.7300000 2.0550000 1.1150000 2.3650000 1.6100000 1.0000000 3.0750000
+[477] 2.8800000 1.6500000 1.7700000 0.9100000 1.6100000 1.8600000 2.7800000
+[484] 2.0600000 0.4700000 2.8700000 1.1400000 3.2650000 1.7300000 2.4400000
+[491] 2.0800000 1.8500000 1.3800000 1.1400000 1.5800000 0.9833333 2.5300000
+[498] 0.6700000 0.7300000 1.3400000 1.4200000 1.0000000 1.3500000 1.3650000
+[505] 0.5000000 3.0800000 2.8800000 1.9100000 1.4100000 2.0200000 0.7600000
+[512] 1.9400000 0.4750000 2.4100000 2.1700000 1.5400000 1.2900000 1.5333333
+[519] 2.1700000 0.4700000 0.6900000 2.0000000 0.4500000 1.5266667 2.5500000
+[526] 0.8200000 2.6600000 1.7133333 1.7900000 2.2800000 0.7366667 1.8950000
+[533] 1.4100000 2.1400000 0.5100000 1.4500000 0.6850000 2.6200000 0.8800000
+[540] 0.6600000 2.2000000 1.1400000 0.7800000 0.6733333 1.4600000 1.2000000
+[547] 1.8200000 2.4400000 1.5700000 2.4100000 2.2700000 1.0100000 1.8800000
+[554] 1.2700000 2.2100000 1.9550000 2.5100000 2.0500000 1.0366667 2.0500000
+[561] 2.2300000 1.7600000 1.0500000 1.7900000 0.7400000 2.1700000 1.1100000
+[568] 2.8500000 0.5350000 1.9000000 0.8750000 1.9700000 1.5000000 3.6900000
+[575] 0.5000000 2.1800000 2.1700000 1.5800000 2.8800000 2.5200000 2.2000000
+[582] 1.7300000 2.2300000 1.9700000 0.9266667 2.0000000 1.9100000 0.8100000
+[589] 1.3100000 0.3800000 1.9700000 0.3800000 1.2400000 3.2000000 0.0200000
+[596] 2.5600000 2.0200000 2.3000000 2.0200000 2.0500000 1.7000000 1.6100000
+[603] 0.7300000 2.0700000 1.9466667 1.8166667 1.2050000 1.3350000 1.4400000
+[610] 0.8266667 2.2300000 0.5233333 0.2000000 1.6266667 1.0850000 0.7400000
+[617] 1.9650000 2.8166667 2.1700000 1.1400000 1.2000000 0.9500000 3.0833333
+[624] 3.3200000 1.4500000 2.2900000 1.1733333 1.1500000 2.2000000 1.2550000
+[631] 0.3766667 2.0000000 1.0250000 2.9400000 1.5500000 0.5700000 1.8350000
+[638] 0.3266667 1.0000000 1.5866667 1.0000000 1.0166667 2.5200000 1.4400000
+[645] 2.6300000 0.7900000 1.1566667 0.5800000 1.6700000 1.4700000 1.8100000
+[652] 1.9100000 1.0600000 1.2133333 2.5200000 1.0250000 3.4400000 1.3533333
+[659] 2.4950000 1.7600000 1.9000000 2.5350000 2.5200000 1.4950000 2.0200000
+[666] 1.2900000 1.2600000 0.9400000 1.2200000 0.7300000 1.5250000 2.2300000
+[673] 2.3500000 0.4650000 1.8500000 0.6700000 1.4250000 0.7150000 2.3500000
+[680] 1.3500000 1.9400000 1.5500000 1.2900000 2.1700000 1.9100000 2.8800000
+[687] 2.3600000 2.3600000 2.2000000 1.0066667 0.5200000 0.3200000 1.0350000
+[694] 1.0066667 1.1800000 2.0500000 1.7300000 1.9400000 1.8100000 0.7700000
+[701] 1.1250000 1.6900000 2.5700000 1.5800000 1.5750000 3.1500000 2.2900000
+[708] 0.8200000 1.9300000 1.8200000 1.9600000 0.8100000 1.0200000 1.1400000
+[715] 2.3200000 2.1600000 2.0600000 1.1400000 1.3666667 1.1700000 0.6333333
+[722] 0.5800000 1.3800000 2.1750000 2.7300000 2.0200000 2.8100000 2.4700000
+[729] 1.3500000 2.0800000 2.5000000 2.4500000 2.1700000 0.8500000 0.4600000
+[736] 1.5100000 1.2300000 1.4950000 1.1400000 0.9600000 1.3066667 0.5200000
+[743] 1.5600000 1.7750000 0.4500000 2.6300000 1.7000000 3.1100000 1.8200000
+[750] 0.8600000 2.7300000 1.3200000 1.4000000 2.0200000 0.8400000 0.9800000
+[757] 0.9000000 1.0333333 2.7000000 1.9700000 0.8400000 1.7900000 2.8400000
+[764] 2.0200000 1.1700000 1.0800000 2.9700000 0.9400000 2.4550000 0.9700000
+[771] 1.4700000 2.6100000 0.9466667 3.4100000 1.9666667 1.5550000 2.1400000
+[778] 1.2266667 3.0300000 2.6700000 1.3200000 1.3500000 1.4500000 0.9000000
+[785] 2.1166667 2.3200000 0.6550000 1.1700000 1.9800000 2.8800000 0.6533333
+[792] 1.3500000 2.0200000 0.9800000 0.2150000 1.3350000 1.6700000 2.1100000
+[799] 1.2300000 0.6400000 1.9166667 1.3800000 0.8750000 0.5250000 0.5200000
+[806] 1.9250000 2.0250000 1.4700000 1.2800000 1.2600000</code></pre>
+</div>
+</div>
+<p>If we don’t mind if people were missing one or two scores, but we do not want to calculate a mean for people who only had one score, we can use the <code>is.na()</code> function first:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>daysMissing <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(<span class="fu">cbind</span>(<span class="fu">is.na</span>(dlf<span class="sc">$</span>day1),</span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">is.na</span>(dlf<span class="sc">$</span>day2),</span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">is.na</span>(dlf<span class="sc">$</span>day3)</span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a>                                 )</span>
+<span id="cb116-5"><a href="#cb116-5" aria-hidden="true" tabindex="-1"></a>                           )</span>
+<span id="cb116-6"><a href="#cb116-6" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>daysMissing</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 0 0 2 2 1 2 2 2 2 0 2 0 2 0 1 2 2 1 2 2 0 2 2 1 2 2 2 2 2 0 0 2 2 2 0 2 0
+ [38] 2 2 2 2 2 2 2 2 2 2 0 2 2 2 2 2 0 0 2 2 2 2 1 2 2 2 1 2 2 0 2 1 1 2 1 2 2
+ [75] 2 2 1 1 2 2 2 2 2 0 1 2 2 2 2 2 2 2 2 2 2 2 1 0 2 0 2 2 0 2 2 2 2 2 2 0 2
+[112] 2 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 0 1 0 2 2 2 1 1 2 2 2 2 2 2 2 2
+[149] 2 2 2 2 0 2 2 2 2 2 2 2 2 2 0 0 0 2 2 2 2 2 2 2 1 2 2 2 1 2 2 2 2 2 2 2 2
+[186] 2 1 1 2 2 0 2 2 2 2 2 2 2 2 2 2 0 2 2 2 2 2 2 1 2 2 2 2 2 1 1 2 2 2 2 2 2
+[223] 2 2 2 2 2 2 2 0 2 2 2 2 2 2 2 0 2 2 0 2 1 2 2 2 1 2 1 2 2 2 2 0 2 2 2 2 2
+[260] 2 2 0 1 2 2 2 2 0 0 2 2 2 2 2 2 0 2 0 2 1 0 0 2 1 2 0 2 1 1 1 0 0 2 2 2 2
+[297] 2 2 0 2 2 1 1 2 2 2 2 2 0 2 1 1 2 2 2 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+[334] 2 2 2 2 2 2 1 2 2 0 0 2 0 2 2 2 1 2 0 2 1 2 1 1 0 2 2 2 2 2 2 2 2 2 2 1 2
+[371] 2 0 0 0 0 2 0 0 2 2 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 0 1 1 1 2 2
+[408] 0 1 1 0 0 2 0 0 2 2 2 2 0 2 1 1 1 1 0 0 2 2 2 2 2 0 2 0 2 2 2 2 2 2 2 2 2
+[445] 2 2 2 2 2 2 2 2 0 2 2 2 2 2 1 2 0 0 2 2 2 2 2 2 1 2 1 1 1 2 2 1 2 1 0 1 2
+[482] 0 2 2 2 2 2 1 1 1 2 2 2 2 2 0 2 2 2 2 1 2 2 1 2 2 2 2 2 2 2 2 1 2 2 1 1 0
+[519] 2 2 1 2 2 0 2 2 1 0 2 2 0 1 2 2 1 1 1 2 2 0 2 2 0 0 0 1 2 2 1 2 2 1 2 0 2
+[556] 1 2 2 0 2 2 2 2 2 0 1 1 2 1 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 0 2 2 2 2 2 2 2
+[593] 0 2 2 2 2 2 2 2 2 2 2 1 0 0 1 1 2 0 1 0 1 0 1 1 1 0 1 2 1 1 0 2 0 2 0 0 2
+[630] 1 0 2 1 2 2 1 1 0 2 0 2 0 2 0 2 1 0 2 2 2 2 2 2 0 2 1 2 0 1 2 2 1 2 1 2 2
+[667] 2 2 0 2 1 2 2 1 2 2 1 1 2 2 2 2 2 2 2 2 2 2 2 0 2 2 1 0 0 2 2 2 2 1 1 0 2
+[704] 2 1 2 2 2 2 2 2 0 2 2 2 2 1 2 0 2 0 1 2 1 2 2 2 2 2 2 2 2 2 1 0 2 2 1 1 2
+[741] 0 2 2 1 2 2 2 2 2 1 2 1 1 2 0 1 2 0 2 2 2 2 2 2 1 2 2 2 1 2 2 2 0 0 0 1 2
+[778] 0 1 2 1 2 1 1 0 2 1 0 1 2 0 1 2 1 1 1 1 2 2 2 0 1 1 1 2 1 1 2 2 2</code></pre>
+</div>
+</div>
+<p>We also can use the <code>ifelse()</code> function to calculate values only for those people who have a score on at least two days:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>meanHygiene <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dlf<span class="sc">$</span>daysMissing <span class="sc">&lt;</span> <span class="dv">2</span>, <span class="cn">NA</span>,</span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">rowMeans</span>(<span class="fu">cbind</span>(dlf<span class="sc">$</span>day1,</span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>                                         dlf<span class="sc">$</span>day2,</span>
+<span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a>                                         dlf<span class="sc">$</span>day3</span>
+<span id="cb118-5"><a href="#cb118-5" aria-hidden="true" tabindex="-1"></a>                                         ),</span>
+<span id="cb118-6"><a href="#cb118-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb118-7"><a href="#cb118-7" aria-hidden="true" tabindex="-1"></a>                          )</span>
+<span id="cb118-8"><a href="#cb118-8" aria-hidden="true" tabindex="-1"></a>dlf<span class="sc">$</span>meanHygiene</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1]   NA   NA 0.84 3.03   NA 0.85 1.56 3.02 2.29   NA 2.17   NA 1.41   NA   NA
+ [16] 2.79 1.50   NA 2.32 2.05   NA 2.05 1.61   NA 2.30 2.76 1.44 1.06 3.23   NA
+ [31]   NA 0.26 0.47 1.73   NA 1.91   NA 1.91 1.42 1.50 0.11 1.67 2.08 2.05 2.00
+ [46] 1.52 1.58   NA 1.88 1.32 2.09 2.00 2.64   NA   NA 1.79 1.64 1.32 2.97   NA
+ [61] 2.02 1.79 1.34   NA 1.66 0.60   NA 1.50   NA   NA 1.73   NA 2.81 1.52 1.47
+ [76] 2.64   NA   NA 2.29 2.00 2.23 2.45 1.20   NA   NA 1.88 0.94 1.85 2.58 0.61
+ [91] 0.70 1.38 1.94 2.29 1.59 2.46   NA   NA 1.50   NA 1.61 2.29   NA 1.85 2.76
+[106] 1.64 1.17 1.57 2.23   NA 2.05 2.94 2.39 1.94 2.12 1.11 0.97 1.35   NA 2.50
+[121] 1.87 1.33 1.26 1.44 0.55 1.75 2.08 0.85 2.52 3.00 1.41 1.08   NA   NA   NA
+[136] 1.41 2.50 2.17   NA   NA 1.66 1.82 1.26 2.67 1.47 1.84 2.58 1.73 1.23 2.32
+[151] 2.67 1.02   NA 1.88 1.91 1.64 1.34 1.85 2.08 1.02 1.79 1.94   NA   NA   NA
+[166] 2.03 2.24 1.11 2.21 1.94 2.41 0.88   NA 2.23 1.64 2.14   NA 2.17 1.67 1.00
+[181] 0.88 2.20 2.17 2.32 1.64 3.00   NA   NA 1.58 2.61   NA 1.57 2.32 1.14 1.93
+[196] 2.47 2.29 1.00 1.58 2.44 0.83   NA 1.73 1.58 1.50 1.05 2.05 2.63   NA 2.00
+[211] 2.00 1.32 3.14 1.44   NA   NA 1.94 2.91 1.85 1.70 2.23 1.11 1.47 2.20 1.82
+[226] 1.42 2.44 2.66 1.52   NA 1.29 2.32 0.78 2.84 0.97 1.52 1.70   NA 1.41 1.79
+[241]   NA 1.47   NA 2.00 0.76 2.20   NA 1.38   NA 0.32 2.58 0.51 0.32   NA 1.51
+[256] 1.47 2.50 2.26 2.81 1.87 2.00   NA   NA 1.41 1.64 1.64 1.26   NA   NA 2.18
+[271] 3.02 1.02 2.88 1.54 1.64   NA 1.29   NA 1.77   NA   NA   NA 1.50   NA 3.38
+[286]   NA 1.85   NA   NA   NA   NA   NA 2.70 1.58 1.00 1.44 2.00 1.60   NA 3.41
+[301] 2.02   NA   NA 1.50 1.08 1.52 1.26 1.68   NA 1.47   NA   NA 1.82 2.17 3.21
+[316]   NA 0.32 0.55 1.42 1.14 2.64 2.58 2.02 2.00 2.90 1.82 0.50 1.53 2.48 2.05
+[331] 2.52 1.88 2.73 2.88 1.67 1.93 1.67 1.20 2.75   NA 0.59 1.50   NA   NA 2.35
+[346]   NA 1.55 2.31 2.23   NA 2.51   NA 2.44   NA 2.17   NA   NA   NA 2.44 1.44
+[361] 0.82 2.50 1.82 1.97 2.52 0.05 2.08 2.39   NA 2.58 2.12   NA   NA   NA   NA
+[376] 2.79   NA   NA 2.32 2.22 0.58 2.00 0.70 1.00 0.30 1.52   NA 2.34 0.79 2.26
+[391] 2.35 1.70 3.09 1.52 0.35 2.70 1.64 0.82 2.73 2.23 1.06   NA   NA   NA   NA
+[406] 1.44 2.88   NA   NA   NA   NA   NA 2.00   NA   NA 1.55 3.29 1.47 0.96   NA
+[421] 1.47   NA   NA   NA   NA   NA   NA 1.38 0.88 0.94 1.91 2.76   NA 2.67   NA
+[436] 2.50 1.64 2.26 2.14 0.52 1.08 1.69 2.73 1.91 1.73 3.21 2.11 2.05 2.17 2.17
+[451] 2.30 2.56   NA 1.70 1.23 3.20 2.02 2.64   NA 1.61   NA   NA 1.82 1.50 2.32
+[466] 2.92 1.41 1.35   NA 0.73   NA   NA   NA 1.61 1.00   NA 2.88   NA   NA   NA
+[481] 1.61   NA 2.78 2.06 0.47 2.87 1.14   NA   NA   NA 2.08 1.85 1.38 1.14 1.58
+[496]   NA 2.53 0.67 0.73 1.34   NA 1.00 1.35   NA 0.50 3.08 2.88 1.91 1.41 2.02
+[511] 0.76 1.94   NA 2.41 2.17   NA   NA   NA 2.17 0.47   NA 2.00 0.45   NA 2.55
+[526] 0.82   NA   NA 1.79 2.28   NA   NA 1.41 2.14   NA   NA   NA 2.62 0.88   NA
+[541] 2.20 1.14   NA   NA   NA   NA 1.82 2.44   NA 2.41 2.27   NA 1.88   NA 2.21
+[556]   NA 2.51 2.05   NA 2.05 2.23 1.76 1.05 1.79   NA   NA   NA 2.85   NA 1.90
+[571]   NA 1.97 1.50 3.69 0.50 2.18 2.17 1.58 2.88 2.52 2.20 1.73 2.23 1.97   NA
+[586] 2.00 1.91 0.81 1.31 0.38 1.97 0.38   NA 3.20 0.02 2.56 2.02 2.30 2.02 2.05
+[601] 1.70 1.61 0.73   NA   NA   NA   NA   NA 1.44   NA   NA   NA   NA   NA   NA
+[616]   NA   NA   NA   NA 1.14   NA   NA   NA 3.32   NA 2.29   NA   NA 2.20   NA
+[631]   NA 2.00   NA 2.94 1.55   NA   NA   NA 1.00   NA 1.00   NA 2.52   NA 2.63
+[646]   NA   NA 0.58 1.67 1.47 1.81 1.91 1.06   NA 2.52   NA 3.44   NA   NA 1.76
+[661] 1.90   NA 2.52   NA 2.02 1.29 1.26 0.94   NA 0.73   NA 2.23 2.35   NA 1.85
+[676] 0.67   NA   NA 2.35 1.35 1.94 1.55 1.29 2.17 1.91 2.88 2.36 2.36 2.20   NA
+[691] 0.52 0.32   NA   NA   NA 2.05 1.73 1.94 1.81   NA   NA   NA 2.57 1.58   NA
+[706] 3.15 2.29 0.82 1.93 1.82 1.96   NA 1.02 1.14 2.32 2.16   NA 1.14   NA 1.17
+[721]   NA   NA 1.38   NA 2.73 2.02 2.81 2.47 1.35 2.08 2.50 2.45 2.17   NA   NA
+[736] 1.51 1.23   NA   NA 0.96   NA 0.52 1.56   NA 0.45 2.63 1.70 3.11 1.82   NA
+[751] 2.73   NA   NA 2.02   NA   NA 0.90   NA 2.70 1.97 0.84 1.79 2.84 2.02   NA
+[766] 1.08 2.97 0.94   NA 0.97 1.47 2.61   NA   NA   NA   NA 2.14   NA   NA 2.67
+[781]   NA 1.35   NA   NA   NA 2.32   NA   NA   NA 2.88   NA   NA 2.02   NA   NA
+[796]   NA   NA 2.11 1.23 0.64   NA   NA   NA   NA 0.52   NA   NA 1.47 1.28 1.26</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="when-it-all-goes-horribly-wrong" class="level3">
+<h3 class="anchored" data-anchor-id="when-it-all-goes-horribly-wrong">5.8.4. When it all goes horribly wrong</h3>
+<p>If transformations don’t work, there are some other options.</p>
+<p>The first is to use a test that does not rely on the assumption of normally distributed data.</p>
+<p>Another approach is to use robust methods.</p>
+<ul>
+<li><p><strong>Trimmed mean</strong> is simply a mean based on the distribution of scores after some percentage of scores has been removed from each extreme of the distribution.</p></li>
+<li><p><strong>M-estimator</strong> determines the optimal amount of trimming necessary to give a robust estimation, rather than the researcher deciding before the analysis how much of the data to trim.</p></li>
+</ul>
+<p>Trimmed mean and M-estimator produces accurate results even when the distribution is not symmetrical, because by trimming the ends of the distribution we remove outliers and skew.</p>
+<p>The second general procedure is the <strong>bootstrap</strong>. Lack of normality prevents us from knowing the shape of the sampling distribution unless we have big samples. In bootstrapping, the sample data are treated as a population from which smaller samples (= bootstrap samples) are taken. The statistic interest is calculated in each sample, and by taking many samples the sampling distribution can be estimated. The SE of the statistic is estimated from the SD of this sampling distribution created from the bootstrap samples.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

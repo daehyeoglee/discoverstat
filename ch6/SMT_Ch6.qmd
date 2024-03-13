@@ -1,0 +1,57 @@
+---
+title: "SMT_Ch6"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+## SMT
+
+```{r}
+#SMT 1
+essayData = read.delim("EssayMarks.dat",  header = TRUE)
+
+scatter <- ggplot(essayData, aes(hours, essay))
+scatter + geom_point() + labs(x = "Hours", y = "Mark [%]") 
+
+shapiro.test(essayData$essay)
+shapiro.test(essayData$hours)
+cor.test(essayData$essay, essayData$hours,
+         alternative = "greater", method = "pearson"
+         )
+
+essayData$grade <- factor(essayData$grade,
+                          levels = c("First Class",
+                                     "Upper Second Class",
+                                     "Lower Second Class",
+                                     "Third Class"
+                                     )
+                          )
+
+cor.test(essayData$hours, as.numeric(essayData$grade),
+         alternative = "less", method = "kendall"
+         )
+cor.test(essayData$hours, as.numeric(essayData$grade),
+         alternative = "less", method = "spearman"
+         )
+
+#SMT 2
+
+chickFlick = read.delim("ChickFlick.dat", header = TRUE)
+
+chickFlick$gender <- as.numeric(chickFlick$gender)
+chickFlick$film <- as.numeric(chickFlick$film)
+
+cor.test(chickFlick$gender, chickFlick$arousal)
+cor.test(chickFlick$film, chickFlick$arousal)
+
+#SMT 3
+gradesData = read.csv("grades.csv", header = TRUE)
+
+cor.test(gradesData$gcse, gradesData$stats,
+         alternative = "greater", method = "spearman"
+         )
+cor.test(gradesData$gcse, gradesData$stats,
+         alternative = "greater", method = "kendall"
+         )
+```

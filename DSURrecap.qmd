@@ -1,0 +1,27 @@
+---
+title: "Discoverstat recap"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+## Ch5 - Checking normality
+
+```{r}
+dlf <- read.delim(here("ch5", "DownloadFestival.dat"), header = TRUE)
+stat.desc(dlf$day1, basic = FALSE, norm = TRUE)
+```
+
+The values of skew and kurtosis should be zero in a normal distribution.
+
+We can convert skew and kurtosis to *z*-values. Why? we can compare skew and kurtosis values in different samples that used different measures.
+
+$$
+z_{skewness} = \frac{Skewness-0}{SE_{skewness}}
+$$
+
+From this equation, $z_{skewness}$ is significant if it is greater than 2 (1.96).
+
+`skew.2SE` is the skewness value divided by 2 standard errors. This is just a slightly modified format from the equation above. Therefore, if `skew.2SE` value is greater than 1 (0.98), the skewness is significant.
+
+The output of `stat.desc()` also provides Shapiro-Wilk test of normality, which is the output labelled as `normtest.W` and `normtest.p`. The Shapiro-Wilk test compares the scores in the sample to a normally distributed set of scores with the same mean and standard deviation. If the test is non-significant, it tells us that the distribution of the sample is non significantly different from a normal distribution.

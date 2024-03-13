@@ -1,0 +1,417 @@
+---
+title: "Chapter 15. Non-parametric tests"
+author: "Daehyeog Lee"
+date: "2023-02-14"
+date-modified: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+## 15.1. What will this chapter tell me?
+
+## 15.2. When to use non-parametric tests
+
+Non-parametric tests are known as assumption-free tests because they make fewer assumptions about the type of data on which they can be used. Non-parametric tests make distributional assumptions (such as the continuous distribution), but they are less restrictive ones than their parametric counterparts.
+
+Non-parametric tests work on the principle of **ranking** the data. That is, finding the lowest score and giving it a rank of 1, then finding the next highest score and giving it a rank of 2, and so on. The analysis is then carried out on the ranks rather than the actual data.
+
+## 15.3. Packages used in this chapter
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme); library(clinfun); library(pgirmess)
+```
+
+## 15.4. Comparing two independent conditions: the Wilcoxon rank-sum test
+
+When we want to test differences between two conditions and different participants have been used in each condition, then we can perform the **Mann-Whitney test** and **Wilcoxon's rank-sum test**. These tests are the non-parametric equivalent of the independent *t*-test.
+
+### 15.4.1. Theory of the Wilcoxon rank-sum test
+
+-   Arrange the scores in ascending order, attach a label to remind ourselves which group they came from.
+
+-   Assign potential ranks starting with 1 for the lowest score.
+
+-   Add up all of the ranks for the two groups.
+
+-   Subtract the mean rank from the sum of the ranks.
+
+-   Take the smallest of these values to be the test statistic.
+
+-   **R** then calculates the associated *p*-value.
+
+    -   The *exact* approach uses a **Monte Carlo method** to obtain the significance level. It doesn't make any assumptions about the distribution. It just put the people (data) into a random group, and then repeats it.
+
+    -   When large sample sizes, a normal approximation is used. The normal approximation doesn't assume that the data are normal. Instead, it assumes that the sampling distribution of the *W* statistic is normal. **R** uses a normal approximation if the sample size is larger than 40.
+
+### 15.4.2. Inputting data and provisional analysis
+
+```{r}
+sundayBDI <- c(15, 35, 16, 18, 19, 17, 27, 16, 13, 20, 16, 15, 20, 15, 16, 13,
+               14, 19, 18, 18)
+wedsBDI <- c(28, 35, 35, 24, 39, 32, 27, 29, 36, 35, 5, 6, 30, 8, 9, 7, 6, 17,
+             3, 10)
+drug <- gl(2, 10, labels = c("Ecstasy", "Alcohol"))
+drugData <- data.frame(drug, sundayBDI, wedsBDI)
+
+head(drugData)
+```
+
+```{r}
+by(drugData[,c(2:3)], drugData$drug, stat.desc, basic=FALSE, norm=TRUE)
+```
+
+-   Sunday / Ecstasy: $W = 0.81, p = 0.02$ -\> Significant -\> normal W
+
+-   Sunday / Alcohol: $W = 0.96, p = 0.78$ -\> Non-significant -\> non-normal W
+
+-   Wednesday / Ecstasy: $W = 0.94, p = 0.56$ -\> non-normal W
+
+-   Wednesday / Alcohol: $W = 0.75, p = 0.004$ -\> normal W
+
+This finding tells us the fact that the sampling distribution might also be non-normal for the Sunday and Wednesday data and that a non-parametric test should be used.
+
+```{r}
+leveneTest(drugData$sundayBDI, drugData$drug, center = "mean")
+leveneTest(drugData$wedsBDI, drugData$drug, center = "mean")
+```
+
+The result of Levene's test shows that
+
+-   Sunday data: $F(1, 18) = 3.64, p = 0.07$
+
+-   Wednesday data = $F(1, 18) = 0.51, p = 0.49$
+
+The variances are not significantly different, indicating that the assumption of homogeneity has been met.
+
+### 15.4.3. Running the analysis using R Commander
+
+Statistics -\> Nonparametric tests -\> Two-sample Wilcoxon test...
+
+### 15.4.4. Running the analysis using R
+
+`newModel <- wilcox.test(outcome ~ predictor, data = dataFrame, paired = FALSE/TRUE)`
+
+If we have the data for different groups stored in two columns, then the `wilcox.test()` function takes this form:
+
+`newModel <- wilcox.test(scores group 1, scores group 2, paired = FALSE/TRUE)`
+
+```{r}
+sunModel <- wilcox.test(sundayBDI ~ drug, data = drugData)
+wedModel <- wilcox.test(wedsBDI ~ drug, data = drugData)
+```
+
+### 15.4.5. Output from the Wilcoxon rank-sum test
+
+```{r}
+sunModel
+wedModel
+```
+
+We could say that the type of drug did not significantly affect depression levels the day after.
+
+### 15.4.6. Calculating an effect size
+
+**R** doesn't calculate an effect size for us, but we can calculate approximate effect sizes by converting the *z*-value into an effect size estimate:
+
+```{r}
+rFromWilcox<-function(wilcoxModel, N){
+	z<- qnorm(wilcoxModel$p.value/2)
+	r<- z/ sqrt(N)
+	cat(wilcoxModel$data.name, "Effect Size, r = ", r)
+}
+
+rFromWilcox(sunModel, 20)
+rFromWilcox(wedModel, 20)
+```
+
+The first command within the function calculates the value of *z* using the `qnorm()` function. The *p*-value associated with the model entered into function, divides it by 2 so that we're looking at only one end of the normal distribution. The second command computes *r* using the equation above by dividing *z* by the square root of *N*. The final command prints to the console the object `data.name` from the original model.
+
+### 15.4.7. Writing the results
+
+-   Depression levels in ecstasy users (*Mdn* = 17.50) did not differ significantly from alcohol users (*Mdn* = 16.00) the day after the drugs were taken, $W = 64.5, p = 0.286, r = -.25$. However, by Wednesday, ecstasy users (*Mdn* = 33.50) were significantly more depressed than alcohol users (*Mdn* = 7.50), $W = 4, p < .001, r = -.78$.
+
+Median is more appropriate than the mean for non-parametric tests. **(Why?)**
+
+### Jane Superbrain 15.2: Price for the Non-parametric tests
+
+-   By ranking the data we lose some information about the magnitude of differences between scores.
+
+-   **Statistical power:** An ability of a test to find an effect that genuinely exists. It is also known as the probability of avoiding a Type II error.
+
+-   If we use a parametric test and a non-parametric on the same data, and those data meet the appropriate assumptions, then the parametric test will have greater power to detect the effect than the non-parametric test.
+
+-   However, when data are not normal we have no way of calculating power, because power is linked to the Type I error rate and the Type I error rate is 5% when the sampling distribution is normally distributed.
+
+-   Therefore, the statement "Non-parametric tests having an increased chance of a Type II error" is true only if the sampling distribution is normally distributed.
+
+## 15.5. Comparing two related conditions: the Wilcoxon signed-rank test
+
+The **Wilcoxon signed-rank test** is used in situations in which there are two sets of scores to compare, but these scores come from the **same participants (within group)**.
+
+For example, we might want to
+
+```{r}
+drugData$BDIchange <- drugData$wedsBDI-drugData$sundayBDI
+head(drugData)
+
+by(drugData$BDIchange, drugData$drug, stat.desc, basic = FALSE, norm = TRUE)
+```
+
+For the ecstasy group, we have an approximaly normal distribution, $W = 0.91, p = .273$, but for the alcohol group, we have a non-normal distribution, $W = 0.83, p < .05$.
+
+### 15.5.1 Theory of the Wilcoxon signed-rank test
+
+-   Calculate the difference between Sunday and Wednesday. If the difference is zero, we exclude these data from the ranking.
+
+-   Rank the differences ignoring the sign of the difference.
+
+-   Collect together the ranks that came from a positive difference between the conditions, and add them up to get the sum of positive (T+) and negative (T-) ranks, respectively.
+
+-   The test statistic, T, is the smaller of the two values (T+ / T-).
+
+-   To calculate the significance of T, calculate the z value using the mean T and standard error.
+
+### 15.5.2. Running the analysis with R Commander
+
+Statistics -\> Nonparametric tests -\> Paired-samples Wilcoxon test...
+
+### 15.5.3. Running the analysis using R
+
+We want to run our analysis on the alcohol and ecstasy groups separately. Therefore, we have to first split the dataframe into two. Also, because our data are stored in different columns, we need to enter the names of the two variables we want to compare rather than a formula, and we need to include the option `paired = TRUE`.
+
+```{r}
+alcoholData <- subset(drugData, drug == "Alcohol")
+ecstasyData <- subset(drugData, drug == "Ecstasy")
+
+alcoholModel <-
+  wilcox.test(
+    alcoholData$wedsBDI, alcoholData$sundayBDI,  paired = TRUE, correct= FALSE
+    )
+ecstasyModel <-
+  wilcox.test(
+    ecstasyData$wedsBDI, ecstasyData$sundayBDI, paired = TRUE, correct= FALSE
+    )
+
+alcoholModel
+ecstasyModel
+```
+
+### 15.5.4. Wilcoxon signed-rank test output
+
+The result reports the value of T+ (which it calls V).
+
+-   When taking alcohol there was a significant decline in depression from the morning after to midweek, $p = .047$
+
+-   When taking ecstasy there was a significant increase in depression from the morning after to midweek, $p = .012$
+
+### 15.5.5. Calculating an effect size
+
+```{r}
+rFromWilcox(alcoholModel, 20)
+rFromWilcox(ecstasyModel, 20)
+```
+
+For the alcohol group there was a medium to large change in depression when alcohol was taken, $r = -.45$.
+
+For the ecstasy group there was a large change in depression when ecstasy was taken, $r = -.56$.
+
+### 15.5.6. Writing the results
+
+-   For ecstasy users, depression levels were significantly higher on Wednesday (*Mdn* = 33.50) than on Sunday (*Mdn* = 17.50), $p = .047, r = -.56$. However, for alcohol users the opposite was true: depression levels were significantly lower on Wednesday (*Mdn* = 7.50), $p = .012, r = -.45$.
+
+## 15.6. Differences between several independent groups: the Kruskal-Wallis test
+
+Does soya meals uptake influences the number of sperms?
+
+Four groups (Control / 1 soya meals per week / 4 per week / 7 per week)
+
+### 15.6.1. Theory of the Kruskal-Wallis test
+
+Kruskal-Wallis test is also based on ranked data.
+
+-   Simply order the scores from lowest to highest, ignoring the group to which the score belongs, and then assign the rank.
+
+-   Add up the ranks for each group.
+
+-   Calculate the test statistic, *H*, according to the formula.
+
+This test statistic follows the chi-square distribution and for this distribution there is one value for the degrees of freedom, which is one less than the number of groups $k-1$, in this case 3
+
+### 15.6.2. Inputting data and provisional analysis
+
+```{r}
+Sperm <- c(0.35, 0.58, 0.88, 0.92, 1.22, 1.51, 1.52, 1.57, 2.43, 2.79, 3.40,
+           4.52, 4.72, 6.90, 7.58, 7.78, 9.62, 10.05, 10.32, 21.08, 0.33, 0.36,
+           0.63, 0.64, 0.77, 1.53, 1.62, 1.71, 1.94, 2.48, 2.71, 4.12, 5.65,
+           6.76, 7.08, 7.26, 7.92, 8.04, 12.10, 18.47, 0.40, 0.60, 0.96, 1.20,
+           1.31, 1.35, 1.68, 1.83, 2.10, 2.93, 2.96, 3.00, 3.09, 3.36, 4.34,
+           5.81, 5.94, 10.16, 10.98, 18.21, 0.31, 0.32, 0.56, 0.57, 0.71, 0.81,
+           0.87, 1.18, 1.25, 1.33, 1.34, 1.49, 1.50, 2.09, 2.70, 2.75, 2.83,
+           3.07, 3.28, 4.11)
+Soya <-
+  gl(
+    4, 20, labels = c("No Soya", "1 Soya Meal", "4 Soya Meals", "7 Soya Meals")
+    )
+soyaData <- data.frame(Sperm, Soya)
+```
+
+```{r}
+by(soyaData$Sperm, soyaData$Soya, stat.desc, basic=FALSE)
+by(
+  soyaData$Sperm,
+  soyaData$Soya,
+  stat.desc,
+  desc = FALSE,
+  basic = FALSE,
+  norm = TRUE
+  )
+
+leveneTest(soyaData$Sperm, soyaData$Soya)
+```
+
+The output shows that the test for those who ate seven meals per week is not quite significant, $W(20) = 0.912, p = .07$. As such, the data for all of the groups are significantly different from normal.
+
+From the Levene's test, the assumption of homogeneity of variance has been violated, $F(3, 76) = 2.86, p = .042$. As such, theses data are not normally distributed, and the groups have heterogeneous variances.
+
+### 15.6.3. Doing the Kruskal-Wallis test using R Commander
+
+Statistics -\> Nonparametric tests -\> Kruskal-Wallis test
+
+### 15.6.4. Doing the Kruskal-Wallis test using R
+
+```{r}
+kruskal.test(Sperm ~ Soya, data = soyaData)
+soyaData$Ranks <- rank(soyaData$Sperm)
+head(soyaData)
+
+# Obtain the mean rank for each group using the by() and mean() functions
+by(soyaData$Ranks, soyaData$Soya, mean)
+```
+
+### 15.6.5. Output from the Kruskal-Wallis test
+
+The significance value is .034. Because this value is less than .05 we could conclude that the amount of soya meals eaten per week does significantly affect sperm counts. Like a one-way ANOVA, though, this test tells us only that a difference exists; it doesn't tell us exactly where the differences lie.
+
+```{r}
+ggplot(soyaData, aes(Soya, Sperm)) +
+  geom_boxplot() +
+  labs(y = "Sperm Count", x = "Number of Soya Meals Per Week")
+```
+
+### 15.6.6. *Post hoc* tests for the Kruskal-Wallis test
+
+The non-parametric *post hoc* procedure is essentially the same as doing the Wilcoxon rank-sum tests on all possible comparisons. This involves taking the difference between the mean ranks of the different groups and comparing this to a value based on the value of *z* and a constant based on the total sample size and the sample size in the two groups being compared.
+
+-   Calculate the rank difference between groups (`by(soyaData$Ranks, soyaData$Soya, mean)`)
+
+-   Compare the value obtained above to the critical difference calculated by given formula.
+
+Inequality basically means that if the difference between mean ranks is bigger than or equal to the critical difference for that comparison, then that difference is significant.
+
+```{r}
+kruskalmc(Sperm ~ Soya, data = soyaData)
+```
+
+None of the difference were bigger than the critical difference; hence they all say *FALSE*, which means that the differences are all non-significant.
+
+```{r}
+kruskalmc(Sperm ~ Soya, data = soyaData, cont = 'two-tailed')
+```
+
+We have only three tests now and consequently our critical difference has decreased. The critical difference value was decreased, and this is because the significance level was highly adjusted than the adjusted significance level when six tests were performed.
+
+### 15.6.7. Testing for trends: the Jonckheere-Terpstra test
+
+The Jonckheere-Terpstra statistic tests for an ordered pattern to the medians of the groups we're comparing. The test determines whether the medians of the groups ascend or descend in the order specified by the coding variable. In our data, for example, we might want to check whether there is an order to our medians: they should decrease across the groups.
+
+```{r}
+jonckheere.test(soyaData$Sperm, as.numeric(soyaData$Soya))
+```
+
+Since the *p*-value is less than .05, we can conclude that there is a significant trend in the data.
+
+### 15.6.8. Calculating an effect size
+
+Unfortunately there isn't an easy way to convert a chi-square statistic that has more than one degree of freedom to an effect size *r*.
+
+### 15.6.9. Writing and interpreting the results
+
+-   Sperm counts were significantly affected by eating soya means, $H(3) = 8.66, p = .034$.
+
+-   Sperm counts were significantly affected by eating soya meals, $H(3) = 8.66, p = .034$. Focused comparisons of the mean ranks between groups showed that sperm counts were not significantly different when one soya mean (*difference* = 2.2) or four soya mean (*difference* = 2.2) were eaten per week compared to none. However, when seven soya meals were eaten per week sperm counts were significantly lower than when no soya was eaten (*difference* = 19). In all cases, the critical difference\
+    ($\alpha = .05$ corrected for the number of tests) was 15.64. We can conclude that if soya is eaten every day it significantly reduces sperm counts compared to eating none; however, eating soya less frequently than every day has no significant effect on sperm counts.
+
+-   Jonckheere's test revealed a significant trend in the data: as more soya was eaten, the median sperm count decreased, $J = 912, p = .013$.
+
+## 15.7. Differences between several related groups: Friedman's ANOVA
+
+## 15.7.1. Theory of Friedman's ANOVA
+
+Friedman's ANOVA is used for testing differences between conditions when there are more tan two conditions and the same participants have been used in all conditions.
+
+When the number of people tested is large, the test statistic has a chi-square distribution. The degrees of freedom ks one less than the number of groups.
+
+### 15.7.2. Inputting data and provisional analysis
+
+```{r}
+Start <-
+  c(63.75, 62.98, 65.98, 107.27, 66.58, 120.46, 62.01, 71.87, 83.01, 76.62)
+Month1 <-
+  c(65.38, 66.24, 67.70, 102.72, 69.45, 119.96, 66.09, 73.62, 75.81, 67.66)
+Month2 <-
+  c( 81.34, 69.31, 77.89, 91.33, 72.87, 114.26, 68.01, 55.43, 71.63, 68.60)
+dietData <- data.frame(Start, Month1, Month2)
+
+
+stat.desc(dietData, basic = FALSE, norm = TRUE)
+```
+
+The variable `Start` and `Month1` deviate significantly from normal. `Month2` do not appear to differ from normal, $W = 0.88, p = 0.12$.
+
+### 15.7.3. Doing Friedman's ANOVA in R Commander
+
+Statistics -\> Nonparametric tests -\> Friedman rank-sum test
+
+### 15.7.4. Friedman's ANOVA using R
+
+`friedman.test()` function
+
+-   demands that we give it a matrix rather than a dataframe
+
+-   wants all of the variables of interest in one data set, and there mustn't be any additional variables.
+
+-   gets confused by missing data.
+
+```{r}
+dietCompleteCases <- na.omit(dietData)
+```
+
+The above function deleted any case (row) for which there is missing data in any column.
+
+```{r}
+friedman.test(as.matrix(dietData))
+```
+
+### 15.7.5. Output from Friedman's ANOVA
+
+We can conclude that there is no evidence that the Andikins diet has any effect: the weights didn't significantly change over the course of the diet.
+
+### 15.7.6. *Post hoc* tests for Friedman's ANOVA
+
+`friedmanmc()` function compares all groups, or compares groups to a baseline. It requires the data to be in exactly the same format as the `friedman.test()`.
+
+```{r}
+friedmanmc(as.matrix(dietData))
+```
+
+All pairwise comparisons were not significant, which is obvious because the main effect was not significant.
+
+### 15.7.7. Calculating an effect size
+
+There isn't an easy way to convert a chi-square statistic that has more than one degree of freedom to an effect size *r*.
+
+### 15.7.8. Writing and interpreting the results
+
+-   The weights of participants did not significantly change over the two months of the diet, $\chi^2(2) = 0.20, p > .05.$

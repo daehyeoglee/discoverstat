@@ -1,0 +1,67 @@
+---
+title: "SMT_Ch5"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+```{r}
+### SMT 1
+chickFlick <- read.delim(file="ChickFlick.dat", header=TRUE)
+
+by(data = chickFlick$arousal, INDICES = chickFlick$film, FUN = describe)
+
+# Shapiro-Wilks test
+by(data = chickFlick$arousal, INDICES = chickFlick$film, FUN = shapiro.test)
+
+#Levene's test
+leveneTest(chickFlick$arousal, chickFlick$film, center = median)
+
+# The variances of arousal from two films were not significantly different
+# F(1, 38) = 1.81, p = 0.1871
+# Two distributions were not significantly different.
+# (Non-significance of Shapiro-Wilks test)
+
+### SMT 2
+rexam <- read.table(file="rexam.dat", header=TRUE)
+
+#Set the variable uni to be a factor:
+rexam$uni <- factor(rexam$uni,
+                    levels = c(0:1),
+                    labels = c("Duncetown University", "Sussex University")
+                    )
+
+rexam$lognumeracy <- log(rexam$numeracy)
+rexam$sqrtnumeracy <- sqrt(rexam$numeracy)
+rexam$recnumeracy <- 1/(rexam$numeracy)
+
+hist.lognumeracy <- ggplot(rexam, aes(lognumeracy)) +
+  geom_histogram(aes(y =..density..),
+                 color = "black", fill = "white") +
+  labs(x = "LOG Numeracy scores", y = "Density") +
+  stat_function(fun = dnorm, 
+               args = list(mean = mean(rexam$lognumeracy, na.rm = TRUE),
+                         sd = sd(rexam$lognumeracy, na.rm = TRUE) ),
+               colour = "black", size = 1)
+hist.lognumeracy
+
+hist.sqrtnumeracy <- ggplot(rexam, aes(sqrtnumeracy)) +
+  geom_histogram(aes(y =..density..),
+                 color = "black", fill = "white") +
+  labs(x = "SQRT Numeracy scores", y = "Density") +
+  stat_function(fun = dnorm, 
+               args = list(mean = mean(rexam$sqrtnumeracy, na.rm = TRUE),
+                         sd = sd(rexam$sqrtnumeracy, na.rm = TRUE) ),
+               colour = "black", size = 1)
+hist.sqrtnumeracy
+
+hist.recnumeracy <- ggplot(rexam, aes(recnumeracy)) +
+  geom_histogram(aes(y =..density..),
+                 color = "black", fill = "white") +
+  labs(x = "REC Numeracy scores", y = "Density") +
+  stat_function(fun = dnorm, 
+               args = list(mean = mean(rexam$recnumeracy, na.rm = TRUE),
+                         sd = sd(rexam$recnumeracy, na.rm = TRUE) ),
+               colour = "black", size = 1)
+hist.recnumeracy
+```

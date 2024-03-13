@@ -1,0 +1,163 @@
+---
+title: "SMT_Ch4"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+## Smart Alex's tasks
+
+### Task 1
+
+```{r}
+lecturerData <- read.delim("Lecturer Data.dat", header = TRUE)
+
+lecturerData$job < -factor(
+  lecturerData$job,
+  levels = c(1:2),
+  labels = c("lecturer", "student")
+)
+
+bar <- ggplot(
+  lecturerData,
+  aes(job, friends)
+)
+bar +
+  stat_summary(
+    fun.y = "mean",
+    geom = "bar",
+    fill = "White",
+    color = "Black"
+  ) +
+  stat_summary(
+    fun.data = "mean_cl_normal",
+    geom = "errorbar",
+    color = "Red",
+    width = 0.2
+  ) +
+  labs(
+    x = "Job",
+    y = "Mean Number of Friends")
+
+
+bar <- ggplot(
+  lecturerData,
+  aes(job, alcohol)
+)
+bar +
+  stat_summary(
+    fun.y = "mean",
+    geom = "bar",
+    fill = "White",
+    color = "Black"
+  ) +
+  stat_summary(
+    fun.data = "mean_cl_normal",
+    geom = "errorbar",
+    color = "Red",
+    width = 0.2
+    ) +
+  labs(
+    x = "Job",
+    y = "Mean Alcohol Consumption"
+  )
+
+line <- ggplot(
+  lecturerData,
+  aes(job, income)
+)
+line +
+  stat_summary(
+    fun.y = "mean",
+    geom = "point"
+  ) +
+  stat_summary(
+    fun.data = "mean_cl_normal",
+    geom= "errorbar",
+    width = 0.2
+  ) +
+  labs(
+    x = "Job",
+    y = "Mean Income"
+  ) +
+  stat_summary(
+    fun.y = "mean",
+    geom = "line",
+    aes(group = 1),
+    color = "Red"
+  )
+
+
+line <- ggplot(
+  lecturerData,
+  aes(job, neurotic)
+)
+line +
+  stat_summary(
+    fun.y = "mean",
+    geom =  "point"
+  ) +
+  stat_summary(
+    fun.y = "mean",
+    geom = "line",
+    aes(group = 1),
+    color = "Red",
+  ) +
+  stat_summary(
+    fun.data = "mean_cl_normal",
+    geom = "errorbar",
+    width = 0.2
+  ) +
+  labs(
+    x = "Job",
+    y = "Mean Neuroticism"
+  )
+
+
+scatter <- ggplot(
+  lecturerData,
+  aes(neurotic, alcohol, colour = job)
+)
+scatter +
+  geom_point() +
+  geom_smooth(
+    method = "lm",
+    aes(fill = job),
+    alpha = 0.1
+  ) +
+  labs(
+    x = "Neuroticism",
+    y = "Alcohol Consumption",
+    color = "job")
+```
+
+### Task 2
+
+```{r}
+infidelityData <- read.csv(here("ch4", "Infidelity.csv"), header = TRUE)
+
+infidelityData$id = row(infidelityData[1])
+
+Bullets = reshape(infidelityData,
+                  idvar = c("id", "Gender"),
+                  varying = c("Partner", "Self"),
+                  v.names = "Number_of_Bullets",
+                  timevar = "Recipient",
+                  times = c(0:1),
+                  direction = "long"
+                  )
+Bullets$Recipient <- factor(Bullets$Recipient,
+                            labels = c("Partner","Self")
+                            )
+bar <- ggplot(Bullets,
+              aes(Recipient, Number_of_Bullets, fill = Gender)
+              )
+bar +
+  stat_summary(fun.y = "mean", geom = "bar", position="dodge") +
+  stat_summary(fun.data = "mean_cl_normal",
+               geom = "errorbar",
+               position=position_dodge(width=0.90),
+               width = 0.2
+               ) +
+  labs(x ="Recipient", y ="Number of Bullets", fill = "Gender")
+```

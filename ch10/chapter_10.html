@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Daehyeog Lee">
+<meta name="dcterms.date" content="2023-11-12">
+
+<title>Chapter 10. Comparing several means: ANOVA (GLM 1)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="chapter_10_files/libs/clipboard/clipboard.min.js"></script>
+<script src="chapter_10_files/libs/quarto-html/quarto.js"></script>
+<script src="chapter_10_files/libs/quarto-html/popper.min.js"></script>
+<script src="chapter_10_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="chapter_10_files/libs/quarto-html/anchor.min.js"></script>
+<link href="chapter_10_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="chapter_10_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="chapter_10_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="chapter_10_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="chapter_10_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Chapter 10. Comparing several means: ANOVA (GLM 1)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Daehyeog Lee </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 12, 2023</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">November 23, 2023</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="what-will-this-chapter-tell-me" class="level2">
+<h2 class="anchored" data-anchor-id="what-will-this-chapter-tell-me">10.1 What will this chapter tell me?</h2>
+<p>We can’t use a <em>t</em>-test when there are more than two conditions. Instead, we can use ANOVA. This chapter explains the theory of ANOVA when different participants are used (independent ANOVA).</p>
+</section>
+<section id="the-theory-behind-anova" class="level2">
+<h2 class="anchored" data-anchor-id="the-theory-behind-anova">10.2 The theory behind ANOVA</h2>
+<section id="inflated-error-rates" class="level3">
+<h3 class="anchored" data-anchor-id="inflated-error-rates">10.2.1. Inflated error rates</h3>
+<p>Why don’t we simply carry out several <em>t</em>-tests to compare all combinations of groups instead of doing ANOVA? Let’s pretend we have three groups to be tested. If we assume that each test is independent, the overall probability of no Type I errors (rejection of an accurate null hypothesis) is <span class="math inline">\(.95^3 = .857\)</span>. So, the probability of at least one Type I error is <span class="math inline">\(1-.857 = .143\)</span>. Therefore, across this group of tests, the probability of making a Type I error has increased from 5% to 14.3%. This kind of error is called <strong>familywise</strong> or <strong>experimentwise error rate</strong>.</p>
+</section>
+<section id="interpreting-f" class="level3">
+<h3 class="anchored" data-anchor-id="interpreting-f">10.2.2. Interpreting <em>F</em></h3>
+<p>ANOVA tells us whether three or more means are the same. The <em>F-</em>statistic (<em>F</em>-ratio) is similar to the <em>t</em>-statistic because it compares the amount of systematic variance in the data to the amount of unsystematic variance. In other words, <em>F</em> is the ratio of the model to its error.</p>
+<p>ANOVA tests for an overall effect, not the specific information about which groups were affected. If the experiment was conducted with three different groups, the <em>F</em>-ratio tells us that the means of these three samples are not equal. The <em>F</em>-ratio tells us only that the experimental manipulation has had some effect, but it doesn’t tell us specifically what the effect was.</p>
+</section>
+<section id="anova-as-regression" class="level3">
+<h3 class="anchored" data-anchor-id="anova-as-regression">10.2.3. ANOVA as regression</h3>
+<p>ANOVA is just a special case of regression. ANOVA is a way of comparing the ratio of systematic variance to unsystematic variance in an experimental study, and the ratio of these variances is known as the <em>F</em>-ratio. The <em>F</em>-ratio is also a way to assess how well a regression model can predict an outcome compared to the error within that model. When we test differences between means we are fitting a regression model and using <em>F</em> to see how well it fits the data, but the regression model contains only categorical predictors. So, just as the <em>t</em>-test could be represented by the linear regression equation, ANOVA can be represented by the multiple regression equation.</p>
+<p>Suppose we are testing the hypothesis by taking three groups of participants. With three groups, we can use a multiple regression model with two dummy variables. We need a base category and we should choose the condition which we intend to compare the other groups (usually the control group). This alternative coding schemes are known as <em>contrasts</em>.</p>
+<section id="self-test" class="level4">
+<h4 class="anchored" data-anchor-id="self-test">SELF-TEST</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>libidoData <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"dummy.dat"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>libidoData</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   dose libido dummy1 dummy2
+1     1      3      0      0
+2     1      2      0      0
+3     1      1      0      0
+4     1      1      0      0
+5     1      4      0      0
+6     2      5      0      1
+7     2      2      0      1
+8     2      4      0      1
+9     2      2      0      1
+10    2      3      0      1
+11    3      7      1      0
+12    3      4      1      0
+13    3      5      1      0
+14    3      3      1      0
+15    3      6      1      0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>multiregression <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    libido <span class="sc">~</span> dummy1 <span class="sc">+</span> dummy2, <span class="at">data =</span> libidoData</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(multiregression)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = libido ~ dummy1 + dummy2, data = libidoData)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+  -2.0   -1.2   -0.2    0.9    2.0 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)   2.2000     0.6272   3.508  0.00432 **
+dummy1        2.8000     0.8869   3.157  0.00827 **
+dummy2        1.0000     0.8869   1.127  0.28158   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.402 on 12 degrees of freedom
+Multiple R-squared:  0.4604,    Adjusted R-squared:  0.3704 
+F-statistic: 5.119 on 2 and 12 DF,  p-value: 0.02469</code></pre>
+</div>
+</div>
+<p>This test is significant, <em>F</em>(2, 12) = 5.12, <em>p</em> &lt;.05. This ANOVA tells us that using group means to predict scores is significantly better than using the overall mean. In other words, the group means are significantly different.</p>
+<p>The regression coefficient for the first dummy variable <span class="math inline">\(b_2\)</span> is equal to the difference between the means of the high-dose group and the placebo group (5.0 - 2.2 = 2.8). The regression coefficient for the second dummy variable <span class="math inline">\(b_1\)</span> is equal to the difference between the means of the low-dose group and the placebo group (3.2 - 2.2 = 1). For the base category (a control group), all dummy variables should be 0.</p>
+</section>
+</section>
+<section id="logic-of-the-f-ratio" class="level3">
+<h3 class="anchored" data-anchor-id="logic-of-the-f-ratio">10.2.4. Logic of the <em>F</em>-ratio</h3>
+<ul>
+<li><p>The simplest model we can fit to a set of data is the grand mean. This basic model represents ‘no effect’ or ‘no relationship between the predictor variable and the outcome’.</p></li>
+<li><p>We can fit a different model to the data collected that represents our hypothesis. We can fit a linear model or a model based on the means of different conditions. If the model fits the data well then it must be better than using the grand mean.</p></li>
+<li><p>The intercept and one or more regression coefficients can describe the chosen model.</p></li>
+<li><p>The bigger the regression coefficients, the greater the deviation between the line and the grand mean.</p></li>
+<li><p>In correlational research, the regression coefficients represent the slope of the line. In experimental research, they represent the differences between group means.</p></li>
+<li><p>The bigger the differences between group means, the greater the difference between the model and the grand mean.</p></li>
+<li><p>If the differences between group means are large enough, then the resulting model will be a better fit of the data than the grand mean.</p></li>
+<li><p>If this is the case, we can infer that our model (i.e., predicting scores from the group means) is better than not using a model (i.e., predicting scores from the grand mean). Put another way, our group means are significantly different.</p></li>
+</ul>
+<p>Another way of saying this is that when the grand mean is used as a model, there will be a certain amount of variation between the data and the grand mean. When a model is fitted it will explain some of this variation, but some will be left unexplained. The <em>F</em>-ratio is the ratio of the explained to the unexplained variation.</p>
+</section>
+<section id="total-sum-of-squares-ss_t" class="level3">
+<h3 class="anchored" data-anchor-id="total-sum-of-squares-ss_t">10.2.5. Total sum of squares <span class="math inline">\(SS_T\)</span></h3>
+<p><strong>Total sum of squares</strong> is used to find the total amount of variation within our data. We calculate the difference between each observed data point and the grand mean. We then square these differences and add them together.</p>
+<p>The <strong>grand variance</strong> is the variation between all scores, regardless of the experimental condition from which the score came. Therefore, we can calculate the total sums of squares from the grand variance:</p>
+<p><span class="math inline">\(SS = s^2(N-1)\)</span></p>
+<p>When we estimate population values, the degrees of freedom are typically one less than the number of scores used to calculate the population value. This is because to get these estimates we have to hold something constant in the population, which leaves all but one of the scores free to vary.</p>
+</section>
+<section id="model-sum-of-squares-ss_m" class="level3">
+<h3 class="anchored" data-anchor-id="model-sum-of-squares-ss_m">10.2.6. Model sum of squares <span class="math inline">\(SS_M\)</span></h3>
+<p>The <strong>model sum of squares</strong> tell us how much of the total variation can be explained by the fact that different data points come from different groups.</p>
+<p>In chapter 7.2.3. we saw that the model sum of squares is calculated by taking the difference between the values predicted by the model and the grand mean. In ANOVA, the values predicted by the model are the group means. For each participant, the value predicted by the model is the mean for the group to which the participant belongs. The easiest way to calculate <span class="math inline">\(SS_M\)</span> is the following:</p>
+<ol type="1">
+<li>Calculate the difference between the mean of each group and the grand mean.</li>
+<li>Square each of these differences.</li>
+<li>Multiply each result by the number of participants within that group.</li>
+<li>Add the values for each group together.</li>
+</ol>
+<p>For <span class="math inline">\(SS_M\)</span>, the degrees of freedom will always be one less than the number of parameters estimated.</p>
+</section>
+<section id="residual-sum-of-squares-ss_r" class="level3">
+<h3 class="anchored" data-anchor-id="residual-sum-of-squares-ss_r">10.2.7. Residual sum of squares <span class="math inline">\(SS_R\)</span></h3>
+<p>The <strong>residual sum of squares</strong> tells us how much of the variation cannot be explained by the model. This value is the amount of variation caused by extraneous factors. Knowing <span class="math inline">\(SS_T\)</span> and <span class="math inline">\(SS_M\)</span> already, the simplest way to calculate <span class="math inline">\(SS_R\)</span> is: <span class="math inline">\(SS_R = SS_T - SS_M\)</span>.</p>
+<p>From chapter 7.2.3., the residual sum of squares is the difference between what the model predicts and what was actually observed. In ANOVA, the values predicted by the model are the group means.</p>
+<p>The distances between each data point and the group mean are squared and then added together to give the residual sum of squares. Given that we know the relationship between the variance and the sums of squares, we can restate residual sum of squares as taking the variance from each group and multiplying it by one less than the number of people in that group, and add the values from all the groups.</p>
+</section>
+<section id="mean-squares" class="level3">
+<h3 class="anchored" data-anchor-id="mean-squares">10.2.8. Mean squares</h3>
+<p><span class="math inline">\(SS_M\)</span> tells us the <em>total</em> variation that the regression model explains, and <span class="math inline">\(SS_R\)</span> tells us the <em>total</em> variation that is due to extraneous factors. However, because both of these values are summed values they will be influenced by the number of scores that were summed. To eliminate this bias, we can calculate the average sum of squares, known as the <strong>mean squares, MS</strong>, which is simply the sum of squares divided by the degrees of freedom. Therefore, <span class="math inline">\(MS_M\)</span> represents the average amount of variation explained by the model (systematic variation), whereas <span class="math inline">\(MS_R\)</span> is a gauge of the average amount of variation explained by extraneous variables (unsystematic variation).</p>
+</section>
+<section id="the-f-ratio" class="level3">
+<h3 class="anchored" data-anchor-id="the-f-ratio">10.2.9. The <em>F</em>-ratio</h3>
+<p>The <strong><em>F</em>-ratio</strong> is a measure of the ratio of the variation explained by the model and the variation explained by unsystematic factors. It can be calculated by dividing the model mean squares by the residual mean squares.</p>
+<p><span class="math inline">\(F = \frac{MS_M}{MS_R}\)</span></p>
+<p><em>F</em>-ratio is therefore a measure of the ratio of systematic variation to unsystematic variation. In experimental research, it is the ratio of the experimental effect to the individual differences in performance.</p>
+<p>The <em>F</em>-ratio less than 1 implies that the effect is non-significant, because it means that <span class="math inline">\(MS_R\)</span> is greater than <span class="math inline">\(MS_M\)</span>, which is same as that there is more unsystematic than systematic variance.</p>
+<p>If the <em>F</em>-ratio value is greater than 1, it means that the experimental manipulation had some effect. However, we have to check whether our <em>F</em>-ratio is large enough to not be a chance result. To do this, we can compare the obtained value of <em>F</em> against the maximum value we would expect to get by chance if the group means were equal in an <em>F</em>-distribution with the same degrees of freedom (from the appendix). We can be confident if our value exceeds this critical value.</p>
+</section>
+</section>
+<section id="assumptions-of-anova" class="level2">
+<h2 class="anchored" data-anchor-id="assumptions-of-anova">10.3. Assumptions of ANOVA</h2>
+<p>The variances in each experimental condition need to be fairly similar, observations should be independent and the dependent variable should be measured on at least an interval scale.</p>
+<section id="homogeneity-of-variance" class="level3">
+<h3 class="anchored" data-anchor-id="homogeneity-of-variance">10.3.1. Homogeneity of variance</h3>
+<p>If Levene’s test is significant, then we can say that the variances are significantly different.</p>
+</section>
+<section id="is-anova-robust" class="level3">
+<h3 class="anchored" data-anchor-id="is-anova-robust">10.3.2. Is ANOVA robust?</h3>
+<p>There are evidences that suggest when group sizes are equal, the <em>F</em>-statistic can be quite robust to violations of normality. However, when group sizes are not equal, the accuracy of <em>F</em> is affected by skew, and non-normality also affects the power of <em>F</em> in quite unpredictable ways.</p>
+<p>ANOVA is fairly robust in terms of the error rate when sample sizes are equal. However, when sample sizes are unequal, ANOVA is not robust to violations of homogeneity of variance.</p>
+</section>
+</section>
+<section id="planned-contrasts" class="level2">
+<h2 class="anchored" data-anchor-id="planned-contrasts">10.4. Planned contrasts</h2>
+<p>The <em>F</em>-ratio tells us only whether the model fitted to the data accounts for more variation than extraneous factors, but it doesn’t tell us where the differences between groups lie. Therefore, it is necessary to carry out further analysis after conducting an ANOVA to find out which groups differ. There are two ways:</p>
+<ul>
+<li><p>The first is to break down the variance accounted for by the model into component parts. This is known as <strong>planned contrasts</strong>.</p></li>
+<li><p>The second is to compare every group but to use a stricter acceptance criterion such that the familywise error rate does not rise above .05. This is known as <em><strong>post hoc</strong> tests<strong>.</strong></em></p></li>
+</ul>
+<section id="choosing-which-contrasts-to-do" class="level3">
+<h3 class="anchored" data-anchor-id="choosing-which-contrasts-to-do">10.4.1. Choosing which contrasts to do</h3>
+<p>To do planned comparisons, the hypotheses must be derived <em>before</em> the date are collected. Planned comparisons take this logic a step further by breaking down the variation due to the experiment into component parts. For example:</p>
+<ul>
+<li><p>Contrast 1: Placebo vs Low+High Dose</p></li>
+<li><p>Contrast 2: Low dose vs High dose (We divide the Low+High Dose group.</p></li>
+</ul>
+<p>First, if a group is singled out in one comparison, then it should not reappear in another comparison. We should always end up with one less contrast than the number of groups; there will be <em>k-1</em> contrasts if <em>k</em> is the number of conditions we’re comparing. Second, each contrast must compare only two chunks of variance. Finally, in the majority of experimental designs we predict that the experimental conditions will differ from the control condition.</p>
+<p>When we design a contrast that compares several groups to one other group, we are comparing the means of the groups in one chunk with the mean of the group in the other chunk.</p>
+</section>
+<section id="defining-contrasts-using-weights" class="level3">
+<h3 class="anchored" data-anchor-id="defining-contrasts-using-weights">10.4.2. Defining contrasts using weights</h3>
+<p>To get <strong>R</strong> carry out planned comparisons, we need to tell it which groups we would like to compare. To carry out contrasts we assign certain values to the dummy variables in the regression model. The values assigned to the dummy variables are known as <strong>weights</strong>.</p>
+<ul>
+<li><p>Rule 1: Choose sensible comparisons.</p></li>
+<li><p>Rule 2: Groups coded with positive weights will be compared against groups coded with negative weights.</p></li>
+<li><p>Rule 3: The sum of weights for a comparison should be zero.</p></li>
+<li><p>Rule 4: If a group is not involved in a comparison, automatically assign it a weight of 0.</p></li>
+<li><p>Rule 5: For a given contrast, the weights assigned to the groups in one chunk of variation should be equal to he number of groups in the opposite chunk of variation.</p></li>
+</ul>
+<p>When we multiply the weights for a particular group, these products should also add up to zero (Table 10.4). If the products add to zero then we can be sure that the contrasts are <em>independent</em> or <strong>orthogonal.</strong> We couldn’t look at the individual <em>t</em>-tests done on the regression coefficients because the familywise error rate is inflated. However, if the contrasts are independent then the <em>t</em>-tests done on the <em>b</em> coefficients are also independent and so resulting <em>p</em>-values are uncorrelated.</p>
+<section id="self-test-1" class="level4">
+<h4 class="anchored" data-anchor-id="self-test-1">SELF-TEST</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>contrastData <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"Contrast.dat"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(contrastData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  dose libido dummy1 dummy2
+1    1      3     -2      0
+2    1      2     -2      0
+3    1      1     -2      0
+4    1      1     -2      0
+5    1      4     -2      0
+6    2      5      1     -1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>contrastData<span class="sc">$</span>dose <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  contrastData<span class="sc">$</span>dose,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Low Dose"</span>, <span class="st">"High Dose"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>contrast.model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  libido<span class="sc">~</span>dummy1 <span class="sc">+</span> dummy2, <span class="at">data =</span> contrastData</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(contrast.model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = libido ~ dummy1 + dummy2, data = contrastData)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+  -2.0   -1.2   -0.2    0.9    2.0 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   3.4667     0.3621   9.574 5.72e-07 ***
+dummy1        0.6333     0.2560   2.474   0.0293 *  
+dummy2        0.9000     0.4435   2.029   0.0652 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.402 on 12 degrees of freedom
+Multiple R-squared:  0.4604,    Adjusted R-squared:  0.3704 
+F-statistic: 5.119 on 2 and 12 DF,  p-value: 0.02469</code></pre>
+</div>
+</div>
+<p>The <em>F</em>-statistic for the model is the same as when dummy coding was used, showing that the model fit is the same; however, the regression coefficients have now changed. From the significance values of the <em>t</em>-tests we can see that our experimental groups were significantly different from the control, but that the experimental groups were not significantly different.</p>
+</section>
+</section>
+<section id="non-orthogonal-comparisons" class="level3">
+<h3 class="anchored" data-anchor-id="non-orthogonal-comparisons">10.4.3. Non-orthogonal comparisons</h3>
+<p>Non0orthogonal contrasts are comparisons that are in some way related, and the best way to get them is to disobey Rule 1 in the previous section. With non-orthogonal contrasts, the comparisons we do are related and so the resulting test statistics and <em>p</em>-values will be correlated to some extent. For this reason, we should use a more conservative probability level to accept that a given contrast is statistically meaningful.</p>
+</section>
+<section id="standard-contrasts" class="level3">
+<h3 class="anchored" data-anchor-id="standard-contrasts">10.4.4. Standard contrasts</h3>
+<p>There are special contrasts that have been designed to compare certain situations. The <code>contrast()</code> function is used to code any categorical variable. The default is dummy coding in which each category is compared to the first category. <code>contr.treatment()</code> compares each category to a user-defined baseline category, so it can be non-orthogonal. <code>contr.SAS()</code> compares each category to the last category. <code>contr.helmert()</code> compares each category to the mean effect of all subsequent categories.</p>
+</section>
+<section id="polynomial-contrasts-trend-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="polynomial-contrasts-trend-analysis">10.4.5. Polynomial contrasts: trend analysis</h3>
+<p>Polynomial contrast can be obtained using <code>contr.poly()</code>.</p>
+</section>
+</section>
+<section id="post-hoc-procedures" class="level2">
+<h2 class="anchored" data-anchor-id="post-hoc-procedures">10.5. <em>Post</em> <em>hoc</em> procedures</h2>
+<p><em>Post hoc</em> tests consist of <strong>pairwise comparisons</strong> that are designed to compare all different combinations of the treatment group. Pairwise comparisons control the familywise error by correcting the level of significance for each test that the overall Type I error rate <span class="math inline">\(\alpha\)</span> across all comparisons remains at .05. The <strong>Bonferroni correction</strong> is the most popular and easiest way, which divide <span class="math inline">\(\alpha\)</span> by the number of comparisons, <span class="math inline">\(k\)</span>.</p>
+<p><span class="math inline">\(p_{crit} = \frac{\alpha}{k}\)</span></p>
+<p>Bonferroni correction controls the familywise error rate, but there is a loss of statistical power, which means that the probability of rejecting an effect that does actually exist is increased (Type II error).</p>
+<p>Holm’s method begins by computing the <em>p</em>-value for all of the pairs of groups in our data, and the ordering them from smallest to largest. We assign each <em>p</em> in the list, and we call the index of the list as <em>j</em>. Then, the critical value for a given comparison is the Type I error divided by the index variable <em>j</em>. The key idea behind this method is it is <em>stepped</em>. This means that as long as a comparison is significant, we proceed to the next one. But if we encounter a non-significant comparison, we stop and assume that all remaining comparisons are non-significant also.</p>
+<p>Another method is the false discovery rate (FDR). The FDR is simply the proportion of falsely rejected null hypotheses. The Benjamini and Hochbergs’ FDR approach to multiple comparisons is less strict than Bonferroni-based methods because it is concerned with keeping the FDR rather than the familywise error rate under control.</p>
+<p>It is important that we have an idea of which <em>post hoc</em> test perform best, and the criteria are:</p>
+<ul>
+<li><p>Whether the test controls the Type I error rate</p></li>
+<li><p>Whether the test controls the Type II error rate (i.e., has good statistical power)</p></li>
+<li><p>Whether the test is reliable when the test assumptions of ANOVA have been violated.</p></li>
+</ul>
+<section id="post-hoc-procedures-and-type-i-alpha-and-type-ii-error-rates" class="level3">
+<h3 class="anchored" data-anchor-id="post-hoc-procedures-and-type-i-alpha-and-type-ii-error-rates">10.5.1. <em>Post</em> <em>hoc</em> procedures and Type I (<span class="math inline">\(\alpha\)</span>) and Type II error rates</h3>
+<p>There is a trade-off between the Type I error rate and the statistical power of a test. If a test is conservative, then it is likely to lack statistical power.</p>
+</section>
+<section id="post-hoc-procedures-and-violations-of-test-assumptions" class="level3">
+<h3 class="anchored" data-anchor-id="post-hoc-procedures-and-violations-of-test-assumptions">10.5.2. <em>Post</em> <em>hoc</em> procedures and violations of test assumptions</h3>
+<p>Most multiple comparison procedures perform relatively well under small deviations from normality. However, they perform badly when group sizes are unequal and when population variances are different. Bootstrapping or trimmed means and M-estimators can be helpful in these situations.</p>
+</section>
+<section id="summary-of-post-hoc-procedures" class="level3">
+<h3 class="anchored" data-anchor-id="summary-of-post-hoc-procedures">10.5.3. Summary of <em>post hoc</em> procedures</h3>
+<p>When we have equal sample sizes and we are confident that our population variances are similar, then Tukey has good power and tight control over the Type I error rate. Bonferroni is generally conservative, but if we want guaranteed control over the Type I error rate then this a good method. If there is any doubt over the underlying assumptions, then we have to use a robust method based on a bootstrap, trimmed means, or M-estimators.</p>
+</section>
+</section>
+<section id="one-way-anova-using-r" class="level2">
+<h2 class="anchored" data-anchor-id="one-way-anova-using-r">10.6. One-way ANOVA using R</h2>
+<section id="packages-for-one-way-anova-in-r" class="level3">
+<h3 class="anchored" data-anchor-id="packages-for-one-way-anova-in-r">10.6.1. Packages for one-way ANOVA in R</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(compute.es); <span class="fu">library</span>(car); <span class="fu">library</span>(ggplot2); <span class="fu">library</span>(multcomp);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: mvtnorm</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: survival</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: TH.data</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: MASS</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'TH.data'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:MASS':
+
+    geyser</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pastecs); <span class="fu">library</span>(WRS2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="general-procedure-for-one-way-anova" class="level3">
+<h3 class="anchored" data-anchor-id="general-procedure-for-one-way-anova">10.6.2. General procedure for one-way ANOVA</h3>
+<ol type="1">
+<li>Enter data.</li>
+<li>Graph the data, compute some descriptive statistics, check distributional assumptions.</li>
+<li>Compute the basic ANOVA (Run the main analysis of variance).</li>
+<li>Compute contrasts or <em>post hoc</em> test.</li>
+</ol>
+</section>
+<section id="entering-data" class="level3">
+<h3 class="anchored" data-anchor-id="entering-data">10.6.3. Entering data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>libido <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">6</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>dose <span class="ot">&lt;-</span> <span class="fu">gl</span>(<span class="dv">3</span>, <span class="dv">5</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Low Dose"</span>, <span class="st">"High Dose"</span>))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>viagraData <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(dose, libido)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>viagraData</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        dose libido
+1    Placebo      3
+2    Placebo      2
+3    Placebo      1
+4    Placebo      1
+5    Placebo      4
+6   Low Dose      5
+7   Low Dose      2
+8   Low Dose      4
+9   Low Dose      2
+10  Low Dose      3
+11 High Dose      7
+12 High Dose      4
+13 High Dose      5
+14 High Dose      3
+15 High Dose      6</code></pre>
+</div>
+</div>
+<p>By using <code>gl()</code> function, we created a factor variable with three groups each containing five participants.</p>
+</section>
+<section id="one-way-anova-using-r-commander" class="level3">
+<h3 class="anchored" data-anchor-id="one-way-anova-using-r-commander">10.6.4. One-way ANOVA using R commander</h3>
+<ol type="1">
+<li><strong>Data -&gt; Import data -&gt; from text file, clipboard, or URL…</strong></li>
+<li>Convert the variable <code>dose</code> into a factor.</li>
+<li>(Levene’s test) <strong>Statistics -&gt; Variances -&gt; Levene’s test</strong></li>
+<li>(ANOVA) <strong>Statistics -&gt; Means -&gt; One-way ANOVA</strong></li>
+</ol>
+</section>
+<section id="exploring-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="exploring-the-data">10.6.5. Exploring the data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Graph</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>line <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(viagraData, <span class="fu">aes</span>(dose, libido))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>line <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"line"</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="fu">aes</span>(<span class="at">group=</span><span class="dv">1</span>), <span class="at">colour =</span> <span class="st">"black"</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fun.data =</span> mean_cl_boot, <span class="at">geom =</span> <span class="st">"errorbar"</span>,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">size =</span> <span class="fl">0.75</span>, <span class="at">colour =</span> <span class="st">"blue"</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Dose of Viagra"</span>, <span class="at">y =</span> <span class="st">"Mean Libido"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_10_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Approximately, all of the error bars overlap, indicating that there are no between-group differences.</p>
+<p>To get some descriptive statistics, we can use <code>by()</code> and <code>stat.desc()</code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(viagraData<span class="sc">$</span>libido, viagraData<span class="sc">$</span>dose, stat.desc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>viagraData$dose: Placebo
+     nbr.val     nbr.null       nbr.na          min          max        range 
+   5.0000000    0.0000000    0.0000000    1.0000000    4.0000000    3.0000000 
+         sum       median         mean      SE.mean CI.mean.0.95          var 
+  11.0000000    2.0000000    2.2000000    0.5830952    1.6189318    1.7000000 
+     std.dev     coef.var 
+   1.3038405    0.5926548 
+------------------------------------------------------------ 
+viagraData$dose: Low Dose
+     nbr.val     nbr.null       nbr.na          min          max        range 
+   5.0000000    0.0000000    0.0000000    2.0000000    5.0000000    3.0000000 
+         sum       median         mean      SE.mean CI.mean.0.95          var 
+  16.0000000    3.0000000    3.2000000    0.5830952    1.6189318    1.7000000 
+     std.dev     coef.var 
+   1.3038405    0.4074502 
+------------------------------------------------------------ 
+viagraData$dose: High Dose
+     nbr.val     nbr.null       nbr.na          min          max        range 
+   5.0000000    0.0000000    0.0000000    3.0000000    7.0000000    4.0000000 
+         sum       median         mean      SE.mean CI.mean.0.95          var 
+  25.0000000    5.0000000    5.0000000    0.7071068    1.9632432    2.5000000 
+     std.dev     coef.var 
+   1.5811388    0.3162278 </code></pre>
+</div>
+</div>
+<p>To compute Levene’s test, we can execute:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">leveneTest</span>(viagraData<span class="sc">$</span>libido, viagraData<span class="sc">$</span>dose, <span class="at">center =</span> median)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Levene's Test for Homogeneity of Variance (center = median)
+      Df F value Pr(&gt;F)
+group  2  0.1176   0.89
+      12               </code></pre>
+</div>
+</div>
+<p>The output shows that Levene’s test is very non-significant, which means the variances are very similar.</p>
+</section>
+<section id="the-main-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="the-main-analysis">10.6.6. The main analysis</h3>
+<section id="when-the-test-assumptions-are-met" class="level4">
+<h4 class="anchored" data-anchor-id="when-the-test-assumptions-are-met">10.6.6.1. When the test assumptions are met</h4>
+<p><code>lm()</code> and <code>aov()</code> can be used for ANOVA. For the current example, we are predicting <strong>libido</strong> from group membership (<strong>dose</strong>). Therefore, <strong>libido = dose + error</strong>.</p>
+<p>We can create a model using <code>lm()</code> or <code>aov()</code> by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>viagraModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(libido <span class="sc">~</span> dose, <span class="at">data =</span> viagraData)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(viagraModel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = libido ~ dose, data = viagraData)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+  -2.0   -1.2   -0.2    0.9    2.0 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)     2.2000     0.6272   3.508  0.00432 **
+doseLow Dose    1.0000     0.8869   1.127  0.28158   
+doseHigh Dose   2.8000     0.8869   3.157  0.00827 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.402 on 12 degrees of freedom
+Multiple R-squared:  0.4604,    Adjusted R-squared:  0.3704 
+F-statistic: 5.119 on 2 and 12 DF,  p-value: 0.02469</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>viagraModel <span class="ot">&lt;-</span> <span class="fu">aov</span>(libido <span class="sc">~</span> dose, <span class="at">data =</span> viagraData)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(viagraModel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Df Sum Sq Mean Sq F value Pr(&gt;F)  
+dose         2  20.13  10.067   5.119 0.0247 *
+Residuals   12  23.60   1.967                 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>The effect labelled <code>dose</code> is the overall experimental effect. <span class="math inline">\(SS_M = 20.13\)</span>, <span class="math inline">\(MS_M = \frac{SS_M}{df_M}=10.067\)</span>.</p>
+<p>For the residuals, which explains the unsystematic variation, <span class="math inline">\(SS_R = 23.60, MS_R = \frac{SS_R}{df_R} = 1.967\)</span>.</p>
+<p>The <em>F</em>-ratio for <code>dose</code> is 5.12, and a probability of this <em>F</em>-ratio happens by chance is calculated as 0.0247, which is significant. Therefore, we can say that there was a significant effect of Viagra.</p>
+<p><strong>However, at this stage we still don’t know exactly what the effect of Viagra was (which group differed).</strong></p>
+<p>The <code>aov()</code> function also provides some plots:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(viagraModel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_10_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_10_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_10_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_10_files/figure-html/unnamed-chunk-9-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>For the first plot, we can see that the points are equally spread for the three groups, which implies that variances are similar across groups. The second plot is Q-Q plot, which tells us something about the normality of residuals in the model. Our<br>
+Q-Q plot suggests that we may not be able to assume normality of errors and should perhaps use a robust version of ANOVA instead.</p>
+</section>
+<section id="when-variances-are-not-equal-across-groups" class="level4">
+<h4 class="anchored" data-anchor-id="when-variances-are-not-equal-across-groups">10.6.6.2. When variances are not equal across groups</h4>
+<p>If Levene’s test is significant, it is reasonable to assume that population variances are different across groups. Then, we have to apply Welch’s F to our data, which makes adjustments for differences in group variances:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">oneway.test</span>(libido <span class="sc">~</span> dose, <span class="at">data =</span> viagraData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    One-way analysis of means (not assuming equal variances)
+
+data:  libido and dose
+F = 4.3205, num df = 2.0000, denom df = 7.9434, p-value = 0.05374</code></pre>
+</div>
+</div>
+<p>For our data, we didn’t need this test because our Levene’s test was not significant, indicating that our population variances were similar.</p>
+</section>
+<section id="robust-anova---its-not-for-the-weak-of-heart" class="level4">
+<h4 class="anchored" data-anchor-id="robust-anova---its-not-for-the-weak-of-heart">10.6.6.3. Robust ANOVA - it’s not for the weak of heart</h4>
+<p>To conduct robust procedures for one-way ANOVA, we have to convert the data in wide format:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>viagraWide <span class="ot">&lt;-</span> <span class="fu">unstack</span>(viagraData, libido <span class="sc">~</span> dose)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>viagraWide</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Placebo Low.Dose High.Dose
+1       3        5         7
+2       2        2         4
+3       1        4         5
+4       1        2         3
+5       4        3         6</code></pre>
+</div>
+</div>
+<p>The robust function <code>t1way()</code>, is based on a trimmed mean.</p>
+<p><code>med1way()</code> compares medians rather than means.</p>
+<p><code>t1waybt()</code> adds a bootstrap to the trimmed mean:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># t1way(viagraWide, tr = 0.1, grp = c(1, 2, 3))</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># med1way(viagraWide)</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co"># t1waybt(viagraWide, tr = 0.05, nboot = 2000)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="planned-contrasts-using-r" class="level3">
+<h3 class="anchored" data-anchor-id="planned-contrasts-using-r">10.6.7. Planned contrasts using R</h3>
+<p>To do planned comparisons in <strong>R</strong>, we have to set the contrast attribute of our grouping variable using the <code>contrast()</code> function and then re-create our ANOVA model using <code>aov()</code>. By using <code>summary.lm()</code>, we are asking for a summary of the parameters of the linear model, rather than the overall ANOVA:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary.lm</span>(viagraModel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+aov(formula = libido ~ dose, data = viagraData)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+  -2.0   -1.2   -0.2    0.9    2.0 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)     2.2000     0.6272   3.508  0.00432 **
+doseLow Dose    1.0000     0.8869   1.127  0.28158   
+doseHigh Dose   2.8000     0.8869   3.157  0.00827 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.402 on 12 degrees of freedom
+Multiple R-squared:  0.4604,    Adjusted R-squared:  0.3704 
+F-statistic: 5.119 on 2 and 12 DF,  p-value: 0.02469</code></pre>
+</div>
+</div>
+<p>The ‘low dose’ effect is the effect of low dose compared to placebo and is non-significant, whereas the effect of high dose compared to the placebo group is significant.</p>
+<p>If we do not want dummy coding, but want to use our own planned comparisons, we can do this by resetting the contrast attribute associated with our predictor variable. There are some kinds of built in functions: <code>contr.helmert(n)</code>, <code>contr.poly(n)</code>, <code>contr.treatment(n, base = x)</code> and <code>contr.SAS(n)</code>. In all cases, <code>n</code> is the number of groups in the predictor variable. For <code>dose</code>, this value will be 3:</p>
+<section id="your-own-contrasts" class="level4">
+<h4 class="anchored" data-anchor-id="your-own-contrasts">10.6.7.1. Your own contrasts</h4>
+<p>Let’s pretend the weights for contrast 1 were -2 (placebo group), +1 (low-dose group), and +1 (high-dose group). We can create a new object called <code>contrast1</code> and use the function <code>c()</code> to list the weights. We can do the same job for contrast 2. Then, we can bind them together using <code>cbind()</code>, and set them as the contrast attached to predictor variable, <strong>dose</strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>contrast1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>contrast2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(viagraData<span class="sc">$</span>dose) <span class="ot">&lt;-</span> <span class="fu">cbind</span>(contrast1, contrast2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This command sets the contrast property of <strong>dose</strong> to contain the weights for the two contrasts that we want to conduct:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>viagraData<span class="sc">$</span>dose</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] Placebo   Placebo   Placebo   Placebo   Placebo   Low Dose  Low Dose 
+ [8] Low Dose  Low Dose  Low Dose  High Dose High Dose High Dose High Dose
+[15] High Dose
+attr(,"contrasts")
+          contrast1 contrast2
+Placebo          -2         0
+Low Dose          1        -1
+High Dose         1         1
+Levels: Placebo Low Dose High Dose</code></pre>
+</div>
+</div>
+<p>Now the variable has a contrast attribute that contains the weights that we just specified. Contrast 1 compares the placebo group against the two experimental groups, and contrast 2 compares the low-dose group to the high-dose group.</p>
+<p>Once we have set the contrast attribute, we can create a new model using <code>aov()</code> by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>viagraPlanned <span class="ot">&lt;-</span> <span class="fu">aov</span>(libido <span class="sc">~</span> dose, <span class="at">data =</span> viagraData)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary.lm</span>(viagraPlanned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+aov(formula = libido ~ dose, data = viagraData)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+  -2.0   -1.2   -0.2    0.9    2.0 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)     3.4667     0.3621   9.574 5.72e-07 ***
+dosecontrast1   0.6333     0.2560   2.474   0.0293 *  
+dosecontrast2   0.9000     0.4435   2.029   0.0652 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.402 on 12 degrees of freedom
+Multiple R-squared:  0.4604,    Adjusted R-squared:  0.3704 
+F-statistic: 5.119 on 2 and 12 DF,  p-value: 0.02469</code></pre>
+</div>
+</div>
+<p>The significance value of the contrast is given in the final column, and this value is two-tailed. For the first contrast, if we had used this contrast to test the general hypothesis that the experimental groups would <strong>differ</strong> from the placebo group, then we should use this <strong>two-tailed</strong> value. However, in reality, <strong>we tested the hypothesis that the experimental groups would increase libido above the levels seen in the placebo group</strong>: this hypothesis is <strong>one-tailed</strong>. For contrast 2, we also had a one-tailed hypothesis (that a high dose of Viagra would increase libido significantly more than a low dose).</p>
+<p>In summary, the planned contrasts revealed that taking Viagra significantly increased libido compared to a control group, <em>t</em>(12) = 2.47, <em>p</em> = 0.0293/2, and taking a high dose significantly increased libido compared to a low dose, <em>t</em>(12) = 2.03, <em>p</em> = 0.0652/2 (one-tailed).</p>
+</section>
+<section id="trend-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="trend-analysis">10.6.7.2. Trend analysis</h4>
+<p>To conduct a trend analysis we can use <code>contr.poly()</code>. To detect a meaningful trend, we need to have coded these groups in ascending order. To obtain a trend analysis, we set the contrast attribute of the predictor variable by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(viagraData<span class="sc">$</span>dose) <span class="ot">&lt;-</span> <span class="fu">contr.poly</span>(<span class="dv">3</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>viagraTrend <span class="ot">&lt;-</span> <span class="fu">aov</span>(libido <span class="sc">~</span> dose, <span class="at">data =</span> viagraData)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary.lm</span>(viagraTrend)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+aov(formula = libido ~ dose, data = viagraData)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+  -2.0   -1.2   -0.2    0.9    2.0 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   3.4667     0.3621   9.574 5.72e-07 ***
+dose.L        1.9799     0.6272   3.157  0.00827 ** 
+dose.Q        0.3266     0.6272   0.521  0.61201    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.402 on 12 degrees of freedom
+Multiple R-squared:  0.4604,    Adjusted R-squared:  0.3704 
+F-statistic: 5.119 on 2 and 12 DF,  p-value: 0.02469</code></pre>
+</div>
+</div>
+<p>The result breaks down the experimental effect to see whether it can be explained by either a linear (<code>dose.L</code>) or a quadratic (<code>dose.Q</code>) relationship in the data. For the <strong>linear trend</strong>, <em>t</em> = 3.16 and it is significant at <em>p</em> = .008. Therefore, we can say that as the dose of Viagra increased from nothing to a low dose to a high dose, libido increased <strong>proportionately</strong>. For the quadratic trend, it tests whether the pattern of means is curvilinear. The result suggests that the means cannot be represented by a curve, <em>t</em> = 0.52, <em>p</em> = 0.612.</p>
+</section>
+</section>
+<section id="post-hoc-tests-using-r" class="level3">
+<h3 class="anchored" data-anchor-id="post-hoc-tests-using-r">10.6.8. <em>Post hoc</em> tests using R</h3>
+<section id="bonferroni-and-related-methods" class="level4">
+<h4 class="anchored" data-anchor-id="bonferroni-and-related-methods">10.6.8.1. Bonferroni and related methods</h4>
+<p>Bonferroni and related methods (Holm, Benjamini-Hochberg, Hochberg) can be implemented using the <code>pairwise.t.test()</code> function that is built into <strong>R</strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairwise.t.test</span>(</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  viagraData<span class="sc">$</span>libido, viagraData<span class="sc">$</span>dose, <span class="at">p.adjust.method =</span> <span class="st">"bonferroni"</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pairwise comparisons using t tests with pooled SD 
+
+data:  viagraData$libido and viagraData$dose 
+
+          Placebo Low Dose
+Low Dose  0.845   -       
+High Dose 0.025   0.196   
+
+P value adjustment method: bonferroni </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairwise.t.test</span>(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  viagraData<span class="sc">$</span>libido, viagraData<span class="sc">$</span>dose, <span class="at">p.adjust.method =</span> <span class="st">"BH"</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pairwise comparisons using t tests with pooled SD 
+
+data:  viagraData$libido and viagraData$dose 
+
+          Placebo Low Dose
+Low Dose  0.282   -       
+High Dose 0.025   0.098   
+
+P value adjustment method: BH </code></pre>
+</div>
+</div>
+<p>Both commands specify <code>libido</code> as the outcome variable, and <code>dose</code> as the grouping variable. For the Bonferroni corrected values, the placebo group is compared to the low-dose group and reveals a non-significant difference (.845 &gt; .05). When compared to the high-dose group there is a significant difference (.025 &lt; .05).</p>
+<p>Our planned comparison showed that any dose of Viagra produced a significant increase in libido, yet the <em>post hoc</em> tests indicate that a low dose does not. This contradiction happened because the contrast we set is different. For the first planned comparison (experimental group vs placebo group), we compared the average of the two group means of the experimental groups ((3.2 + 5.0) / 2 = 4.1) to the mean of the placebo group (2.2). So, it was assessing whether the difference between these values (<strong>4.1 - 2.2 =</strong> <strong>1.9</strong>) was significant. In the <em>post hoc</em> test, when the low dose is compared to the placebo, the contrast is testing whether the difference between the means of these two groups (<strong>3.2 - 2.2 = 1</strong>) is significant. Therefore, it is possible to have apparently contradictory results from planned contrasts and <em>post hoc</em> comparisons. This example illustrates how careful we must be in interpreting planned contrasts.</p>
+<p>Another comparison is the low-dose group compared to the high-dose group, which is not significant (0.196 &gt; 0.05). This result contradicts the planned comparisons (contrast 2). This contradiction is because the <em>post hoc</em> tests by their nature are two-tailed, and contrast 2 was significant only when considered as a one-tailed hypothesis. However, even at the two-tailed level the planned comparison was closer to significance. From this, we can see that <em>post hoc</em> procedures are more conservative.</p>
+</section>
+<section id="tukey-and-dunnett" class="level4">
+<h4 class="anchored" data-anchor-id="tukey-and-dunnett">10.6.8.2. Tukey and Dunnett</h4>
+<p>Tukey and Dunnett can be implemented using the <code>glht()</code> function that is part of the <code>multicomp</code> package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>postHocs <span class="ot">&lt;-</span> <span class="fu">glht</span>(viagraModel, <span class="at">linfct =</span> <span class="fu">mcp</span>(<span class="at">dose =</span> <span class="st">"Tukey"</span>))</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(postHocs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Simultaneous Tests for General Linear Hypotheses
+
+Multiple Comparisons of Means: Tukey Contrasts
+
+
+Fit: aov(formula = libido ~ dose, data = viagraData)
+
+Linear Hypotheses:
+                          Estimate Std. Error t value Pr(&gt;|t|)  
+Low Dose - Placebo == 0     1.0000     0.8869   1.127    0.516  
+High Dose - Placebo == 0    2.8000     0.8869   3.157    0.021 *
+High Dose - Low Dose == 0   1.8000     0.8869   2.029    0.148  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+(Adjusted p values reported -- single-step method)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(postHocs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Simultaneous Confidence Intervals
+
+Multiple Comparisons of Means: Tukey Contrasts
+
+
+Fit: aov(formula = libido ~ dose, data = viagraData)
+
+Quantile = 2.6683
+95% family-wise confidence level
+ 
+
+Linear Hypotheses:
+                          Estimate lwr     upr    
+Low Dose - Placebo == 0    1.0000  -1.3667  3.3667
+High Dose - Placebo == 0   2.8000   0.4333  5.1667
+High Dose - Low Dose == 0  1.8000  -0.5667  4.1667</code></pre>
+</div>
+</div>
+<p>The output only confirms that the difference only between the high dose and placebo group is significant. The confidence intervals also confirms this because they do not cross zero for the comparison of the high dose and placebo group, which means that the true difference between group means is not likely to be zero.</p>
+<p>We can obtain Dunnett <em>post hoc</em> tests for the Viagra data by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>contrast_matrix <span class="ot">&lt;-</span> <span class="fu">mcp</span>(<span class="at">dose =</span> <span class="st">"Dunnett"</span>)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>postHocs <span class="ot">&lt;-</span> <span class="fu">glht</span>(viagraModel, <span class="at">linfct =</span> contrast_matrix)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(postHocs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Simultaneous Tests for General Linear Hypotheses
+
+Multiple Comparisons of Means: Dunnett Contrasts
+
+
+Fit: aov(formula = libido ~ dose, data = viagraData)
+
+Linear Hypotheses:
+                         Estimate Std. Error t value Pr(&gt;|t|)  
+Low Dose - Placebo == 0    1.0000     0.8869   1.127   0.4459  
+High Dose - Placebo == 0   2.8000     0.8869   3.157   0.0152 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+(Adjusted p values reported -- single-step method)</code></pre>
+</div>
+</div>
+<p>Since we have used <code>base = 1</code>, Dunnett’s test doesn’t compare the high and low-dose groups. The result of Dunnett’s test is same as the result from Tukey test.</p>
+</section>
+<section id="run-for-cover---its-robust-post-hoc-tests" class="level4">
+<h4 class="anchored" data-anchor-id="run-for-cover---its-robust-post-hoc-tests">10.6.8.3. Run for cover - it’s robust <em>post hoc</em> tests</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># lincon(viagraWide)</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="co"># mcppb20(viagraWide)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="calculating-the-effect-size" class="level2">
+<h2 class="anchored" data-anchor-id="calculating-the-effect-size">10.7. Calculating the effect size</h2>
+<p><strong>R</strong> doesn’t routinely provide an effect size for one-way independent ANOVA. However, we know that</p>
+<p><span class="math inline">\(R^2 = \frac{SS_M}{SS_T}\)</span></p>
+<p>We can get this value from the main ANOVA by using <code>summary.lm()</code> on the object we create with <code>aov()</code>. In the context of ANOVA, <span class="math inline">\(r^2\)</span> is usually called <strong>eta squared</strong>, <span class="math inline">\(\eta^2\)</span>.</p>
+<p>However, this measure of effect size is slightly biased because it is based purely on sums of squares from the sample and no adjustment is made for the fact that we’re trying to estimate the effect size in the population. Therefore, we often use a slightly more complex measure called <strong>omega squared</strong>, <span class="math inline">\(\omega^2\)</span>.</p>
+<p><span class="math inline">\(\omega^2 = \frac{SS_M - (df_M)MS_R}{SS_T + MS_R}\)</span></p>
+<p>This has led to a slightly lower estimate than using <em>r</em>, and in general <span class="math inline">\(\omega\)</span> is a more accurate measure. People normally report <span class="math inline">\(\omega^2\)</span>, and it has been suggested that values of .01, .06 and .14 represent small, medium and large effects respectively.</p>
+<p>The <code>mes()</code> function takes the mean, SD, n of two groups in order, and calculates the effect sizes:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparison of placebo and low-dose group</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mes</span>(<span class="fl">2.2</span>, <span class="fl">3.2</span>, <span class="fl">1.3038405</span>, <span class="fl">1.3038405</span>, <span class="dv">5</span>, <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Differences ES: 
+ 
+ d [ 95 %CI] = -0.77 [ -2.05 , 0.52 ] 
+  var(d) = 0.43 
+  p-value(d) = 0.28 
+  U3(d) = 22.16 % 
+  CLES(d) = 29.38 % 
+  Cliff's Delta = -0.41 
+ 
+ g [ 95 %CI] = -0.69 [ -1.85 , 0.47 ] 
+  var(g) = 0.35 
+  p-value(g) = 0.28 
+  U3(g) = 24.42 % 
+  CLES(g) = 31.21 % 
+ 
+ Correlation ES: 
+ 
+ r [ 95 %CI] = -0.39 [ -0.82 , 0.31 ] 
+  var(r) = 0.07 
+  p-value(r) = 0.3 
+ 
+ z [ 95 %CI] = -0.42 [ -1.16 , 0.32 ] 
+  var(z) = 0.14 
+  p-value(z) = 0.3 
+ 
+ Odds Ratio ES: 
+ 
+ OR [ 95 %CI] = 0.25 [ 0.02 , 2.56 ] 
+  p-value(OR) = 0.28 
+ 
+ Log OR [ 95 %CI] = -1.39 [ -3.72 , 0.94 ] 
+  var(lOR) = 1.41 
+  p-value(Log OR) = 0.28 
+ 
+ Other: 
+ 
+ NNT = -6.84 
+ Total N = 10</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparison of placebo and high-dose group</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mes</span>(<span class="fl">2.2</span>, <span class="dv">5</span>, <span class="fl">1.3038405</span>, <span class="fl">1.5811388</span>, <span class="dv">5</span>, <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Differences ES: 
+ 
+ d [ 95 %CI] = -1.93 [ -3.43 , -0.43 ] 
+  var(d) = 0.59 
+  p-value(d) = 0.04 
+  U3(d) = 2.67 % 
+  CLES(d) = 8.59 % 
+  Cliff's Delta = -0.83 
+ 
+ g [ 95 %CI] = -1.75 [ -3.1 , -0.39 ] 
+  var(g) = 0.48 
+  p-value(g) = 0.04 
+  U3(g) = 4.05 % 
+  CLES(g) = 10.86 % 
+ 
+ Correlation ES: 
+ 
+ r [ 95 %CI] = -0.73 [ -0.93 , -0.19 ] 
+  var(r) = 0.02 
+  p-value(r) = 0.04 
+ 
+ z [ 95 %CI] = -0.94 [ -1.68 , -0.2 ] 
+  var(z) = 0.14 
+  p-value(z) = 0.04 
+ 
+ Odds Ratio ES: 
+ 
+ OR [ 95 %CI] = 0.03 [ 0 , 0.46 ] 
+  p-value(OR) = 0.04 
+ 
+ Log OR [ 95 %CI] = -3.5 [ -6.23 , -0.78 ] 
+  var(lOR) = 1.93 
+  p-value(Log OR) = 0.04 
+ 
+ Other: 
+ 
+ NNT = -5.07 
+ Total N = 10</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparison of low-dose and high-dose group</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mes</span>(<span class="fl">3.2</span>, <span class="dv">5</span>, <span class="fl">1.3038405</span>, <span class="fl">1.5811388</span>, <span class="dv">5</span>, <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Differences ES: 
+ 
+ d [ 95 %CI] = -1.24 [ -2.6 , 0.11 ] 
+  var(d) = 0.48 
+  p-value(d) = 0.11 
+  U3(d) = 10.71 % 
+  CLES(d) = 18.99 % 
+  Cliff's Delta = -0.62 
+ 
+ g [ 95 %CI] = -1.12 [ -2.34 , 0.1 ] 
+  var(g) = 0.39 
+  p-value(g) = 0.11 
+  U3(g) = 13.09 % 
+  CLES(g) = 21.38 % 
+ 
+ Correlation ES: 
+ 
+ r [ 95 %CI] = -0.57 [ -0.88 , 0.09 ] 
+  var(r) = 0.04 
+  p-value(r) = 0.12 
+ 
+ z [ 95 %CI] = -0.65 [ -1.39 , 0.09 ] 
+  var(z) = 0.14 
+  p-value(z) = 0.12 
+ 
+ Odds Ratio ES: 
+ 
+ OR [ 95 %CI] = 0.11 [ 0.01 , 1.22 ] 
+  p-value(OR) = 0.11 
+ 
+ Log OR [ 95 %CI] = -2.25 [ -4.71 , 0.2 ] 
+  var(lOR) = 1.57 
+  p-value(Log OR) = 0.11 
+ 
+ Other: 
+ 
+ NNT = -5.51 
+ Total N = 10</code></pre>
+</div>
+</div>
+<p>An alternative is to compute effect sizes for the orthogonal contrasts. We can use an equation that converts <em>t</em> into <em>r</em> :</p>
+<p><span class="math inline">\(r_{contrast} = \sqrt{\frac{t^2}{t^2+26}}\)</span></p>
+<p>We could write a function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>rcontrast <span class="ot">&lt;-</span> <span class="cf">function</span>(t, df)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(t<span class="sc">^</span><span class="dv">2</span><span class="sc">+</span>df))</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"r = "</span>, r))</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>  }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The degrees of freedom can be calculated as in normal regression as <span class="math inline">\(N - p - 1\)</span>, in which <em>N</em> is the total sample size (in this case 15), and <em>p</em> is the number of predictors (in this case 2, the two contrast variables). Therefore, the degrees of freedom are 15 - 2 - 1 = 12:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="fl">2.474</span>, <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.581182458413787"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="fl">2.029</span>, <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.505407970122564"</code></pre>
+</div>
+</div>
+<p>Both effects are fairly large.</p>
+</section>
+<section id="reporting-results-from-one-way-independent-anova" class="level2">
+<h2 class="anchored" data-anchor-id="reporting-results-from-one-way-independent-anova">10.8. Reporting results from one-way independent ANOVA</h2>
+<p>When we report ANOVA, we have to give details of the <em>F</em>-ratio and the degrees of freedom from which it was calculated.</p>
+<ul>
+<li>There was a significant effect of Viagra on levels of libido, <em>F</em> (2, 12) = 5.12, p &lt; .05, <span class="math inline">\(\omega^2\)</span> = .60.</li>
+</ul>
+<p>We can also report our planned contrasts or group comparisons:</p>
+<ul>
+<li><p>Planned contrasts revealed that taking any dose of Viagra significantly increased libido compared to having a placebo, <em>t</em>(12) = 2.47, <em>p</em> &lt; .05 (one-tailed), and that taking a high dose significantly increased libido compared to taking a low dose, <em>t</em>(12) = 2.03, <em>p</em> &lt; .05 (one-tailed).</p></li>
+<li><p>Despite fairly large effect sizes, Bonferroni tests revealed non-significant differences between the low-dose group and both the placebo, <em>p</em> = .845, <em>d</em> = -0.77, and high dose, <em>p</em> = .196, <em>d</em> = -1.24, groups. The high-dose group, however, had a mean almost 2 standard deviations bigger than the placebo group, <em>p</em> = .025, <em>d</em> = -1.93.</p></li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

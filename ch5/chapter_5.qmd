@@ -1,0 +1,751 @@
+---
+title: "Chapter 5. Exploring assumptions"
+author: "Daehyeog Lee"
+date: "2023-09-12"
+date-modified: "`r Sys.Date()`"
+format:
+  pdf:
+    toc: true
+    colorlinks: true
+editor: visual
+---
+
+## 5.0. Importing libraries
+
+```{r}
+library(car); library(ggplot2); library(pastecs); library(psych)
+```
+
+## 5.1. What will this chapter tell me?
+
+How can we turn the ugly data into a beautiful swan?
+
+## 5.2. What are assumptions?
+
+Different statistical models assume different things.
+
+The assumptions need to be true when statistical models are going to reflect reality accurately.
+
+## 5.3. Assumptions of parametric data
+
+Parametric statistics are based on assumption about the distribution of population from which the sample was taken.
+
+Nonparametric statistics are not based on assumptions, that is, the data can be collected from a sample that does not follow a specific distribution.
+
+Parametric test requires data from one of the large catalogue of distributions that statisticians have described.
+
+According to the **central limit theorem**, as samples get large, the sampling distribution has a normal distribution with a mean equal to the population mean.
+
+Most parametric tests based on the normal distribution have four basic assumptions that must be met for the test to be accurate.
+
+1)  **Normally distributed data**
+
+2)  **Homogeneity of variance**: Variances should be the dame throughout the data.
+
+3)  **Interval data**: Data should be measured at least at the interval level.
+
+4)  **Independence** (This assumption is different depending on the test we're using)
+
+## 5.4. Packages used in this chapter
+
+`car`, `ggplot2`, `pastecs`, `psych`, `Rcmdr`
+
+## 5.5. The assumption of normality
+
+We assume that the sampling distribution is normally distributed, but we don't have access to this distribution.
+
+Central limit theorem: If the sample data are approximately normal then the sampling distribution will be also normal.
+
+General linear models assume that errors in the model are normally distributed.
+
+### 5.5.1. Oh no, it's that pesky frequency distribution again: checking normality visually
+
+First, let's plot a histogram of **DownloadFestival.dat**:
+
+```{r}
+dlf <- read.delim("dfno.dat", header = TRUE)
+  hist.day1 <- ggplot(dlf, aes(day1)) +
+  geom_histogram(aes(y = ..density..),
+                 color = "black",
+                 fill = "white"
+                 ) +
+  labs(x = "Hygiene score on day 1", y = "Density")
+hist.day1
+```
+
+We can add a normal curve, and we need to tell *ggplot2* what mean and SD we'd like on that curve.
+
+The `stat_function()` command draws the normal curve using the function `dnorm()`:
+
+```{r}
+hist.day1 +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$day1, na.rm = TRUE),
+                            sd = sd(dlf$day1, na.rm = TRUE)),
+                            color = "black",
+                            size = 1
+               )
+```
+
+```{r}
+### SELF-TEST
+
+# DAY 2
+hist.day2 <- ggplot(dlf, aes(day2)) +
+  geom_histogram(aes(y = ..density..),
+                 color = "black",
+                 fill = "white"
+                 ) +
+  labs(x = "Hygiene score on day 2", y = "Density")
+hist.day2 +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$day2, na.rm = TRUE),
+                            sd = sd(dlf$day2, na.rm = TRUE)),
+                            color = "black",
+                            size = 1
+               )
+
+# DAY 3
+hist.day3 <- ggplot(dlf, aes(day3)) +
+  geom_histogram(aes(y = ..density..),
+                 color = "black",
+                 fill = "white"
+                 ) +
+  labs(x = "Hygiene score on day 3", y = "Density")
+hist.day3 +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$day3, na.rm = TRUE),
+                            sd = sd(dlf$day3, na.rm = TRUE)),
+                            color = "black",
+                            size = 1
+               )
+```
+
+**Q-Q plot** (quantile-quantile plot) is another useful graph that we can inspect to see if a distribution is normal. Q-Q plots the cumulative values we have in our data against the cumulative probability of a particular distribution. Each value is compared to the expected value that the score should have in a normal distribution and they are plotted against one another. The x axis of Q-Q plot represents the z-scores of each point:
+
+```{r}
+qqplot.day1 <- ggplot(data = dlf, aes(sample = day1)) +
+  geom_qq()
+qqplot.day1 # Updated code
+```
+
+For day 2 and day 3:
+
+```{r}
+qqplot.day2 <- ggplot(data = dlf, aes(sample = day2)) +
+  geom_qq()
+qqplot.day2
+
+qqplot.day3 <- ggplot(data = dlf, aes(sample = day3)) +
+  geom_qq()
+qqplot.day3
+```
+
+### 5.5.2. Quantifying normality with numbers
+
+We can explore the distribution of the variables using the `describe()` function in the *psych* package, or the `stat.desc()` function of the *pastecs* package:
+
+```{r}
+describe(dlf$day1)
+stat.desc(dlf$day1, basic = FALSE, norm = TRUE)
+```
+
+We can combine two or more variables by using `cbind()` function.
+
+```{r}
+describe(cbind(dlf$day1, dlf$day2, dlf$day3))
+stat.desc(cbind(dlf$day1, dlf$day2, dlf$day3), basic = FALSE, norm = TRUE)
+
+# OR,
+describe(dlf[, c("day1", "day2", "day3")])
+stat.desc(dlf[, c("day1", "day2", "day3")], basic = FALSE, norm = TRUE)
+```
+
+We can select rows and columns using `[rows, colomns]`, therefore, `dlf[, c("day1", "day2", "day3")]` means from the `dlf` dataframe select all of the rows **(because nothing is specified before the comma)** and select the columns labelled `day1`, `day2`, `day3` .
+
+If the skew divided by its standard error is greater than 2 then it is significant (at p\< 0.05).
+
+If we want to change our output's decimal places, we can use the `round()` function.
+
+```{r}
+round(stat.desc(dlf[, c("day1", "day2", "day3")],
+                basic = FALSE,
+                norm = TRUE
+                ),
+      digits = 3
+      )
+```
+
+### 5.5.3. Exploring groups of data
+
+#### 5.5.3.1. Running the analysis for all data
+
+**RExam.dat** contains data regarding students' performance on an R exam. There are four variables measured: **exam, computer, lecture** and **numeracy**. A variable **uni** indicates whether the student attended Sussex university of Duncetown university.
+
+Let's open the file and set the variable **uni** to be a factor by executing:
+
+```{r}
+rexam <- read.delim("rexam.dat", header = TRUE)
+rexam$uni <- factor(rexam$uni,
+                    levels = c(0: 1),
+                    labels = c("Duncetown University", "Sussex University")
+                    )
+```
+
+#### SELF-TEST
+
+```{r}
+#Self test task:
+
+round(stat.desc(rexam[, c("exam", "computer", "lectures", "numeracy")],
+                basic = FALSE,
+                norm = TRUE
+                ),
+      digits = 3
+      )
+
+hexam <- ggplot(rexam, aes(exam)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white"
+                 ) +
+  labs(x = "First Year Exam Score", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(rexam$exam, na.rm = TRUE),
+                            sd = sd(rexam$exam, na.rm = TRUE)),
+                colour = "red",
+                size = 1
+                )
+hexam
+
+hcomputer <- ggplot(rexam, aes(computer)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white"
+                 ) +
+  labs(x = "Computer Literacy", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(rexam$computer, na.rm = TRUE),
+                            sd = sd(rexam$computer, na.rm = TRUE)),
+                colour = "red",
+                size = 1
+                )
+hcomputer
+
+hlectures <- ggplot(rexam, aes(lectures)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white"
+                 ) +
+  labs(x = "Percentage of Lectures Attended", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(rexam$lectures, na.rm = TRUE),
+                            sd = sd(rexam$lectures, na.rm = TRUE)),
+                colour = "red",
+                size = 1
+                )
+hlectures
+
+hnumeracy <- ggplot(rexam, aes(numeracy)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white") +
+  labs(x = "Numeracy", y = "Density") + 
+  stat_function(fun = dnorm,
+                args = list(mean = mean(rexam$numeracy, na.rm = TRUE),
+                            sd = sd(rexam$numeracy, na.rm = TRUE)),
+                colour = "red",
+                size = 1
+                )
+hnumeracy
+```
+
+The exam scores' distribution is quite not normal; it looks bimodal (two peaks).
+
+The bimodal distribution of R exam scores instantly indicates a trend that students are typically either very good at statistics or struggle with it.
+
+#### 5.5.3.2. Running the analysis for different groups
+
+If we want to obtain separate descriptive statistics for each of the universities, we can use the `by()`function. We can simply enter the name of our dataframe or variables that we'd like to analyse, we can specify a variable by which we want to split the output (in this case, it's **uni**). We then tell it which function we want to apply to the data:
+
+```{r}
+by(data = rexam$exam, INDICES = rexam$uni, FUN = describe)
+```
+
+We can do the same thing by executing:
+
+```{r}
+by(data = rexam$exam, INDICES = rexam$uni, FUN = stat.desc)
+```
+
+`by(rexam$exam, rexam$uni, describe)` and `by(rexam$exam, rexam$uni, stat.desc` have the same effect as those above.
+
+We can also include any options for the function we're using by adding them in at the end. For example:
+
+```{r}
+by(rexam$exam, rexam$uni, stat.desc, basic = FALSE, norm = TRUE)
+```
+
+If we want descriptive statistics for multiple variables, then we can use `cbind()` to include them within the `by()` function:
+
+```{r}
+by(rexam[, c("exam", "numeracy")],
+   rexam$uni,
+   stat.desc,
+   basic = FALSE,
+   norm = TRUE
+   )
+```
+
+Now, let's look at the histograms. We can create plots for different groups by using the `subset()` function:
+
+```{r}
+dunceData <- subset(rexam, rexam$uni == "Duncetown University")
+sussexData <- subset(rexam, rexam$uni == "Sussex University")
+dunceData
+sussexData
+```
+
+These commands each create a new dataframe that is based on a subset of the *rexam* dataframe. We need to be careful that the term we specify to select cases exactly matches the labelling in the dataset otherwise we'll end up with an empty dataset.
+
+Having created our separate dataframes, we can generate histograms using the same commands as before, but specifying the dataframe for the subset of data:
+
+```{r}
+hist.numeracy.duncetown <- ggplot(dunceData, aes(numeracy)) +
+  geom_histogram(aes(y = ..density..),
+                 fill = "white",
+                 color = "black",
+                 binwidth = 1
+                 ) +
+  labs(x = "Numeracy Score" , y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dunceData$numeracy, na.rm = TRUE),
+                            sd = sd(dunceData$numeracy, na.rm = TRUE)),
+                color = "blue",
+                size = 1
+                )
+hist.numeracy.duncetown
+```
+
+We can see that for exam marks the distributions are both fairly normal. This is because the two samples are combined and these two normal distributions created a bimodal one at the previous figure.
+
+#### SELF-TEST
+
+```{r}
+hist.computer.duncetown <- ggplot(dunceData, aes(computer)) +
+  geom_histogram(aes(y = ..density..),
+                 fill = "white",
+                 color = "black",
+                 binwidth = 1
+                 ) +
+  labs(x = "Computer Literacy" , y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dunceData$computer, na.rm = TRUE),
+                            sd = sd(dunceData$computer, na.rm = TRUE)),
+                color = "blue",
+                size = 1
+                )
+hist.computer.duncetown
+```
+
+## 5.6. Testing whether a distribution is normal
+
+The **Shapiro-Wilk** test compares the scores in the sample to a normally distributed set of scores with the same mean and standard deviation. If the test is significant (*p* \< .05), then the distribution in question is significantly different from a normal distribution.
+
+### 5.6.1. Doing the Shapiro-Wilk test in R
+
+`shapiro.test()` function tests the variables for normality:
+
+```{r}
+shapiro.test(rexam$exam)
+shapiro.test(rexam$numeracy)
+```
+
+Although the distributions seemed quite normal, the Shapiro-Wilk tests was highly significant, indicating that both distributions are not normal. The value of *W* corresponds to the value of *normtest.W*, and the p-value corresponds to *normtest.p* from the `stat.desc` function.
+
+We can adjust `shapiro.test` to `by()` function we came across earlier, using it instead of FUN:
+
+```{r}
+by(rexam$exam, rexam$uni, shapiro.test)
+by(rexam$numeracy, rexam$uni, shapiro.test)
+```
+
+This result shows that the percentages on the R exam are indeed normal within the two groups.
+
+We can also draw Q-Q plots for the variables to help us to interpret the results of the Shapiro-Wilk test.
+
+```{r}
+ggplot(data = rexam, aes(sample = exam)) +
+  geom_qq()
+ggplot(data = rexam, aes(sample = numeracy)) +
+  geom_qq()
+```
+
+If the data are normally distributed (Numeracy), then the observed values should fall exactly along a straight line.
+
+### 5.6.2. Reporting the Shapiro-Wilk test
+
+" The percentage on the R exam, W = 0.96, p = 0.005, and the numeracy scores, W = 0.92, p \< .001, were both significantly non-normal."
+
+## 5.7. Testing for homogeneity of variance
+
+The *homogeneity of variance*: Although the means increase, the spread of scores is the same at each level of the concert variable.
+
+The *heterogeneity of variance*: At some levels of the variable the variance of scores is different than other levels.
+
+### 5.7.1. Levene's test
+
+**Levene's test** tests the null hypothesis that the variances in different groups are equal. If Levene's test is significant at p\<= .05 then we can conclude that the null hypothesis is incorrect and that the variances are significantly different.
+
+#### 5.7.1.1. Levene's test with R Commander
+
+Data -\> Import data -\> from text file, clipboard, or URL ..., and then select the file **RExam.dat**
+
+We need to convert **uni** to a factor because at the moment it is simply 0s and 1s so **R** doesn't know that it's a factor.
+
+Data -\> Manage variables in active data set -\> Convert numeric variables to factors
+
+Statistics -\> Variances -\> Levene's test, and select a grouping variable, which is **uni** here. For the centring, the median tends to be more accurate and is the default.
+
+#### 5.7.1.2. Levene's test with R
+
+To use Levene's test, we use the `leveneTest()` function from the *car* package. This function takes the general form: `leveneTest(outcome variable, group, center = median/mean)`. The outcome variable is what we want to test the variances. The grouping variable must be a factor:
+
+```{r}
+leveneTest(rexam$exam, rexam$uni)
+leveneTest(rexam$exam, rexam$uni, center = mean)
+```
+
+#### 5.7.1.3. Levene's test output
+
+The result is non-significant for the **R** exam scores. This indicates that the variances are not significantly different. However, for the numeracy scores, Levene's test is significant, indicating that the variances are significantly different.
+
+### 5.7.2. Reporting Levene's test
+
+For the percentage on the **R** exam, the variances were similar for Duncetown and Sussex University students, *F*(1, 98) = 2.09, *ns*, but for numeracy scores the variances were significantly different in the two groups, *F*(1, 98) = 5.37, *p* = .023
+
+### 5.7.3. Hartley's F_max: the variance ratio
+
+As with the Shapiro-Wilk test, when the sample size is large, small differences in group variances can produce a Levene's test that is significant. We can double check by looking at Hartley's F_max, which is the ratio of the variances between the group with the biggest variance and the group with the smallest variance.
+
+## 5.8. Correcting problems in the data
+
+What can we do about outliers and heterogeneity of variance?
+
+### 5.8.1. Dealing with outliers
+
+There are three main options dealing with outliers
+
+1.  Remove the case: If we have a good reason to believe that a case is not from the population that we intended to sample, we can delete that case.
+2.  Transform the data: The skew occurred by the outlier can be reduced by applying **transformations** to the data.
+3.  Change the score: If transformation fails, we can consider replacing the score. There are three options: The next highest score plus one, Convert back from a z-score, and The mean plus two standard deviations.
+
+### 5.8.2. Dealing with non-normality and unequal variances
+
+#### 5.8.2.1. Transforming data
+
+The idea behind transformations is that we do something to every score to correct for distributional problems, outliers or unequal variances. Transforming the data won't change the relationships between variables, but it does change the differences between different variables. If we are looking at differences within variables, then we need to transform all levels of those variables.
+
+Data transformations and their uses
+
+-   Log transformation: It reduces positive skew by squashing the right tail of the distribution. We need to set all numbers positive because we can't take the log of zero or negative numbers.
+
+-   Square root transformation: It brings any large scores closer to the center, rather like the log transformation.
+
+-   Reciprocal transformation: It reduces the impact of large scores, but it reverses the scores.
+
+-   Reverse score transformations: Any one of the above transformations can be used to correct negatively skewed data, but first we have to reverse the scores. To do this, we can subtract each score from the highest score obtained.
+
+We need to know whether the statistical models we apply perform better on transformed data than they do when applied to data that violate the assumption that the transformation corrects. If a statistical model is still accurate even when its assumptions are broken it is said to be a **robust test**.
+
+#### 5.8.2.2. Choosing a transformation
+
+We have to decide which transformation is best by trial and error.
+
+### 5.8.3. Transforming the data using R
+
+#### 5.8.3.1. Computing new variables
+
+**Addition:** We can add two variables together, or add a constant to our variables.
+
+**Subtraction:** We can subtract one variable from another.
+
+**Multiply:** We can multiply two variables together, or multiply a variable by any number.
+
+**Exponentiation:** We can raise the preceding term by the power of the succeeding term.
+
+**Less than:** It gives the answer TRUE (or 1) or FALSE (or 0)
+
+**Double equals:** It creates a variable **male** in the *dlf* dataframe that contains the value TRUE if the variable **gender** was the word 'Male'
+
+```{r}
+# Addition
+dlf$day1PlusDay2 <- dlf$day1 + dlf$day2
+# Subtraction
+dlf$day2MinusDay1 <- dlf$day2 - dlf$day1
+# Multiply
+dlf$day2Times5 <- dlf$day1 * 5
+# Exponentiation
+dlf$day2Squared <- dlf$day2 ^ 2
+# Less than
+dlf$day1LessThenOne <- dlf$day1 < 1
+dlf$day1LessThenOne
+# Double equals ("!=" for "Not equal to")
+dlf$male <- dlf$gender == "Male"
+dlf$male
+```
+
+`rowMeans(cbind(dlf$day1, dlf$day2, dlf$day3), na.rm = TRUE)`: Mean for a row
+
+``` rowSums(``cbind(dlf$day1, dlf$day2, dlf$day3), na.rm = TRUE``) ```: Sums for a row
+
+`na.rm = TRUE` tells **R** to exclude missing values from the calculation.
+
+`sqrt(dlf$day2)`: Produces a column containing the sqrt of each value in the column labelled *day2.*
+
+`abs(dlf$day1)`: Produces a variable that contains the absolute value of the values in the column labelled *day1*.
+
+`is.na(dlf$day1)`: If a variable is missing, the case will be assigned TRUE (or 1); if the case is not missing, the case will be assigned FALSE (or 0):
+
+```{r}
+dlf$missingDay2 <- is.na(dlf$day2)
+dlf$missingDay2
+sum(dlf$missingDay2)
+mean(is.na(dlf$day2))
+```
+
+`mean(is.na(dlf$day2))` tells us that the mean is 0.674, so 67.4% of people are missing a hygiene score on day2.
+
+#### 5.8.3.2. The log transformation in R
+
+To transform the variable **day1**, and create a new variable **logday1**, we execute this command:
+
+```{r}
+dlf$logday1 <- log(dlf$day1)
+```
+
+For the day2 hygiene scores there is a value of 0 in the original data, so we can't transform it by taking log. To overcome this, we should add a constant to our original scores before we take the log of those scores:
+
+```{r}
+dlf$logday1 <- log(dlf$day1 + 1)
+```
+
+The advantage of adding 1 is that the logarithm of 1 is equal to 0, so people who scored a zero before the transformation score a zero after the transformation.
+
+#### SELF-TEST
+
+```{r}
+dlf$logday1 <- log(dlf$day1 + 1)
+dlf$logday2 <- log(dlf$day2 + 1)
+dlf$logday3 <- log(dlf$day3 + 1)
+
+hist.logday1 <- ggplot(dlf, aes(logday1)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white"
+                 ) +
+  labs(x="Log Transformed Hygiene Score on Day 1", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$logday1, na.rm = TRUE),
+                            sd = sd(dlf$logday1, na.rm = TRUE)),
+                colour = "blue", size = 1
+                )
+hist.logday1
+
+hist.logday2 <- ggplot(dlf, aes(logday2)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white"
+                 ) +
+  labs(x="Log Transformed Hygiene Score on Day 2", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$logday2, na.rm = TRUE),
+                            sd = sd(dlf$logday2, na.rm = TRUE)),
+                colour = "blue", size = 1
+                )
+hist.logday2
+
+hist.logday3 <- ggplot(dlf, aes(logday3)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white"
+                 ) +
+  labs(x="Log Transformed Hygiene Score on Day 3", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$logday3, na.rm = TRUE),
+                            sd = sd(dlf$logday3, na.rm = TRUE)),
+                colour = "blue", size = 1
+                )
+hist.logday3
+```
+
+#### 5.8.3.3. The square root transformation in R
+
+To do a square root transformation, we can execute `dlf$sqrtday1 <- sqrt(dlf$day1)`.
+
+#### SELF-TEST
+
+```{r}
+dlf$sqrtday1 <- sqrt(dlf$day1)
+dlf$sqrtday2 <- sqrt(dlf$day2)
+dlf$sqrtday3 <- sqrt(dlf$day3)
+
+hist.sqrtday1 <- ggplot(dlf, aes(sqrtday1)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white"
+                 ) +
+  labs(x="Sqrt Transformed Hygiene Score on Day 1", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$sqrtday1, na.rm = TRUE),
+                            sd = sd(dlf$sqrtday1, na.rm = TRUE)),
+                colour = "blue", size = 1
+                )
+hist.sqrtday1
+
+hist.sqrtday2 <- ggplot(dlf, aes(sqrtday2)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white"
+                 ) +
+  labs(x="Sqrt Transformed Hygiene Score on Day 2", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$sqrtday2, na.rm = TRUE),
+                            sd = sd(dlf$sqrtday2, na.rm = TRUE)),
+                colour = "blue", size = 1
+                )
+hist.sqrtday2
+
+hist.sqrtday3 <- ggplot(dlf, aes(sqrtday3)) +
+  geom_histogram(aes(y=..density..),
+                 colour="black",
+                 fill="white"
+                 ) +
+  labs(x="Sqrt Transformed Hygiene Score on Day 3", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$sqrtday3, na.rm = TRUE),
+                            sd = sd(dlf$sqrtday3, na.rm = TRUE)),
+                colour = "blue", size = 1
+                )
+hist.sqrtday3
+```
+
+#### 5.8.3.4. The reciprocal transformation in R
+
+To do a reciprocal transformation, we use '1/variable'. However, if the data contain a zero value, we can add a constant to our variable and then divide it.
+
+#### SELF-TEST
+
+```{r}
+dlf$recday1 <- 1/(dlf$day1 + 1)
+dlf$recday2 <- 1/(dlf$day1 + 1)
+dlf$recday3 <- 1/(dlf$day1 + 1)
+
+hist.recday1 <- ggplot(dlf, aes(recday1)) +
+  geom_histogram(aes(y=..density..),
+                 color="black",
+                 fill="white"
+                 ) +
+  labs(x="REC Hygiene Score on Day 1", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$recday1, na.rm = TRUE),
+                            sd = sd(dlf$recday1, na.rm = TRUE)),
+                color = "blue", size = 1
+                )
+hist.recday1
+
+hist.recday2 <- ggplot(dlf, aes(recday2)) +
+  geom_histogram(aes(y=..density..),
+                 color="black",
+                 fill="white"
+                 ) +
+  labs(x="REC Hygiene Score on Day 2", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$recday2, na.rm = TRUE),
+                            sd = sd(dlf$recday2, na.rm = TRUE)),
+                color = "blue", size = 1
+                )
+hist.recday2
+
+hist.recday3 <- ggplot(dlf, aes(recday3)) +
+  geom_histogram(aes(y=..density..),
+                 color="black",
+                 fill="white"
+                 ) +
+  labs(x="REC Hygiene Score on Day 3", y = "Density") +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(dlf$recday3, na.rm = TRUE),
+                            sd = sd(dlf$recday3, na.rm = TRUE)),
+                color = "blue", size = 1
+                )
+hist.recday3
+```
+
+#### 5.8.3.5. The ifelse() function in R
+
+The *ifelse()* function is used to create a new variable, or change an old variable, depending on some other values. This function needs three arguments: a conditional argument to test, what to do if the test is true, and what to do if the test is false.
+
+For example, to remove the outliers in the **day1** hygiene score:
+
+```{r}
+dlf$day1NoOutlier <- ifelse(dlf$day1 > 4, NA, dlf$day1)
+dlf$day1NoOutlier
+```
+
+This command creates a new variable called **day1NoOutlier** which takes the value NA if **day1** is greater than 4, but is the value of day1 if day1 is less than 4.
+
+The `rowSums()` and `rowMeans()` functions allow us to choose what to do with missing data, by using the `na.rm` option, which asks 'should missing values (na) be removed (rm)?'.
+
+To obtain the mean hygiene score across three days, removing anyone with any missing values, we would use:
+
+```{r}
+dlf$meanHygiene <- rowMeans(cbind(dlf$day1, dlf$day2, dlf$day3))
+dlf$meanHygiene
+```
+
+But, a lot of people would be missing. If we want to use everyone who had at least one score for the three days, we can add `na.rm = TRUE`:
+
+```{r}
+dlf$meanHygiene <- rowMeans(cbind(dlf$day1, dlf$day2, dlf$day3), na.rm = TRUE)
+dlf$meanHygiene
+```
+
+If we don't mind if people were missing one or two scores, but we do not want to calculate a mean for people who only had one score, we can use the `is.na()` function first:
+
+```{r}
+dlf$daysMissing <- rowSums(cbind(is.na(dlf$day1),
+                                 is.na(dlf$day2),
+                                 is.na(dlf$day3)
+                                 )
+                           )
+dlf$daysMissing
+```
+
+We also can use the `ifelse()` function to calculate values only for those people who have a score on at least two days:
+
+```{r}
+dlf$meanHygiene <- ifelse(dlf$daysMissing < 2, NA,
+                          rowMeans(cbind(dlf$day1,
+                                         dlf$day2,
+                                         dlf$day3
+                                         ),
+                                   na.rm = TRUE)
+                          )
+dlf$meanHygiene
+```
+
+### 5.8.4. When it all goes horribly wrong
+
+If transformations don't work, there are some other options.
+
+The first is to use a test that does not rely on the assumption of normally distributed data.
+
+Another approach is to use robust methods.
+
+-   **Trimmed mean** is simply a mean based on the distribution of scores after some percentage of scores has been removed from each extreme of the distribution.
+
+-   **M-estimator** determines the optimal amount of trimming necessary to give a robust estimation, rather than the researcher deciding before the analysis how much of the data to trim.
+
+Trimmed mean and M-estimator produces accurate results even when the distribution is not symmetrical, because by trimming the ends of the distribution we remove outliers and skew.
+
+The second general procedure is the **bootstrap**. Lack of normality prevents us from knowing the shape of the sampling distribution unless we have big samples. In bootstrapping, the sample data are treated as a population from which smaller samples (= bootstrap samples) are taken. The statistic interest is calculated in each sample, and by taking many samples the sampling distribution can be estimated. The SE of the statistic is estimated from the SD of this sampling distribution created from the bootstrap samples.

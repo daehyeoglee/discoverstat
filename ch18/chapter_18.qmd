@@ -1,0 +1,361 @@
+---
+title: "Chapter 18. Categorical data"
+author: "Daehyeog Lee"
+date: "2023-03-01"
+date-modified: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+## 18.0. Importing libraries
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme); library(clinfun); library(pgirmess)
+library(MASS); library(mvoutlier); library(mvnormtest)
+library(corpcor); library(GPArotation); library(psych); library(DSUR.noof)
+```
+
+## 18.1. What will this chapter tell me?
+
+How should we analyze data if we know only the frequency with which events occur?
+
+## 18.2. Packages used in this chapter
+
+```{r}
+library(gmodels)
+library(MASS)
+```
+
+## 18.3. Analysing categorical data
+
+There are times when we want to look at relationships between lots of categorical variables. This chapter looks at two techniques - we begin with the simple case of two categorical variables and discover the chi-square statistic. We then extend this model to several categorical variables.
+
+## 18.4. Theory of analysing categorical data
+
+The **contingency table** is a table that shows the frequencies of the variables.
+
+### 18.4.1. Pearson's chi-square test
+
+Pearson's **chi-square test** compares the frequencies we observe in certain categories to the frequencies we might expect to get in those categories by chance.
+
+The expected frequencies are calculated by multiplying 'row total' with 'column total' and dividing by total number of the data. The degrees of freedom are calculated by (r-1)(c-1), where r is the number of rows and c is the number of columns.
+
+### 18.4.2. Fisher's exact test
+
+The problem with the chi-square test is that the sampling distribution of the test statistic has an *approximate* chi-square distribution. In small samples, this approximation is not good enough. The **Fisher's exact test** is used for small data sets, normally on 2 x 2 contingency tables with small samples.
+
+### 18.4.3. The likelihood ratio
+
+The alternative to Pearson's chi-square is the likelihood ratio statistic. The general idea is that we collect some data and create a model for which the probability of obtaining the observed set of data is maximized, then we compare this model to the probability of obtaining those data under the null hypothesis. As with Pearson's chi-square, this statistic has a chi-square distribution with the same degrees of freedom.
+
+### 18.4.4. Yates's correction
+
+When we have a 2 x 2 contingency table then Pearson's chi-square tends to produce significance values that are too small. Therefore, it tends to make a Type I error. **Yates's continuity correction**'s basic idea is that when we calculate the deviation from the model, we subtract 0.5 from the absolute value of this deviation before we square it. In this way, we make the chi-square statistic less significant.
+
+## 18.5. Assumptions of the chi-square test
+
+-   The data should be independent from each other. Item or entity should contribute to only one cell of the contingency table. Therefore, we cannot use a chi-square test on a repeated-measures design.
+
+-   The expected frequencies should be greater than 5.
+
+## 18.6. Doing the chi-square test using R
+
+### 18.6.1. Entering data: raw scores
+
+```{r}
+catsData <- read.delim(here("ch18", "cats.dat"), header = TRUE)
+head(catsData)
+```
+
+### 18.6.2. Entering data: the contingency table
+
+The alternative method of data entry is to enter the contingency table directly.
+
+```{r}
+food <- c(10, 28)
+affection <- c(114, 48)
+catsTable <- cbind(food, affection)
+catsTable
+```
+
+### 18.6.3. Running the analysis with R commander
+
+Statistics -\> Proportions -\> Two-sample proportions test
+
+When affection was used as a reward, 29.6% of the cats danced, but when food was used as a reward, 73.7% of the cats danced.
+
+### 18.6.4. Running the analysis using R
+
+The `CrossTable()` function takes two general forms depending on whether or not we're inputting the raw data or a contingency table. There are some options: we obtain the chi-square test by adding `chisq = TRUE`, and the Fisher exact Test by adding `fisher = TRUE`, we can see the expected values of each cell of the contingency table by adding `expected = TRUE`.
+
+```{r}
+CrossTable(catsData$Training, catsData$Dance, fisher = TRUE, chisq = TRUE, expected = TRUE, sresid = TRUE, format = "SPSS")
+```
+
+### 18.6.5. Output from the *CrossTable()* function
+
+It is vital that we check that the assumption for chi-square has been met. The expected frequency values all exceed 5 so the assumption has been met.
+
+Pearson's chi-square test examines whether there is an association between two categorical variables. It tests whether the two variables are independent. The test statistic is highly significant, indicating that the type of training used had a significant effect on whether an animal would dance. Fisher's exact test also shows that we should reject the null hypothesis.
+
+The highly significant result indicates that there is an association between the type of training and whether the cat danced or not. What we mean by an assicoation is that the pattern of responses in the two training conditions is significantly different.
+
+Therefore, we can conclude that the type of training used significantly influenced the cats: They danced for food but not for love.
+
+### 18.6.6. Breaking down a significant chi-square test with standardized residuals
+
+We can break down a significant chi-square test using the standardized residual. The residual is simply the error between what the model predicts and the data actually observed. To standardize this, we simply divide the residual by the square root of the expected frequency.
+
+There are two important things about standardized residuals:
+
+-   If we want to decompose what contributes to the overall association that the chi-square statistic measures, then looking at the individual standardized residuals is a good idea because they have a direct relationship with the test statistic.
+
+-   These standardized residuals behave like any other in the sense that each one is a *z*-score.
+
+There are four residuals, and we can interpret these standardized residuals as follows:
+
+-   When food was used as a reward, significantly more cats than expected danced, and significantly fewer cats than expected did not dance.
+
+-   When affection was used as a reward, as many cats as expected danced and did not dance.
+
+The association between the type of reward and dancing is mainly driven by when food is a reward.
+
+### 18.6.7. Calculating an effect size
+
+The *odds ratio* is the most common measure of effect size for categorical data. Odds ratios are most interpretable in 2 x 2 contingency tables.
+
+Odds is simply the number of cats that were given food(affection) and danced, divided by the number of cats given food(affection) that didn't dance.
+
+The odds ratio is simply the odds of dancing after food divided by the odds of dancing after affection.
+
+The result tells us that if a cat was trained with food the odds of their dancing were 6.65 times higher than if they had been trained with affection.
+
+If we include `fisher = TRUE` in our `CrossTable()` function then the output will include the odds ratio (6.58)
+
+### 18.6.8. Reporting the results of chi-square
+
+-   There was a significant association between the type of training and whether or not cats would dance $\chi^2(1) = 25.36, p < .001$. This seems to represent the fact that, based on the odds ratio, the odds of cats dancing were 6.58 (2.84, 16.43) times higher if they were trained with food than if trained with affection.
+
+## 18.7. Several categorical variables: loglinear analysis
+
+Often we want to analyse more complex contingency tables in which there are three or more variables (Animal, Training and Dance). This couldn't be analysed with the Pearson chi-square and instead has to be analysed with a technique called **loglinear analysis**.
+
+### 18.7.1. Chi-square as regression
+
+Both variables (Training and Dance) have two categories and so we can represent each one with a single dummy variable in which one category (Food, Dance_Yes) is coded as 0 and the other (Affection, Dance_No) as 1. Because we're using categorical data, to make this model linear we have to actually use log values.
+
+The actual model becomes $ln(O_{ij}) = (b_0 + b_1Training_i + b_2Dance_j + b_3Interaction_{ij}) + ln(\epsilon_{ij})$
+
+-   $b_0$ represents the log of the observed value when all of the categories are zero. As such, it;s the log of the observed value of the base category.
+
+-   $b_1$ is the difference between the log of the observed frequency for cats that received affection and danced, and the log of the observed values for cats that received food and danced.
+
+-   $b_2$ is the difference between the log of the observed frequency for cats that received food and danced, and the log of the observed frequency for cats that received food and didn't dance.
+
+-   $b_3$ really compares the difference between affection and food when the cats didn't dance to the difference between food and affection when the cats did dance. Put another way, it compares the effect of **Training** when cats didn't dance to the effect of **Training** when they did dance.
+
+```{r}
+catsRegression <- read.delim(here("ch18", "CatRegression.dat"), header = TRUE)
+head(catsRegression)
+
+catModel <-
+  lm(LnObserved ~ Training + Dance + Interaction, data = catsRegression)
+summary(catModel)
+```
+
+Interesting thing is that all of the standard errors are very close to zero, or, put differently, there is *no* error at all in this model. This is because the various combinations of coding variables completely explain the observed values. This is known as a **saturated model**.
+
+However, basically, the chi-square test looks at whether two variables are independent; it has no interest in the combined effect of the two variables, only their unique effect . Thus, we can conceptualize chi-square in much the same way as the saturated model, except that we don't include the interaction term: $ln(O_{ij}) = b_0 + b_1Training_i + b_2Dance_j$.
+
+-   $b_0$ represents the log of the expected value when all of the categories are zero.
+
+-   $b_1$ is the difference between the log of the log of the expected frequency for cats that received affection and did dance and the log of the expected values for cats that received food and danced. In fact, the value is the same as the column marginal. Put simply, it represents the main effect of the type of **Training**.
+
+-   $b_2$ is the difference between the log of the expected frequencies for cats that received food and didn't or did dance. It is the same as the row marginal, which is the difference between the total number of cats that did not and didn't dance. It represents the main effect of the whether or not the cat danced.
+
+```{r}
+catModel2 <- lm(LnExpected ~ Training + Dance, data = catsRegression)
+summary(catModel2)
+```
+
+This demonstrates how chi-square can work as a linear model, just like regression and ANOVA, in which the beta values tell us something about the relative differences in frequencies across categories of our two variables.
+
+### 18.7.2. Loglinear analysis
+
+When our data are categorical and we include all of the available terms (main effects and interactions) we get no error. The job of loglinear analysis is to try to fit a simpler model to the data without any substantial loss of predictive power. We do this by backward elimination, and we remove the terms hierarchically. To test whether a new model has changed the likelihood ratio, all we need to do is to take the likelihood ratio for a model and subtract from the likelihood statistic for the previous model.
+
+## 18.8. Assumptions in loglinear analysis
+
+An entity should fall into only one cell of the contingency table and the expected frequencies should be large enough for a reliable analysis. If we want to collapse data across one of the variables then certain things have to be considered:
+
+-   The highest-order interaction should be non-significant.
+
+-   At least one of the lower-order interaction terms involving the variable to be deleted should be non-significant.
+
+## 18.9. Loglinear analysis using R
+
+### 18.9.1. Initial considerations
+
+```{r}
+catsDogs <- read.delim(here("ch18", "CatsandDogs.dat"), header = TRUE)
+head(catsDogs)
+```
+
+The `CrossTable()` function can't cope wit hthree variables in a table. To create the separate dataframes for cats and dogs, we execute:
+
+```{r}
+justCats = subset(catsDogs, Animal == "Cat")
+justDogs = subset(catsDogs, Animal == "Dog")
+head(justCats)
+head(justDogs)
+
+CrossTable(
+  justCats$Training,
+  justCats$Dance,
+  sresid = TRUE,
+  prop.t=FALSE,
+  prop.c=FALSE,
+  prop.chisq=FALSE,
+  format = "SPSS"
+  )
+CrossTable(
+  justDogs$Training,
+  justDogs$Dance,
+  sresid = TRUE,
+  prop.t=FALSE,
+  prop.c=FALSE,
+  prop.chisq=FALSE,
+  format = "SPSS"
+  )
+```
+
+### 18.9.2. Loglinear analysis as a chi-square test
+
+The first stage is to create a contingency table to put into the `loglm()` function; we can do this using the `xtabs()` function:
+
+```{r}
+catTable <- xtabs(~ Training + Dance, data = justCats)
+catTable
+```
+
+We are going to run two loglinear analyses. First, we'll run the **saturated model**. In loglinear analysis there is no outcome (dependent) variable because we're predicting the frequency of cases in different combinations of the predictors.
+
+```{r}
+catSaturated <-
+  loglm(~ Training + Dance + Training:Dance, data = catTable, fit = TRUE)
+```
+
+In the second model, we remove the interaction effect and have only `Training` and `Dance` as predictors. In doing so we should be able to predict the proportion of individuals in each category by knowing the proportion of cats who were trained each way, and the proportion of cats who danced:
+
+```{r}
+catNoInteraction <- loglm(~ Training + Dance, data = catTable, fit = TRUE)
+```
+
+Finally, we can create a **mosaic plot**. A mosaic plot is a graphical representation of frequency data.
+
+```{r}
+mosaicplot(catSaturated$fit, shade = TRUE, main = "Cats: Saturated Model")
+mosaicplot(catNoInteraction$fit, shade = TRUE, main = "Cats: Expected Values")
+```
+
+### 18.9.3. Output from loglinear analysis as a chi-square test
+
+```{r}
+catSaturated
+catNoInteraction
+```
+
+The summary of the saturation model shows that the model is not significant (chi-square = 0, *p*-value = 1). These are goodness-of-fit tests, which means that they test whether the expected values from the model deviate from the observed data. A non-significant result therefore means a good fit.
+
+When the association between the `Dance` and `Training` is removed from the model, the model does not fit the data well any more.
+
+Ultimately, we're trying to find the model that does not deviate significantly from the data; in this case this is the saturated model. Therefore, we interpret the saturated model.
+
+### 18.9.4. Loglinear analysis
+
+The principle is the same however many effects we have: we start with the saturated model, and remove effects until the model becomes significant. When the model is significant, we go back to the last model that was not significant and interpret it.
+
+```{r}
+CatDogContingencyTable <- xtabs(~ Animal + Training + Dance, data = catsDogs)
+CatDogContingencyTable
+
+# Saturated model
+caturated <- loglm(~ Animal*Training*Dance, data = CatDogContingencyTable)
+summary(caturated)
+```
+
+As we expect, it has a likelihood ratio of 0, and a *p*-value of 1, because it is a perfect fit of the data.
+
+```{r}
+# Remove the three-way interaction
+threeWay <-
+  loglm(
+    ~ Animal +
+      Training +
+      Dance +
+      Animal:Training +
+      Animal:Dance +
+      Dance:Training,
+    data = CatDogContingencyTable
+    )
+# Or,
+# threeWay <- update(caturated, .~. -Animal:Training:Dance)
+summary(threeWay)
+```
+
+The model has a likelihood ratio of 20.30, with 1 *df* and *p* \< .001. It seems as though this model is a poor fit to the data.
+
+To compare models, we use `anova()` function:
+
+```{r}
+anova(caturated, threeWay)
+```
+
+The highly significant *p*-value of the difference between the models tells us that removing the three-way interaction has made the model a significantly worse fit to the data. In other words, the three-way interaction is a significant factor in making the model a good fit.
+
+To interact the three-way interaction, we should plot the frequencies in terms of the percentages.
+
+```{r}
+mosaicplot(CatDogContingencyTable, shade = TRUE, main = "Cats and Dogs")
+```
+
+Cats will dance when there is food involved but if we train them with affection they're not interested. Dogs on the other hand will dance wen there's affection involved. In fact, both animals show similar responses to food training, it's just that cats won't do anything for affection.
+
+## 18.10. Following up loglinear analysis
+
+An alternative way to interpret a three-way interaction is to conduct chi-square analysis at different levels of one of our variables. For example, to interpret our `Animal` x `Training` x `Dance` interaction, we could perform a chi-square test on `Training` and `Dance` but do this separately for dogs and cats:
+
+```{r}
+justCats = subset(catsDogs, Animal=="Cat")
+justDogs = subset(catsDogs, Animal=="Dog")
+
+
+CrossTable(
+  justCats$Training,
+  justCats$Dance,
+  chisq = TRUE,
+  fisher = TRUE,
+  sresid = TRUE,
+  format = "SPSS"
+  )
+CrossTable(
+  justDogs$Training,
+  justDogs$Dance,
+  chisq = TRUE,
+  fisher = TRUE,
+  sresid = TRUE,
+  format = "SPSS"
+  )
+```
+
+For dogs, there was still a significant relationship between the types of training and whether they danced but it was weaker. This reflects the fact that dogs are more likely to dance if given affection than if given food, the opposite of cats.
+
+## 18.11. Effect sizes in loglinear analysis
+
+As with Pearson's chi-square, one of the most elegant ways to report our effects is in terms of **odds ratios**. For dogs we would get 0.35 as reported. This tells us that if a dog was trained with food the odds of their dancing were 0.35 times the odds if they were rewarded with affection. Compare this to cats where the odds of dancing were 6.58 higher if they were trained with food rather than affection.
+
+## 18.12. Reporting the results of loglinear analysis
+
+-   The three-way loglinear analysis produced a final model that retained all effects. The likelihood ratio of this model was $\chi^2(0) = 0, p = 1$. This indicated that the highest order interaction (the Animal x Training x Dance interaction) was significant, $\chi2(1) = 20.31, p < .001$. To break down this effect, separate chi-square tests on the Training and Dance variables were performed separately for dogs and cats. For cats, there was a significant association between the type of training and whether or not cats would dance, $\chi^2(1) = 25.36, p < .001$; this was true in dogs also, $\chi^2(1) = 3.93, p < .05$. Odds ratios indicated that the odds of dancing were 6.58 higher after food than affection in cats, but only 0.35 in dogs (i.e., in dogs, the odds of dancing were 2.90 times lower if trained with food compared to affection). Therefore, the analysis seems to reveal a fundamental difference between dogs and cats: cats are more likely to dance for food rather than affection, whereas dogs are more likely to dance for affection than food.

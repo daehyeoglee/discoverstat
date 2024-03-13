@@ -1,0 +1,145 @@
+---
+title: "SMT_Ch7"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+```{r}
+library(ggplot2); library(boot); library(car); library(QuantPsyc)
+```
+
+## SMT 1
+
+```{r}
+# Task 1
+
+# Regression
+pubs<-read.delim("pubs.dat", header = TRUE)
+
+regression_pubs <-lm(mortality ~ pubs, data = pubs)
+summary(regression_pubs)
+
+# Bootstrap
+boot_pubs <- boot(statistic = bootReg, formula = mortality ~ pubs, data = pubs, R = 2000)
+
+#Obtain the bootstrap confidence intervals for the intercept and slope:
+boot.ci(boot_pubs, type = "bca", index = 1)
+boot.ci(bootResults, type = "bca", index = 2)
+```
+
+## SMT 2
+
+```{r}
+spmd <- read.delim("Supermodel.dat", header = TRUE)
+
+reg_spmd <- lm(salary~age + years + beauty, data= spmd)
+summary(reg_spmd)
+# Result: the model accounts for 18.4% of the variance (significant)
+
+lm.beta(reg_spmd)
+
+# Check model validity
+vif(reg_spmd)
+1/vif(reg_spmd)
+dwt(reg_spmd)
+resid(reg_spmd)
+rstandard(reg_spmd)
+
+spmd$standardized.residuals>2| spmd$standardized.residuals < -2
+# Create a variable called large.residual,
+# which is TRUE (or 1) if the residual is greater than 2, or less than -2.
+spmd$large.residual <-
+  spmd$standardized.residuals > 2| spmd$standardized.residuals < -2
+
+#---Count the number of large residuals-------------
+sum(spmd$large.residual)
+
+
+# Histogram
+hist(rstandard(reg_spmd))
+
+# Plot standardized residuals
+plot(reg_spmd$fitted.values,rstandard(reg_spmd))
+abline(0,0)
+
+#To obtain some other plots, we can use the plot() function:
+
+plot(reg_spmd)
+#----Obtain casewise diagnostics and add them to the original data 
+spmd$cooks.distance<-cooks.distance(reg_spmd)
+spmd$residuals<-resid(reg_spmd)
+spmd$standardized.residuals <- rstandard(reg_spmd)
+spmd$studentized.residuals <- rstudent(reg_spmd)
+spmd$dfbeta <- dfbeta(reg_spmd)
+spmd$dffit <- dffits(reg_spmd)
+spmd$leverage <- hatvalues(reg_spmd)
+spmd$covariance.ratios <- covratio(reg_spmd)
+
+spmd[,c("salary", "age", "beauty", "years", "standardized.residuals")]
+```
+
+## SMT 3
+
+```{r}
+gfr<-read.delim("GlastonburyFestivalRegression.dat", header=TRUE)
+
+gfr$crusty <- gfr$music == "Crusty"
+gfr$metaller <- gfr$music == "Metaller"
+gfr$indie_kid <- gfr$music == "Indie Kid"
+
+lm_gfr <- lm(gfr$change ~ gfr$crusty + gfr$metaller + gfr$indie_kid, data=gfr)
+summary(lm_gfr)
+
+vif(lm_gfr)
+1/vif(lm_gfr)
+dwt(lm_gfr)
+
+hist(rstandard(lm_gfr))
+plot(lm_gfr$fitted.values,rstandard(lm_gfr))
+abline(0,0)
+plot(lm_gfr)
+
+
+gfr$cooks.distance <- cooks.distance(lm_gfr)
+gfr$residuals <- resid(lm_gfr)
+gfr$standardized.residuals <- rstandard(lm_gfr)
+gfr$studentized.residuals <- rstudent(lm_gfr)
+gfr$dfbeta <- dfbeta(lm_gfr)
+gfr$dffit <- dffits(lm_gfr)
+gfr$leverage <- hatvalues(lm_gfr)
+gfr$covariance.ratios <- covratio(lm_gfr)
+
+gfr$standardized.residuals > 2 | gfr$standardized.residuals < -2
+gfr$large.residual <- gfr$standardized.residuals > 2 | gfr$standardized.residuals < -2
+sum(gfr$large.residual)
+```
+
+## SMT 4
+
+```{r}
+textData <- read.delim("TextMessages.dat", header = TRUE)
+textData <- textData |> 
+  dplyr::mutate(id = dplyr::row_number())
+textData
+textMessages <- textData |> #pipeline
+  tidyr::pivot_longer(
+    cols = c("Baseline", "Six_months"),
+    names_to = "Time",
+    values_to = "Grammar_Score"
+  )
+textMessages
+
+ChildAggression <- read.delim("ChildAggression.dat", header = TRUE)
+ChildAggression <- ChildAggression |> 
+  dplyr::mutate(id = dplyr::row_number())
+ChildAggression
+ChildAggression1 <- ChildAggression |> 
+  tidyr::pivot_longer(
+    cols = c("Aggression", "Television", "Computer_Games",
+             "Sibling_Aggression", "Diet", "Parenting_Style"),
+    values_to = "Score"
+  )
+ChildAggression
+ChildAggression_1 <- lm(Aggression ~ Sibling_Aggression + Parenting_Style, data = ChildAggression)
+```

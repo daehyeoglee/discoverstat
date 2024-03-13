@@ -1,0 +1,163 @@
+---
+title: "SMT_Ch19"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme); library(clinfun); library(pgirmess)
+library(MASS); library(mvoutlier); library(mvnormtest)
+library(corpcor); library(GPArotation); library(psych); library(DSUR.noof)
+```
+
+## Labcoat Leni
+
+```{r}
+dancerData = read.delim(here("ch19", "Miller et al. (2007).dat"),  header = TRUE)
+head(dancerData)
+Cyclephase_Factor <-
+  factor(
+    recode(dancerData$Cyclephase, "2=0;0=2"),
+    levels = 0:2,
+    labels = c("Fertile", "Menstural", "Luteal")
+    )
+
+Contraceptive_Factor <-
+  factor(
+    recode(dancerData$Contraceptive, "0=1;1=0"),
+    levels = 0:1,
+    labels = c("In Natural Cycle", "Using Pill")
+    )
+
+intercept <- gls(
+  Tips~1, data = dancerData, method = "ML", na.action = na.exclude
+  )
+summary(intercept)
+
+
+randomInt <-
+  lme(
+    Tips ~ 1,
+    random = ~ 1|ID,
+    data = dancerData,
+    method = "ML",
+    na.action= na.exclude
+    )
+summary(randomInt)
+anova(intercept, randomInt)
+
+cycleModel <- update(randomInt, .~. + Cyclephase_Factor, method = "REML")
+pillModel <- update(cycleModel, .~. + Contraceptive_Factor)
+finalModel <- update(pillModel, .~. + Cyclephase_Factor:Contraceptive_Factor)
+anova(finalModel)
+summary(finalModel)
+intervals(finalModel)
+```
+
+## SAT1
+
+```{r}
+surgeryData = read.delim(here("ch19", "Cosmetic Surgery.dat"),  header = TRUE)
+
+intercept <- gls(Post_QoL ~ 1, data = surgeryData, method = "ML")
+randomIntercept <-
+  lme(Post_QoL ~ 1, data = surgeryData, random = ~ 1 | Clinic, method = "ML")
+
+randomInterceptSurgery <- update(randomIntercept, .~. + Surgery)
+randomInterceptSurgeryQoL <- update(randomInterceptSurgery, .~. + Base_QoL)
+addRandomSlope <- update(randomInterceptSurgeryQoL, random = ~ Surgery|Clinic)
+addReason <- update(addRandomSlope, .~. + Reason)
+finalModel <- update(addReason, .~. + Reason:Surgery)
+
+BDIModel <- update(finalModel, .~. + BDI)
+AgeModel <- update(BDIModel, .~. + Age)
+genderModel <- update(AgeModel, .~. + Gender)
+
+summary(genderModel)
+anova(finalModel, genderModel)
+```
+
+`Age` significantly predicted quality of life after surgery but `Gender` didn't.
+
+## SAT2
+
+```{r}
+satisfactionData = read.delim(
+  here("ch19", "Honeymoon Period.dat"),  header = TRUE
+  )
+restructuredData <-
+  reshape(
+    satisfactionData,
+    idvar = c("Person", "Gender"),
+    varying = c("Satisfaction_Base", "Satisfaction_6_Months",
+                "Satisfaction_12_Months", "Satisfaction_18_Months"),
+    v.names = "Life_Satisfaction",
+    timevar = "Time",
+    times = c(0:3), 
+    direction = "long"
+    )
+
+intercept <-
+  gls(
+    Life_Satisfaction ~ 1,
+    data = restructuredData,
+    method = "ML",
+    na.action = na.exclude
+    )
+randomIntercept <-
+  lme(
+    Life_Satisfaction ~ 1,
+    data = restructuredData,
+    random = ~ 1 | Person,
+    method = "ML",
+    na.action = na.exclude,
+    control = list(opt = "optim")
+    )
+
+timeRI <- update(randomIntercept, .~. + Time)
+timeRS <- update(timeRI, random = ~Time|Person)
+ARModel <- update(timeRS, correlation = corAR1(0, form = ~ Time|Person))
+timeQuadratic <- update(ARModel, .~. + I(Time^2))
+timeCubic <- update(timeQuadratic, .~. + I(Time^3))
+genderModel <- update(timeCubic, .~. + Gender)
+anova(timeCubic, genderModel)
+summary(genderModel)
+intervals(genderModel)
+```
+
+Including `Gender` as an additional covariate doesn't significantly improve the model.
+
+## SAT3, 4
+
+```{r}
+#Task 3
+exerciseData = read.delim(here("ch19", "Hill et al. (2007).dat"),  header = TRUE)
+
+intercept <-
+  gls(
+    Post_Exercise ~ 1,
+    data = exerciseData,
+    method = "ML",
+    na.action = na.exclude
+    )
+randomInt <-
+  lme(
+    Post_Exercise~1, data = exerciseData, random = ~ 1 | Classroom, method = "ML"
+    )
+intervention <- update(randomInt, .~. + Intervention)
+anova(intercept, randomInt, intervention)
+anova(intervention)
+summary(intervention)
+
+#Task 4
+finalIntervention <- update(intervention, .~. + Pre_Exercise)
+anova(intervention, finalIntervention)
+summary(finalIntervention)
+```
+
+Adding the random effect of intercepts across classrooms results in a significantly better-fitting model. However, adding in the effect of intervention does not.
+
+(Task 4) Adding the `Pre_Exercise` significantly improves the fit of the model.

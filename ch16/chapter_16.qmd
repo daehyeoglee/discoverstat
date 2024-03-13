@@ -1,0 +1,400 @@
+---
+title: "Chapter 16. Multivariate analysis of variance (MANOVA)"
+author: "Daehyeog Lee"
+date: "2023-02-19"
+date-modified: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+## 16.1. What will this chapter tell me?
+
+When we want to compare groups on several outcome variables we can extend ANOVA to become MANOVA.
+
+## 16.2. When to use MANOVA
+
+ANOVA can be used only in situations in which there is one dependent variable and so is known as a **univariate** test.
+
+MANOVA is designed to look at several dependent variables simultaneously and so is a **multivariate** test.
+
+## 16.3. Introduction: similarities to and differences from ANOVA
+
+Why not do lots of ANOVAs?
+
+This is same as using ANOVA in preference to multiple *t*-tests. The more tests we conduct on the same data, the more we inflate the familywise error rate.
+
+Also, if separate ANOVAs are conducted on each dependent variable, then **any relationship between dependent variables is ignored.** MANOVA includes all dependent variables in the same analysis, taking account of the relationship between outcome variables.
+
+ANOVA can tell us only whether groups differ along a single dimension, whereas MANOVA has the power to detect whether groups differ along a combination of dimensions.
+
+### 16.3.1. Words of warning.
+
+We should not include lots of dependent variables in a MANOVA just because we have measured them. In circumstances where there is a good theoretical basis for including some but not all of our dependent variables, we should run separate analysis.
+
+### 16.3.2. The example for this chapter
+
+Predictor: Treatment (CBT / BT / NT); 3 Groups
+
+Outcome: Actions, Thoughts
+
+## 16.4. Theory of MANOVA
+
+The theory of MANOVA is very complex to understand without knowing matrix algebra.
+
+### 16.4.1. Introduction to matrices
+
+Row, column, square matrix, identity matrix
+
+Row vector represents single person's score on four different variables.\
+Column vector represents all participants' scores on one variable.
+
+### 16.4.2. Some important matrices and their functions
+
+The test statistic in both ANOVA and MANOVA represents the ratio of the effect of the systematic variance to the unsystematic variance
+
+-   ANOVA: These variances are single values, calculated from $SS_M, SS_R$ and $SS_T$.
+
+-   MANOVA: Comparison is made by using the ratio of a **matrix** representing the systematic variance of all dependent variables to a matrix representing the unsystematic variance of all dependent variables.
+
+### 16.4.3. Calculating MANOVA by hand: a worked example
+
+#### 16.4.3.1. Univariate ANOVA for DV 1 (Actions)
+
+#### 16.4.3.2. Univariate ANOVA for DV 2 (Thoughts)
+
+#### 16.4.3.3. The relationship between DVs: cross-products
+
+#### 16.4.3.4. The total SSCP matrix (T)
+
+Since we have only two dependent variables, all the SSCP matrices will be 2 x 2 matrices.
+
+The total SSCP matrix, *T*, contains the total sums of squares for each dependent variable and the total cross-product between the two dependent variables.
+
+#### 16.4.3.5. The residual SSCP matrix (E)
+
+#### 16.4.3.6. The model SSCP matrix (H)
+
+### 16.4.4. Principle of the MANOVA test statistic
+
+#### 16.4.4.1. Discriminant function variates
+
+The linear combinations of the dependent variables are known as *variates*. In this context we wish to use these linear variates to predict which group a person belongs to. Therefore, these variates are called *discriminant functions* or **discriminant function variates**.
+
+The *b*-values that describe the variates are obtained by calculating the eigenvectors of the matrix $HE^{-1}$.
+
+#### 16.4.4.2. Pillai-Bartlett trace (V)
+
+Pillai's trace is the sum of the proportion of explained variance on the discriminant functions. It is similar to the ratio of $\frac{SS_M}{SS_T}$, which is known as $R^2$.
+
+#### 16.4.4.3. Hotelling's $T^2$
+
+The Hotelling-Lawley trace is simply the sum of the eigenvalues for each variate. This test statistic is the sum of $\frac{SS_M}{SS_R}$ for each of the variates and so it compares directly to the *F*-ratio in ANOVA.
+
+#### 16.4.4.4. Wilks's lambda
+
+Wilks's lambda is the product of the unexplained variance on each of the variates. Therefore, the large eigenvalues lead to small values of Wilks's lambda.
+
+#### 16.4.4.5. Roy's largest root
+
+This is the eigenvalue for the first variate. It represents the proportion of explained variance to unexplained variance for the first discriminant function.
+
+## 16.5. Practical issues when conducting MANOVA
+
+### 16.5.1. Assumptions and how to check them
+
+MANOVA has similar assumptions to ANOVA but extended to the multivariate case:
+
+-   Independence, Random sampling
+
+-   Multivariate Normality
+
+    -   ANOVA: Our dependent variable should be normally distributed within each group.
+
+    -   MANOVA: The dependent variables should have multivariate normality within groups.
+
+-   Homogeneity of covariance matrices
+
+    -   ANOVA: The variances in each group should be roughly equal.
+
+    -   MANOVA: + The correlation between any two dependent variables should be the same in all groups. This is examined by testing whether the population **variance-covariance matrices** of the different groups in the analysis are equal.
+
+### 16.5.2. Choosing a test statistic
+
+With unequal group sizes, check the homogeneity of covariance matrices. If they seem homogeneous and if the assumption of multivariate normality is tenable, then assume that Pillai's trace is accurate.
+
+### 16.5.3. Follow-up analysis
+
+The traditional approach is to follow a significant MANOVA with separate ANOVAs on each of the dependent variables. We might want to consider applying a Bonferroni correction to the subsequent ANOVAs.
+
+## 16.6. MANOVA using R
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme); library(clinfun); library(pgirmess)
+library(MASS); library(mvoutlier); library(mvnormtest)
+```
+
+### 16.6.2. General procedure for MANOVA
+
+-   Enter data
+
+-   Explore data (graphs, descriptive statistics)
+
+-   Set contrasts
+
+-   Compute MANOVA
+
+-   Run univariate ANOVA
+
+-   Discriminant function analysis
+
+### 16.6.3. MANOVA using R Commander
+
+We cannot directly do a MANOVA using R Commander.
+
+### 16.6.4. Entering the data
+
+```{r}
+ocdData <- read.delim(here("ch16", "OCD.dat"), header = TRUE)
+head(ocdData)
+
+# Reorder the level
+ocdData$Group <-
+  factor(
+    ocdData$Group,
+    levels = c("CBT", "BT", "No Treatment Control"),
+    labels = c("CBT", "BT", "NT")
+    )
+```
+
+### 16.6.5. Exploring the data
+
+```{r}
+ocdScatter <- ggplot(ocdData, aes(Actions, Thoughts))
+ocdScatter +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    x = "Number of Obsession-Related Behaviours",
+    y = "Number of Obsession-Related Thoughts"
+    ) +
+  facet_wrap(~Group, ncol = 3)
+
+ocdMelt <- melt(ocdData, id = c("Group"), measured = c("Actions", "Thoughts"))
+names(ocdMelt) <- c("Group", "Outcome_Measure", "Frequency")
+
+
+ocdBar <- ggplot(ocdMelt, aes(Group, Frequency, fill = Outcome_Measure))
+ocdBar +
+  stat_summary(fun.y = mean, geom = "bar", position = "dodge") +
+  stat_summary(
+    fun.data = mean_cl_boot,
+    geom = "errorbar",
+    position = position_dodge(width = 0.90),
+    width = 0.2) +
+  labs(
+    x = "Treatment Group",
+    y = "Number of Thoughts/Actions",
+    fill = "Outcome Measure"
+    ) +
+  scale_y_continuous(breaks = seq(0, 20, by = 2))
+
+ocdBoxplot <- ggplot(ocdMelt, aes(Group, Frequency, colour = Outcome_Measure))
+ocdBoxplot +
+  geom_boxplot() +
+  labs(
+    x = "Treatment Group",
+    y = "Number of Thoughts/Actions",
+    color = "Outcome Measure"
+    ) +
+  scale_y_continuous(breaks = seq(0, 20, by = 2))
+```
+
+For actions, BT appears to reduce the number of obsessive behaviors compared to CBT and NT. For thoughts, CBT reduces the number of obsessive thoughts compared to BT and NT.
+
+```{r}
+by(ocdData$Actions, ocdData$Group, stat.desc, basic = FALSE)
+by(ocdData$Thoughts, ocdData$Group, stat.desc, basic = FALSE)
+```
+
+To check the homogeneity of covariance matrices we don't do a formal test, but simply compare the values within them. To get the variance-covariance matrices for each group we can again use the `by()` function but in combination with the `cov()` function.
+
+```{r}
+by(ocdData[, 2:3], ocdData$Group, cov)
+```
+
+The outcome shows the variance-covariance matrices for each group. The diagonal elements represent the variances for each outcome measure and the off-diagonals are the covariances.\
+The variances for actions are a little different across groups (1.43, 3.12, 1.11). The variances for thoughts are really quite similar (3.60, 4.40, 5.56). The variance ratio (the largest variance relative to smallest) is about 1.5, which is below the threshold of 2.\
+Looking at the covariances, these are also different (0.04, 2.51, -1.11). This difference reflects the different relationships between thoughts and actions across the groups.\
+There is evidence to suggest that the matrices are different across groups. However, given the group sizes are equal we probably don't need to worry too much about these differences.
+
+The final assumption that we need to test is multivariate normality. We can do this using the `mshapiro.test()` function. We need to apply this test to the groups individually, so the first thing to do is to extract the data for each group.
+
+```{r}
+# [row to extract, column to extract]
+cbt <- ocdData[1:10, 2:3]
+
+# Transpose the data
+cbt <- t(cbt)
+bt <- t(ocdData[11:20, 2:3])
+nt <- t(ocdData[21:30, 2:3])
+
+mshapiro.test(cbt)
+mshapiro.test(bt)
+mshapiro.test(nt)
+```
+
+We can also look for multivariate outliers using the `aq.plot()` function.
+
+```{r}
+aq.plot(ocdData[, 2:3])
+```
+
+From the outcome, we can see that row 26 might be an outlier.
+
+### 16.6.6. Setting contrasts
+
+One way to follow up a MANOVA is to look at individual univariate ANOVAs for each dependent variable.
+
+```{r}
+contrasts(ocdData$Group) <- contr.treatment(3, base = 3)
+```
+
+`contr.treatment()` sets the contrast to be a treatment contrast. The 3 indicates that `Group` has three levels, and `base = 3` sets level 3 as the baseline category.
+
+Or we can set the contrast manually by executing:
+
+```{r}
+# CBT_vs_NT <- c(1, 0, 0)
+# BT_vs_NT <- c(0, 1, 0)
+# contrasts(ocdData$Group) <- cbind(CBT_vs_NT, BT_vs_NT)
+```
+
+### 16.6.7. The MANOVA model
+
+In the case of MANOVA there are several outcomes. To put multiple outcomes into the model, we have to bind the variables together into a single entity using the `cbind()` function.
+
+```{r}
+outcome <- cbind(ocdData$Actions, ocdData$Thoughts)
+ocdModel <- manova(outcome ~ Group, data = ocdData)
+
+summary(ocdModel, intercept = TRUE)
+summary(ocdModel, intercept = TRUE, test = "Wilks")
+summary(ocdModel, intercept = TRUE, test = "Hotelling")
+summary(ocdModel, intercept = TRUE, test = "Roy")
+```
+
+Hotelling's trace was the only test statistic which was not significant. However, given what we know about the robustness of Pillai's trace when sample sizes are equal, we might be well advised to trust the result of that test statistic.
+
+From the result, we can conclude that
+
+-   The type of therapy employed had a significant effect on OCD.
+
+However, we can't tell that
+
+-   which groups differed from which
+
+-   whether the effect of therapy was on the thoughts or behaviors, or a combination of both.
+
+### 16.6.8. Follow-up analysis: univariate test statistics
+
+```{r}
+summary.aov(ocdModel)
+```
+
+The `Response 1` is for the `Actions` variable and `Response 2` is for the `Thougths` variable.
+
+The result indicate that there was a non-significant difference between therapy groups in terms of both obsession-related thoughts and obsession-related behaviors. These two results should lead us to conclude that the type of therapy has had no significant effect on the levels of OCD experienced by clients.
+
+**However, it is strange that the multivariate test statistics led us to conclude that therapy had a significant impact on OCD, yet the univariate results indicate that therapy has not been successful.** This is because the multivariate test takes account of the correlation between dependent variables, and so for these data it has more power to detect group differences.
+
+### 16.6.9. Contrasts
+
+This is basically the same as doing a one-way ANOVA on each outcome measure.
+
+```{r}
+actionModel <- lm(Actions ~ Group, data = ocdData)
+thoughtsModel <- lm(Thoughts ~ Group, data = ocdData)
+
+summary.lm(actionModel)
+summary.lm(thoughtsModel)
+```
+
+Comparing BT to NT, there was a significant difference in behaviors between the groups. However, this doesn't mean a lot because the univariate ANOVAs were both non-significant.
+
+## 16.7. Robust MANOVA
+
+The robust functions need the data to be in wide format, and can be used only when we have one predictor.
+
+```{r}
+ocdData$row <- rep(1:10, 3)
+ocdMelt <-
+  melt(ocdData, id = c("Group", "row"), measured = c("Actions", "Thoughts"))
+names(ocdMelt) <- c("Group", "row", "Outcome_Measure", "Frequency")
+ocdRobust <- cast(ocdMelt, row ~ Group + Outcome_Measure, value = "Frequency")
+ocdRobust$row <- NULL
+
+# mulrank(3, 2, ocdRobust)
+# cmanova(3, 2, ocdRobust)
+```
+
+## 16.8. Reporting results from MANOVA
+
+-   There was a significant effect of therapy on the number of obsessive thoughts and behaviors, $F(4, 54) = 2.56, p < .05.$
+
+-   Using Pillai's trace, there was a significant effect of therapy on the number of obsessive thoughts and behaviors, $V = 0.32, F(4, 54) = 2.56, p < .05$. However, separate univariate ANOVAs on the outcome variables revealed non-significant treatment effects on obsessive thoughts, $F(2, 27) = 2.15, p > .05$, and behaviors, $F(2, 27) = 4.52, p < .05$.
+
+## 16.9. Following up MANOVA with discriminant analysis
+
+In discriminant analysis we look to see how we can best separate a set of groups using several predictors.
+
+```{r}
+ocdDFA <- lda(Group ~ Actions + Thoughts, data = ocdData)
+ocdDFA
+```
+
+The main part of the output tells us the coefficients of the linear discriminants, which are the *b* values. The coefficients tells us the relative contribution of each variable to the variates. If we look at variate 1 first, thoughts and behaviors have the opposite effect. In second variate, both thoughts and behaviors have a strong relationship.
+
+The proportion of trace shows us that the first variate accounts for 82.2% of variance compared to the second variate, which accounts for only 17.8%. These proportions are the eigenvalues for each variate.
+
+The **discriminant scores** are the scores for each person, on each variate. These can be useful because the variates that the analysis identifies may represent underlying social or psycholoical constructs.
+
+```{r}
+predict(ocdDFA)
+plot(ocdDFA)
+```
+
+From the plot, we can see that variate 1 discriminates the BT group from the CBT. Variate 2 differentiates the no-treatment group from the two interventions, but this difference is not as dramatic as for the first variate.
+
+## 16.10. Reporting results from discriminant analysis
+
+-   The MANOVA was followed up with discriminant analysis, which revealed two discriminant functions. The first explained 82.2% of the variance, whereas the second explained only 17.8%. The coefficients of the discriminant functions revealed that function 1 differentiated obsessive behaviors $b = 0.603$ and thoughts $b = -0.335$. The second variate produced similar coefficients for actions (-0.425) and thoughts (-0.339). The discriminant function plot showed that the first function discriminated the BT group from the CBT group, and the second function differentiated the no-treatment group from the two interventions.
+
+## 16.11. Some final remarks
+
+### 16.11.1. The final interpretation
+
+-   Can therapy improve OCD and, if so, which therapy is best?
+
+    -   Therapy doesn't necessarily change behaviors or thoughts *per se*, but it does influence the inderlying dimension of OCD.
+
+-   Which therapy is the best?
+
+    -   BT is better at changing behaviors and CBT is better at changing thoughts.
+
+    -   Reason
+
+        -   BT and CBT were differentiated from the control group based on variate 2.
+
+        -   BT and CBT were distinguished by variate 1.
+
+### 16.11.2. Univariate ANOVA or discriminant analysis?
+
+-   Univariate ANOVA and discriminant analysis are ways of answering different questions arising from a significant MANOVA.
+
+-   We should run both analyses to et a full picture of our data.
+
+-   Advantage of discriminant analysis
+
+    -   It tells us something about the underlying dimensions within our data.

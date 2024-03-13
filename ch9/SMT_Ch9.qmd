@@ -1,0 +1,75 @@
+---
+title: "SMT_Ch9"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+## Import Libraries
+
+```{r}
+library(ggplot2); library(pastecs); library(WRS2)
+library(tidyr); library(dplyr); library(boot)
+```
+
+## Labcoat Leni's Real Research
+
+```{r}
+madData <- read.delim("Board&Fritzon(2005).dat", header = TRUE)
+head(madData)
+
+ttestfromMeans<-function(x1, x2, sd1, sd2, n1, n2)
+{
+  df <- n1 + n2 - 2
+  poolvar <- (((n1 - 1) * sd1^2) + ((n2 - 1) * sd2^2)) / df
+  t <- (x1 - x2) / sqrt(poolvar * ((1 / n1) + (1 / n2)))
+  sig <- 2*(1 - (pt(abs(t), df)))
+  paste("t(df = ", df, ") = ", t, ", p = ", sig, sep = "")
+}
+
+ttestfromMeans(
+  madData$x1, madData$x2, madData$sd1, madData$sd2, madData$n1, madData$n2
+  )
+```
+
+## SMT 1
+
+```{r}
+happyData <- read.delim("penis.dat", header = TRUE)
+head(happyData)
+
+happyData$book <- factor(
+  happyData$book,
+  levels = c(1:2),
+  labels = c("Women are from Bras, Men are from Penis", "Marie Claire")
+  )
+
+happy.t.test <- t.test(happy ~ book, data = happyData)
+happy.t.test
+
+t <- happy.t.test$statistic[[1]]
+df <- happy.t.test$parameter[[1]]
+r <- sqrt(t^2/(t^2+df))
+round(r, 3)
+```
+
+The happiness with people's relationship after reading "Marie Claire" is significantly higher than reading "Women are from..". The effect size of 0.451 is large enough.
+
+## SMT 2
+
+```{r}
+happinessData <- read.delim("Field&Hole.dat", header = TRUE)
+head(happinessData)
+
+happiness.t.test <- t.test(
+  happinessData$women, happinessData$statbook, paired = TRUE
+  )
+happiness.t.test
+
+t <- happiness.t.test$statistic[[1]]
+df <- happiness.t.test$parameter[[1]]
+r <- sqrt(t^2/(t^2+df))
+round(r, 3)
+```
+
+The result shows that reading "Women are from..." makes the readers happier than reading statistics textbook. The effect is statistically significant, but the size of the effect is small (0.12)

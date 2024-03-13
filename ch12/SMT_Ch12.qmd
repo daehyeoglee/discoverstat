@@ -1,0 +1,71 @@
+---
+title: "SMT_Ch12"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here)
+```
+
+## Labcoat Leni's Real Research
+
+```{r}
+daveyData <- read.delim(here("ch12", "Davey2003.dat"), header = TRUE)
+head(daveyData)
+
+daveyData$Mood <-
+  factor(
+    daveyData$Mood,
+    levels = c(1:3),
+    labels = c("Negative", "Positive", "Neutral")
+  )
+daveyData$Stop_Rule <-
+  factor(
+    daveyData$Stop_Rule,
+    levels = c(1:2),
+    labels = c("As many as you can", "Feel like continuing")
+  )
+
+line <- ggplot(daveyData, aes(Mood, Checks, color = Stop_Rule))
+line +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group = Stop_Rule)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(
+    x = "Mood",
+    y = "Checks",
+    color = "Stop_Rule"
+  )
+
+bar <- ggplot(daveyData, aes(Mood, Checks, fill = Stop_Rule))
+bar +
+  stat_summary(fun.y = mean, geom = "bar", position="dodge") +
+  stat_summary(
+    fun.data = mean_cl_normal,
+    geom = "errorbar",
+    position = position_dodge(width=0.90),
+    width = 0.2
+    ) +
+  labs(
+    x = "Mood Induction",
+    y = "Mean Quantity of Items Checked",
+    fill = "Stop Rule"
+    )
+
+by(daveyData$Checks, list(daveyData$Stop_Rule, daveyData$Mood), stat.desc)
+leveneTest(
+  daveyData$Checks,
+  interaction(daveyData$Mood, daveyData$Stop_Rule),
+  center = median
+  )
+
+contrasts(daveyData$Mood) <- cbind(c(1, 1, -2), c(-1, 1, 0))
+contrasts(daveyData$Stop_Rule) <- c(-1, 1)
+daveyModel <- aov(Checks ~ Stop_Rule+Mood + Stop_Rule:Mood, data = daveyData)
+Anova(daveyModel, type="III")
+summary.lm(daveyModel)
+```

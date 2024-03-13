@@ -1,0 +1,506 @@
+---
+title: "Chapter 14. Mixed designs (GLM 5)"
+author: "Daehyeog Lee"
+date: "2023-01-31"
+date-modified: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+## 14.1 What will this chapter tell me?
+
+## 14.2. Mixed designs
+
+**Mixed design**: A mixture of between-group and repeated-measures variables.
+
+It is obvious that we need at least two independent variables for mixed design.
+
+## 14.3. What do men and women look for in a partner?
+
+Two repeated-measures variables: `looks`(3 levels), `personality`(3 levels)
+
+One between-group variable: `gender`
+
+## 14.4. Entering and exploring your data
+
+### 14.4.1. Packages for mixed designs in R
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme)
+```
+
+### 14.4.2. General procedure for mixed designs
+
+### 14.4.3. Entering the data
+
+```{r}
+dateData <- read.delim(here("ch14", "LooksOrPersonality.dat"), header = TRUE)
+head(dateData)
+
+speedData <- melt(
+  dateData,
+  id = c("participant","gender"),
+  measured = c(
+    "att_high", "av_high", "ug_high", "att_some", "av_some", "ug_some",
+    "att_none", "av_none", "ug_none"
+    )
+  )
+head(speedData)
+
+names(speedData) <- c("participant", "gender", "groups", "dateRating")
+head(speedData)
+
+speedData$personality <-
+  gl(3, 60, labels = c("Charismatic", "Average", "Dullard"))
+head(speedData)
+speedData$looks <- gl(3, 20, 180, labels = c("Attractive", "Average", "Ugly"))
+head(speedData)
+```
+
+### 14.4.4. Exploring the data
+
+```{r}
+dateBoxplot <- ggplot(speedData, aes(looks, dateRating, colour = personality))
+dateBoxplot +
+  geom_boxplot() +
+  labs(x = "Attractiveness", y = "Mean Rating of Date", colour = "Charisma") +
+  facet_wrap(~gender)
+```
+
+```{r}
+by(
+  speedData$dateRating,
+  list(speedData$looks, speedData$personality, speedData$gender),
+  stat.desc,
+  basic = FALSE
+  )
+```
+
+## 14.5. Mixed ANOVA
+
+For `personality`, we could create contrasts that compare some charisma to being a dullard, and then compare the charismatic with the average date.
+
+For `looks`, we could create a contrast that compares some attractiveness to being ugly, and then a second contrast that compares the attractive with the average date.
+
+```{r}
+SomevsNone <- c(1, 1, -2)
+HivsAv <- c(1, -1, 0)
+contrasts(speedData$personality) <- cbind(SomevsNone, HivsAv)
+contrasts(speedData$personality)
+
+AttractivevsUgly <- c(1, 1, -2)
+AttractvsAv <- c(1, -1, 0)
+contrasts(speedData$looks) <- cbind(AttractivevsUgly, AttractvsAv)
+contrasts(speedData$looks)
+```
+
+```{r}
+speedModel <- ezANOVA(data = speedData, dv = .(dateRating), wid = .(participant), between = .(gender), within = .(looks, personality), type = 3, detailed = TRUE)
+speedModel
+```
+
+The `looks`x`personality`x`gender` interaction is significant, meaning that the `looks`x`personality` interaction was significantly different in male and female participants.
+
+## 14.6. Mixed designs as a GLM
+
+We can extend the repeated-measures designs from the previous chapter by simply adding the between-group variable and any interaction terms as an additional predictor. When we use a multilevel model, the repeated measures are specified in the random part of the model.
+
+### 14.6.1. Setting contrasts
+
+If we use a multilevel model we don't have to worry about orthogonal contrasts because we don't need to concern ourselves with types of sums of squares in the same way that we do for ANOVA.
+
+To set up this contrast as a non-orthogonal contrast, the key is that the baseline category(average attractiveness) is coded as 0 for all contrasts. Then for one of the contrasts we assign a 1 to attractive and in the other we assign a 1 to ugly. Contrast 1 compares the attractive condition to the average condition, and contrast 2 compares the ugly condition to the average condition.
+
+```{r}
+AttractivevsAv <- c(1, 0, 0)
+UglyvsAv <- c(0, 0, 1)
+contrasts(speedData$looks) <- cbind(AttractivevsAv, UglyvsAv)
+contrasts(speedData$looks)
+
+HighvsAv <- c(1, 0, 0)
+DullvsAv <- c(0, 0, 1)
+contrasts(speedData$personality) <- cbind(HighvsAv, DullvsAv)
+contrasts(speedData$personality)
+```
+
+### 14.6.2. Building the model
+
+We have specified the model as the outcome predicted only from the intercept (`dateRating ~ 1`), specified the relevant dataframe (`data = speedData`). The random part of the model reflects the fact that there are two repeated-measures predictors: `random = ~ 1|participant/looks/personality` tells **R** that the variables **looks** and **personality** are nested within the variable **participant**. In other words, scores for levels of these variables can be found within each participant.
+
+To see the overall effect of each main effect and interaction we need to add them to the model one at a time. To add `looks` to the model we could just change the model from `dateRating ~ 1` to `dateRating ~ looks`:
+
+```{r}
+baseline <- lme(
+  dateRating ~ 1,
+  random = ~1|participant/looks/personality,
+  data = speedData,
+  method = "ML"
+  )
+
+looksM <-
+  lme(
+    dateRating ~ looks,
+    random = ~1|participant/looks/personality,
+    data = speedData,
+    method = "ML"
+    )
+
+looksM <- update(baseline, .~. + looks)
+
+# Add 'personality' and 'gender' to the model
+personalityM <- update(looksM, .~. + personality)
+genderM <- update(personalityM, .~. + gender)
+```
+
+We also need to add in the interactions between pairs of variables. There are four interactions made up from all of the combinations of the three main effects. We can add these interactions one at a time using the update command:
+
+```{r}
+looks_gender <- update(genderM, .~. + looks:gender)
+personality_gender <- update(looks_gender, .~. + personality:gender)
+looks_personality <- update(personality_gender, .~. +looks:personality)
+
+speedDateModel <- update(looks_personality, .~. + looks:personality:gender)
+```
+
+To compare these models we can list them in the order in which we want them compared in the `anova()` function:
+
+```{r}
+anova(baseline, looksM, personalityM, genderM, looks_gender, personality_gender,
+      looks_personality, speedDateModel)
+```
+
+By adding `looks` as a predictor we increase the degrees of freedom by 2 and significantly improved the model. The attractiveness of the date had a significant effect on ratings, $\chi^2(2) = 68.30, p < .0001$.
+
+The degrees of freedom are increased by the number of contrasts used to code this variable. For example,
+
+-   Adding the main effect of `personality` into the model increases the degrees of freedom by 2 because the two contrasts are used to code this variable.
+
+-   Adding `gender` into the model increases the df by 1 because it was coded with a single contrast.
+
+-   Adding `personality`x`gender` interaction into the model increases the df by 2 because `personality` is coded with two contrasts and `gender` only one, so we get 2x1 = 2 df.
+
+-   Adding `looks`x`personality`x`gender` interaction adds 4 degrees of freedom, because `personality` is coded with two contrasts, `looks` is also coded with two contrasts, and `gender` with only one, so we get 2x2x1 = 4 df.
+
+```{r}
+summary(speedDateModel)
+```
+
+### 14.6.3. The main effect of gender
+
+Gender did not have a significant overall effect on ratings of the dates, $\chi^2(1) = 0.002, p = .966$. This means that if we ignore all other variables, male participants' ratings were basically the same as those of female participants.
+
+```{r}
+genderBar <- ggplot(speedData, aes(gender, dateRating))
+genderBar +
+  stat_summary(fun.y = mean, geom = "bar", fill = "White", colour = "Black") +
+  stat_summary(fun.data = mean_cl_boot, geom = "pointrange") +
+  labs(x = "Gender", y = "Mean Rating of Date")
+```
+
+### 14.6.4. The main effect of looks
+
+The attractiveness of the date had a significant effect on ratings, $\chi^2(2) = 68.30, p < .0001$. This means that if we ignore all other variables, ratings were different for attractive, average and unattractive dates. However, we really need to look at some contrasts to find out exactly which levels are different.
+
+```{r}
+looksBar <- ggplot(speedData, aes(looks, dateRating))
+looksBar +
+  stat_summary(fun.y = mean, geom = "bar", fill = "White", colour = "Black") +
+  stat_summary(fun.data = mean_cl_boot, geom = "pointrange") +
+  labs(x = "Attractiveness", y = "Mean Rating of Date")
+```
+
+If we look at the output of `summary(speedDateModel)`, the first contrast `AttractivevsAv` shows that attractive dates were rated significantly higher than average dates, $b = 18.2, t(36) = 7.58, p < .001$. The second contrast `UglyvsAv` shows that average dates were rated significantly higher than ugly ones, $b = -17.7, t(36) = -7.37, p = <.001$.
+
+### 14.6.5. The main effect of personality
+
+There was a significant main effect of charisma, $\chi^2(2) = 138.76, p < .0001$. This effect tells us that if we ignore all other variables, ratings were different for highly charismatic, averagely charismatic and dullard people.
+
+```{r}
+charismaBar <- ggplot(speedData, aes(personality, dateRating))
+charismaBar +
+  stat_summary(fun.y = mean, geom = "bar", fill = "White", colour = "Black") +
+  stat_summary(fun.data = mean_cl_boot, geom = "pointrange") +
+  labs(x = "Charisma", y = "Mean Rating of Date")
+```
+
+### 14.6.6. The interaction between `gender` and `looks`
+
+There was a significant interaction between the attractiveness of the date and the gender of the participant, $\chi^2(2) = 39.54, p < .0001$. This means that the profile of ratings across dates of different attractiveness was different for men and women.
+
+```{r}
+genderLooks <- ggplot(speedData, aes(looks, dateRating, colour = gender))
+genderLooks +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= gender)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(x = "Attractiveness", y = "Mean Rating of Date", colour = "Gender") +
+  scale_y_continuous(limits = c(0,100))
+```
+
+In general, this interaction seems to suggest that men's interest in dating a person is more influenced by their looks than for females. Although both males' and females' interest decreases as attractiveness decreases, **this decrease is more pronounced for men**. **However, we wouldn't normally interpret this interaction because the significant higher-order three-way interactions supersedes it.**
+
+#### 14.6.6.1. Looks x Gender interaction 1: attractive vs. average, male vs. female
+
+The first contrast for the `looks`x`gender` interaction term (`AttractivevsAv:gender`) compares male and female ratings of attractive relative to average-looking dates.
+
+-   $b = -1.5, t(36) = 0.44, p = .661$
+
+-   Interpretation: The increased interest in attractive dates compared to average-looking dates found for men is not significantly more than women.
+
+#### 14.6.6.2. Looks x Gender interaction 2: ugly vs. average, male vs. female
+
+The second contrast (`UglyvsAv:gender`) compares male and female ratings of ugly relative to average-looking dates.
+
+-   $b = -5.8, t(36) = -1.71, p = .096$
+
+-   Interpretation: The decreased interest in ugly dates compared to average-looking dates found for male raters is not significantly different than for female raters.
+
+### 14.6.7. The interaction between `gender` and `personality`
+
+There was a significant interaction between the attractiveness of the date and the gender of the participant, $\chi^2(2) = 57.96, p < .0001$. This effect suggests that the profile of ratings across dates of different levels of charisma was different for men and women.
+
+```{r}
+genderCharisma <-
+  ggplot(speedData, aes(personality, dateRating, colour = gender))
+genderCharisma +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= gender)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(x = "Charisma", y = "Mean Rating of Date", colour = "Gender") +
+  scale_y_continuous(limits = c(0,100))
+```
+
+This interaction seems to suggest that women's interest in dating a person is more influenced by their charisma than for men. Although both males' and females' interest decreases as charisma decreases, this decrease is more pronounced for females.
+
+#### 14.6.7.1. Personality x Gender interaction 1: high vs. some charisma, male vs. female
+
+The first contrast for this interaction term (`HighvsAv:gender`) looks at high charisma compared to average charisma, comparing male and female scores.
+
+-   $b = -8.5, t(108) = -2.50, p = .014$
+
+-   Interpretation: The increased interest in highly charismatic dates compared to averagely charismatic dates found for women is significantly more than for men.
+
+#### 14.6.7.2. Personality x Gender interaction 2: dullard vs. some charisma, male vs. female
+
+The second contrast for this interaction term (`DullvsAv:gender`) looks at differences in male and female ratings of dullard compared to dates with average charisma.
+
+-   $b = -2.1, t(108) = -0.62, p = .538$
+
+-   Interpretation: The decreased interest in dull dates compared to averagely charismatic dates found for women is not significantly more than for men.
+
+### 14.6.8. The interaction between `looks` and `personality`
+
+There was a significant interaction between the attractiveness of the date and the charisma of the date, $\chi^2(4) = 77.14, p < .0001$. This effect tells us that the profile of ratings across dates of different levels of charisma was different for attractive, average and ugly dates. However, we wouldn't normally interpret this interaction because the significant higher-order three-way interaction supersedes it.
+
+```{r}
+looksCharisma <- ggplot(speedData, aes(looks, dateRating, colour = personality))
+looksCharisma +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= personality)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(x = "Attractiveness", y = "Mean Rating of Date", colour = "Charisma") +
+  scale_y_continuous(limits = c(0,100))
+```
+
+#### 14.6.8.1. Looks x Personality interaction 1: attractive vs. average, high charisma vs. some charisma
+
+The first contrast for this interaction term (`AttractivevsAv:HighvsAv`) asks the question "Is the difference between high charisma and average charisma the same for attractive people and average-looking people?"
+
+-   $b = -17.0, t(108) = -5.01, p < .001$
+
+-   Interpretation: As dates become less attractive there is a greater decline in interest when charisma is average compared to when charisma is high.
+
+#### 14.6.8.2. Looks x Personality interaction 2: ugly vs. average, high charisma vs. some charisma
+
+The second contrast for this interaction term (`UglyvsAv:HighvsAv`) asks the question "Is the difference between high charisma and average charisma the same for ugly people and average-looking people?"
+
+-   $b = 16.0, t(108) = 4.71, p < .001$
+
+-   Interpretation: As dates become less attractive there is a greater decline in interest when charisma is low compared to when charisma is high.
+
+#### 14.6.8.3. Looks x Personality interaction 3: attractive vs. average, dullard vs. some charisma
+
+The third contrast for this interaction term (`AttractivevsAv:DullvsAv`) asks the question "Is the difference between no charisma and average charisma the same for attractive people and average-looking people?"
+
+-   $b = -13.4, t(108) = -3.95, p < .001$
+
+-   Interpretation: As dates become less attractive the decline in interest is different depending on whether charisma is average or low.
+
+[***However, this interaction is non-significant when we exclude the higher-order three-way interaction term (`looks`x`personality`x`gender`). This result suggest that we should not interpret main effects and interactions when a higher-order interaction is significant.***]{.underline}
+
+#### 14.6.8.4. Looks x Personality interaction 4: ugly vs. average, dullard vs. some charisma
+
+The final contrast for this interaction term (`UgnlyvsAv:DullvsAv`) asks the question "Is the difference between no charisma and some charisma the same for ugly people and average-looking people?"
+
+-   $b = 16.8, t(108) = 4.95, p < .001$
+
+-   Interpretation: As dates become less attractive the decline in interest in dates with a bit of charisma is significantly greater than for dullards.
+
+### 14.6.9. The interaction between `looks`, `personality` and `gender`
+
+**The three-way interaction tells us whether the `looks`x`personality` interaction described above is the same for men and women.** Output tells us that there is a significant three-way `looks`x`personality`x`gender` interaction, $\chi^2(4) = 79.59, p < .0001$. This is the highest-order effect that is significant, and consequently, we would focus on interpreting this effect and not all the lower-order ones.
+
+```{r}
+looksCharismaGender <-
+  ggplot(speedData, aes(looks, dateRating, colour = personality))
+looksCharismaGender +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= personality)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(x = "Attractiveness", y = "Mean Rating of Date", colour = "Charisma") +
+  scale_y_continuous(limits = c(0,100)) + facet_wrap(~gender)
+```
+
+Male participants focus on `Attractiveness` more than `Charisma` when rating the date, while female participants focus on `Charisma` more than `Attractiveness` when rating the date.
+
+#### 14.6.9.1. Looks x Personality x Gender interaction 1: attractive vs. average, high charisma vs. some charisma, male vs. female
+
+**(2nd quadrant)**
+
+The first contrast for this interaction term compares ratings for attractive dates to average-looking dates, when high charisma is compared to average charisma in males compared to females, $b = 5.8, t(108) = 1.21, p = .230$. **(Non-significant)**
+
+Interpretation:
+
+-   Interest in attractive dates was the same regardless of whether they had high or average charisma. However, for average-looking dates, there was more interest when that person had high charisma rather than some charisma.
+
+-   This **pattern** of results is the same in males and females.
+
+#### 14.6.9.2. Looks x Personality x Gender interaction 2: ugly vs. average, high charisma vs. some charisma, males vs. females
+
+**(1st quadrant)**
+
+The second contrast for this interaction term compares interest in ugly compared to average-looking dates, when high charisma is compared to average charisma, in men compared to women, $b = -18.5, t(108) = -3.85, p < .001$. **(Significant)**
+
+Interpretation:
+
+-   For men, regardless of charisma, there is a similar reduction in interest as attractiveness declines.
+
+-   For women, when charisma is high, there is no decline in interest as attractiveness falls. However, when charisma is average, the interest declines as attractiveness falls.
+
+#### 14.6.9.3. Looks x Personality x Gender interaction 3: attractive vs. average, dullard vs. some charisma, male vs. female
+
+**(3rd quadrant)**
+
+The third contrast for this interaction term compares interest in attractive compared to average-looking dates, in men compared to women, $b = 36.2, t(108) = 7.54, p < .001$. **(Significant)**
+
+Interpretation:
+
+-   Men are equally interested in their dates regardless of their charisma, but women are much less interested in an attractive person if they are a dullard.
+
+-   With average charisma, the reduction in interest as attractiveness goes down is about the same in men and women. However, for dates who are dullards, the decrease in interest if these dates are average-looking rather than attractive is much more dramatic in men than women.
+
+#### 14.6.9.4. Looks x Personality x Gender interaction 4: ugly vs. average, dullard vs. some charisma, male vs. female
+
+**(4th quadrant)**
+
+The final contrast for this interaction term compares interest in ugly compared to average-looking dates, when comparing dullards to average charisma, in men compared to women, $b = 4.7, t(108) = 0.98, p = .330$. **(Non-significant)**
+
+Interpretation:
+
+-   Interest in ugly dates was the same regardless of whether they had average charisma or were a dullard. However, for average-looking dates, there was more interest when that person had some charisma rather than if they were a dullard.
+
+-   The pattern of results is similar in males and females.
+
+### 14.6.10. Conclusions
+
+-   Differences exist between men and women in terms of how they're affected by the looks and personality of potential dates.
+
+    -   Men are likely to date someone who is good-looking, regardless of their personality.
+
+    -   Women are likely to date someone who is charismatic, regardless of their looking.
+
+-   When more than two independent variables are used in a model, it yields complex interaction effects that require a great deal of concentration to interpret.
+
+    -   Therefore, it is important to choose which variable's effect to be observed.
+
+    -   Plotting graphs is a useful way to interpret the interactions.
+
+    -   Setting appropriate contrasts helps us to answer the questions we have about our data.
+
+## 14.7. Calculating effect sizes
+
+```{r}
+rcontrast <- function(t, df)
+  {
+  r <- sqrt(t^2/(t^2+df))
+  print(paste("r = ", r))
+}
+
+# Attractive vs Average, High vs Average, M/F
+rcontrast(-1.21, 108)
+
+# Ugly vs Average, High vs Average, M/F
+rcontrast(3.85, 108)
+
+# Attractive vs Average, Dull vs Average, M/F
+rcontrast(7.54, 108)
+
+# Ugly vs Average, Dull vs Average, M/F
+rcontrast(0.98, 108)
+```
+
+## 14.8. Reporting the results of mixed ANOVA
+
+-   There were significant main effects of the \~\~
+
+-   There were significant interaction effects of the \~\~
+
+-   Most important, the looks x personality x gender interaction was significant, $\chi^2(4) = 79.59, p < .0001$. This indicates that the looks x personality interaction described previously was different in male and female participants. Contrasts were used to break down this interaction; **this contrasts compared male and females scores at each level of charisma compared to the middle category of 'average charisma' across each level of attractiveness compared to the category of average attractiveness.**\
+    The first contrast revealed \~\~. It tells us that \~\~.\
+    The second contrast looked for differences between \~\~. It tells us that \~\~.\
+    The third contrast investigated differences between \~\~. It tells us that \~\~.\
+    The final contrast looked for differences between \~\~. It tells us that \~\~.
+
+## 14.9. Robust analysis for mixed designs
+
+-   `tsplit()` performs a two-way mixed ANOVA on trimmed means.
+
+-   `sppba()` computes the main effect of factor A of a two-way mixed design using an M-estimator and bootstrap.
+
+-   `sppbb()` computes the main effect of factor B of a two-way mixed design using an M-estimator and bootstrap
+
+-   `sppbi()` computes the A x B interaction of a two-way mixed design using an M-estimator and bootstrap.
+
+```{r}
+pictureData <- read.delim(here("ch14", "ProfilePicture.dat"), header = TRUE)
+head(pictureData)
+
+pictureData$row <- c(1:17, 1:23)
+
+profileMelt <-
+  melt(
+    pictureData,
+    id = c("case", "row", "relationship_status"),
+    measured = c("couple", "alone")
+    )
+names(profileMelt) <-
+  c("case", "row", "relationship_status", "profile_picture", "friend_requests")
+head(profileMelt)
+
+profileData <-
+  cast(
+    profileMelt,
+    row ~ relationship_status + profile_picture,
+    value = "friend_requests"
+    )
+head(profileData)
+
+profileData$row <- NULL
+
+profileGraph <-
+  ggplot(
+    profileMelt,
+    aes(relationship_status, friend_requests, colour = profile_picture)
+    )
+profileGraph +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= profile_picture)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(
+    x = "Relationship Status",
+    y = "Number of Friend Requests",
+    colour = "Contents of Profile Picture") +
+  scale_y_continuous(limits = c(0,10))
+```

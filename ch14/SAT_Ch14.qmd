@@ -1,0 +1,208 @@
+---
+title: "SMT_Ch14"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme)
+```
+
+## SAT1
+
+```{r}
+mixedAttitude <- read.delim(here("ch14", "MixedAttitude.dat"), header = TRUE)
+head(mixedAttitude)
+mixedAttitude$gender <-
+  factor(mixedAttitude$gender, levels = c(1:2), labels = c("Male", "Female"))
+head(mixedAttitude)
+
+attitudeLong <-
+  melt(
+    mixedAttitude,
+    id = c("Participant", "gender"),
+    measured = c("beerpos", "beerneg", "beerneut", "winepos", "wineneg",
+                 "wineneut", "waterpos", "waterneg", "waterneu")
+    )
+names(attitudeLong)<-c("Participant", "Gender", "Groups", "Drink_Rating")
+head(attitudeLong)
+
+attitudeLong$Drink <- gl(3, 60, labels = c("Beer", "Wine", "Water"))
+attitudeLong$Imagery <-
+  gl(3, 20, 180, labels = c("Positive", "Negative", "Neutral"))
+head(attitudeLong)
+
+attitudeLong<-attitudeLong[order(attitudeLong$Participant),]
+head(attitudeLong)
+
+#-----------------------------------------------------------------
+attitudeBoxplot <-
+  ggplot(attitudeLong, aes(Drink, Drink_Rating, colour = Imagery))
+attitudeBoxplot +
+  geom_boxplot() +
+  labs(x = "Drink", y = "Mean Drink Rating", colour = "Imagery") +
+  facet_wrap(~Gender)
+
+GenderDrink <-
+  ggplot(attitudeLong, aes(Drink, Drink_Rating, colour = Gender))
+GenderDrink +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= Gender)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(x = "Type of Drink", y = "Mean Rating of Drink", colour = "Gender") +
+  scale_y_continuous(limits = c(-25,25)) 
+
+GenderImagery <-
+  ggplot(attitudeLong, aes(Imagery, Drink_Rating, colour = Gender))
+GenderImagery +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= Gender)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(x = "Type of Imagery", y = "Mean Rating of Drink", colour = "Gender") +
+  scale_y_continuous(limits = c(-25,25)) 
+
+GenderDrinkImagery <-
+  ggplot(attitudeLong, aes(Drink, Drink_Rating, colour = Imagery))
+GenderDrinkImagery +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= Imagery)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(
+    x = "Type of Drink", y = "Mean Rating of Drink", colour = "Type of Imagery"
+    ) +
+  scale_y_continuous(limits = c(-20,30)) + facet_wrap(~Gender)
+#-----------------------------------------------------------------
+
+# GLM
+PosvsNeut <- c(1, 0, 0)
+NegvsNeut <- c(0, 1, 0)
+contrasts(attitudeLong$Imagery) <- cbind(PosvsNeut, NegvsNeut)
+
+BeervsWater <- c(1, 0, 0)
+WinevsWater <- c(0, 1, 0)
+contrasts(attitudeLong$Drink) <- cbind(BeervsWater, WinevsWater)
+
+contrasts(attitudeLong$Gender) <- c(1, 0)
+
+baseline <-
+  lme(
+    Drink_Rating ~ 1,
+    random = ~1|Participant/Drink/Imagery,
+    data = attitudeLong,
+    method = "ML"
+    )
+ImageryM<-update(baseline, .~. + Imagery)
+DrinkM<-update(ImageryM, .~. + Drink)
+GenderM<-update(DrinkM, .~. + Gender)
+Imagery_Gender<-update(GenderM, .~. + Imagery:Gender)
+Drink_Gender<-update(Imagery_Gender, .~. + Drink:Gender)
+Imagery_Drink<-update(Drink_Gender, .~. + Imagery:Drink)
+attitudeModel<-update(Imagery_Drink, .~. + Imagery:Drink:Gender)
+
+
+anova(baseline, ImageryM, DrinkM, GenderM, Imagery_Gender, Drink_Gender, Imagery_Drink, attitudeModel)
+
+summary(attitudeModel)
+
+rcontrast<-function(t, df)
+{r<-sqrt(t^2/(t^2 + df))
+	print(paste("r = ", r))
+	}
+rcontrast(-1.78, 108)
+rcontrast(1.86, 108)
+rcontrast(-0.17, 108)
+rcontrast(-1.70, 108)
+```
+
+Interpretation:
+
+-   Significant main effect of `Imagery`, `Drink`
+
+-   Significant interaction between `Imagery`x`Gender`, `Drink`x`Gender`, `Inagery`x`Drink`
+
+-   **Significant interaction between** `Imagery`x`Drink`x`Gender`: $\chi^2(4) = 14.84, p = .005$
+
+    -   Interaction 1: Beer vs Water, Positive vs Neutral, M/F (Non-significant)
+
+        -   $b = -9.4, t(108) = -1.78, p = 0.08$
+
+        -   The difference in ratings when positive imagery is used compared to neutral imagery is roughly equal when beer is used as a stimulus and water is used, and these differences were equivalent in male and female subjects.
+
+    -   Interaction 2: Beer vs Water, Negative vs Neutral, M/F (Non-significant)
+
+        -   $b = 9.8, t(108) = 1.86, p = 0.067$
+
+        -   The difference in ratings between beer and water when negative imagery is used compared to neutral imagery is similar between men and women.
+
+    -   Interaction 3: Wine vs Water, Positive vs Neutral, M/F (Non-significant)
+
+        -   $b = -0.9, t(108) = -0.17, p = 0.86$
+
+        -   The difference in ratings when positive imagery is used compared to neutral imagery is roughly equal when wine is used as a stimulus and when water is used, and these differences are equivalent in male and female subjects.
+
+    -   Interaction 4: Wine vs Water, Negative vs Neutral, M/F (Non-significant)
+
+        -   $b = 9.0, t(108) = 1.70, p = 0.09$
+
+        -   The difference in ratings between wine and water when negative imagery is used compared to neutral imagery is different between men and women.
+
+Males and females are similar in their pattern ratings for water but different in the way they rate wine. It is noteworthy that this contrast was not significant using the usual .05 level; however, it is worth remembering these close effects and letting your reader decide whether they are meaningful or not.
+
+## SAT 2
+
+```{r}
+textMessages <- read.delim(here("ch14", "TextMessages.dat"), header = TRUE)
+head(textMessages)
+
+Participant = c(1:50)
+textMessages$Participant = Participant
+head(textMessages)
+
+textLong <-
+  melt(
+    textMessages,
+    id = c("Participant", "Group"),
+    measured = c("Baseline", "Six_months")
+    )
+
+names(textLong) <- c("Participant", "Group", "Time", "Grammar_Score")
+head(textMessages)
+
+textLong<-textLong[order(textLong$Participant),]
+head(textMessages)
+
+textLine <- ggplot(textLong, aes(Time, Grammar_Score, colour = Group))
+textLine +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line", aes(group= Group)) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  labs(x = "Time", y = "Mean Grammar Score", colour = "Group")
+
+baseline <-
+  lme(
+    Grammar_Score ~ 1,
+    random = ~1|Participant/Time/Group,
+    data = textLong,
+    method = "ML"
+    )
+TimeM <- update(baseline, .~. + Time)
+GroupM <- update(TimeM, .~. + Group)
+textModel <- update(GroupM, .~. + Time:Group)
+
+anova(baseline, TimeM, GroupM, textModel)
+
+summary(textModel)
+```
+
+The independent variables in this example only contains two levels, therefore we don't have to set any contrasts.
+
+Result
+
+-   The grammar ratings at the end of the experiment were significantly lower than those at the beginning of the experiment., $\chi^2(1) = 12.98, p < .001$
+
+-   The main effect of group on the grammar scores was non-significant, $\chi^2(1) = 3.02, p = 0.08$. This indicates that when the time at which grammar was measured was ignored, the grammar ability in the text message group was not significantly different than the controls.
+
+-   The `time`x`group` interaction was significant, $\chi^2(1) = 4.16, p = 0.04$, indicating that the change in grammar ability in the text message group was significantly different from the change in the control groups.

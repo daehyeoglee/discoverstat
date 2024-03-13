@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Daehyeog Lee">
+<meta name="dcterms.date" content="2023-11-12">
+
+<title>chapter_9</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="chapter_9_files/libs/clipboard/clipboard.min.js"></script>
+<script src="chapter_9_files/libs/quarto-html/quarto.js"></script>
+<script src="chapter_9_files/libs/quarto-html/popper.min.js"></script>
+<script src="chapter_9_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="chapter_9_files/libs/quarto-html/anchor.min.js"></script>
+<link href="chapter_9_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="chapter_9_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="chapter_9_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="chapter_9_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="chapter_9_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">chapter_9</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Daehyeog Lee </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 12, 2023</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">November 10, 2023</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="what-will-this-chapter-tell-me" class="level2">
+<h2 class="anchored" data-anchor-id="what-will-this-chapter-tell-me">9.1. What will this chapter tell me?</h2>
+<p>Comparing two means and checking for the evidence that one is different from the other.</p>
+</section>
+<section id="packages-used-in-this-chapter" class="level2">
+<h2 class="anchored" data-anchor-id="packages-used-in-this-chapter">9.2. Packages used in this chapter</h2>
+<p><code>ggplot2</code> is for graphs, <code>pastecs</code> is for descriptive statistics, and <code>WRS2</code> is for robust methods.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2); <span class="fu">library</span>(pastecs); <span class="fu">library</span>(WRS2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr); <span class="fu">library</span>(dplyr); <span class="fu">library</span>(boot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'tidyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:pastecs':
+
+    extract</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:pastecs':
+
+    first, last</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+</div>
+</section>
+<section id="looking-at-differences" class="level2">
+<h2 class="anchored" data-anchor-id="looking-at-differences">9.3. Looking at differences</h2>
+<p>There are two different ways of collecting data: we can either expose different people to different experimental manipulation (between group or independent design), or take a single group of people and expose them to different experimental manipulations at different points of time (repeated-measures design).</p>
+<section id="a-problem-with-error-bar-graphs-of-repeated-measures-designs" class="level3">
+<h3 class="anchored" data-anchor-id="a-problem-with-error-bar-graphs-of-repeated-measures-designs">9.3.1. A problem with error bar graphs of repeated-measures designs</h3>
+<section id="self-test" class="level4">
+<h4 class="anchored" data-anchor-id="self-test">SELF-TEST</h4>
+<p>24 arachnophobes were used in this data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Group <span class="ot">&lt;-</span> <span class="fu">gl</span>(<span class="dv">2</span>, <span class="dv">12</span>, <span class="at">labels =</span> <span class="fu">c</span>( <span class="st">"Picture"</span>, <span class="st">"Real Spider"</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>Anxiety <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">45</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">35</span>, <span class="dv">55</span>, <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">45</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">40</span>, <span class="dv">35</span>, <span class="dv">50</span>, <span class="dv">55</span>, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>             <span class="dv">65</span>, <span class="dv">55</span>, <span class="dv">50</span>, <span class="dv">35</span>, <span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">60</span>, <span class="dv">39</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>spiderLong <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(Group, Anxiety)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(spiderLong)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Group Anxiety
+1 Picture      30
+2 Picture      35
+3 Picture      45
+4 Picture      40
+5 Picture      50
+6 Picture      35</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bar <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(spiderLong, <span class="fu">aes</span>(Group, Anxiety))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>bar <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y =</span> mean, <span class="at">geom =</span> <span class="st">"bar"</span>, <span class="at">fill =</span> <span class="st">"White"</span>, <span class="at">colour =</span> <span class="st">"Black"</span>) <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">fun.data =</span> mean_cl_normal, <span class="at">geom =</span> <span class="st">"pointrange"</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Type of Stimulus"</span>, <span class="at">y =</span> <span class="st">"Anxiety"</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">70</span>), <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">70</span>, <span class="at">by =</span> <span class="dv">10</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The `fun.y` argument of `stat_summary()` is deprecated as of ggplot2 3.3.0.
+ℹ Please use the `fun` argument instead.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_9_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="self-test-1" class="level4">
+<h4 class="anchored" data-anchor-id="self-test-1">SELF-TEST</h4>
+<p>12 same participants’ data were used. All that has changed is whether the design used the same participants (repeated measures) or different (independent). However, two graphs are same.</p>
+<p>If we have repeated measures groups, we should not use error bar graphs. Or if we do, we have to adjust the data before we plot the graph:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>spiderWide <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"spiderWide.dat"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(spiderWide)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  picture real
+1      30   40
+2      35   35
+3      45   50
+4      40   55
+5      50   65
+6      35   55</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="step-1-calculate-the-mean-for-each-participant" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-calculate-the-mean-for-each-participant">9.3.2. Step 1: calculate the mean for each participant</h3>
+<p>To begin with, we need to calculate the average anxiety for each participant by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>pMean <span class="ot">&lt;-</span> (spiderWide<span class="sc">$</span>picture <span class="sc">+</span> spiderWide<span class="sc">$</span>real) <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>pMean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 35.0 35.0 47.5 47.5 57.5 45.0 52.5 30.0 30.0 47.5 50.0 44.5</code></pre>
+</div>
+</div>
+</section>
+<section id="step-2-calculate-the-grand-mean" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-calculate-the-grand-mean">9.3.3. Step 2: calculate the grand mean</h3>
+<p>A grand mean is the mean of all scores and so for the current data this value will be the mean of all 24 scores:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>grandMean <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">c</span>(spiderWide<span class="sc">$</span>picture, spiderWide<span class="sc">$</span>real))</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>grandMean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 43.5</code></pre>
+</div>
+</div>
+<p>Executing this command creates a variable called <strong>grandMean</strong>, which is the mean of <strong>picture</strong> and <strong>real</strong> combined into a single variable. In other words, it’s the mean of all scores.</p>
+</section>
+<section id="step-3-calculate-the-adjustment-factor" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-calculate-the-adjustment-factor">9.3.4. Step 3: calculate the adjustment factor</h3>
+<p>The fact that participants’ mean anxiety scores differ represents individual differences between different people. We should equalize the means between participants. To do this, we need to calculate an adjustment factor by substracting each participant’s mean score (<strong>pMean</strong>) from the grand mean (<strong>grandMean</strong>):<br>
+</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>adj <span class="ot">&lt;-</span> grandMean <span class="sc">-</span> spiderWide<span class="sc">$</span>pMean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The scores in column <strong>adj</strong> represent the difference between each participant’s mean anxiety and the mean anxiety level across all participants.</p>
+</section>
+<section id="step-4-create-adjusted-values-for-each-variable" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-create-adjusted-values-for-each-variable">9.3.5. Step 4: create adjusted values for each variable</h3>
+<p>So far, we have calculated the difference between each participant’s mean score and the mean score of all participants (the grand mean). This difference can be used to adjust the existing scores for each participant:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>picture_adj <span class="ot">&lt;-</span> spiderWide<span class="sc">$</span>picture <span class="sc">+</span> spiderWide<span class="sc">$</span>adj</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>real_adj <span class="ot">&lt;-</span> spiderWide<span class="sc">$</span>real <span class="sc">+</span> spiderWide<span class="sc">$</span>adj</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(spiderWide)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  picture real pMean   adj picture_adj real_adj
+1      30   40  35.0   8.5        38.5     48.5
+2      35   35  35.0   8.5        43.5     43.5
+3      45   50  47.5  -4.0        41.0     46.0
+4      40   55  47.5  -4.0        36.0     51.0
+5      50   65  57.5 -14.0        36.0     51.0
+6      35   55  45.0  -1.5        33.5     53.5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>pMean3 <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">c</span>(spiderWide<span class="sc">$</span>real_adj, spiderWide<span class="sc">$</span>picture_adj))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>pMean3 <span class="co"># Same as the grand mean!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 43.5</code></pre>
+</div>
+</div>
+<section id="self-test-2" class="level4">
+<h4 class="anchored" data-anchor-id="self-test-2">SELF-TEST</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>pMean <span class="ot">&lt;-</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">35.0</span>, <span class="fl">35.0</span>, <span class="fl">47.5</span>, <span class="fl">47.5</span>, <span class="fl">57.5</span>, <span class="fl">45.0</span>, <span class="fl">52.5</span>, <span class="fl">30.0</span>, <span class="fl">30.0</span>, <span class="fl">47.5</span>, <span class="fl">50.0</span>, <span class="fl">44.5</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>adj <span class="ot">&lt;-</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">8.5</span>, <span class="fl">8.5</span>, <span class="sc">-</span><span class="fl">4.0</span>, <span class="sc">-</span><span class="fl">4.0</span>, <span class="sc">-</span><span class="fl">14.0</span>, <span class="sc">-</span><span class="fl">1.5</span>, <span class="sc">-</span><span class="fl">9.0</span>, <span class="fl">13.5</span>, <span class="fl">13.5</span>, <span class="sc">-</span><span class="fl">4.0</span>, <span class="sc">-</span><span class="fl">6.5</span>, <span class="sc">-</span><span class="fl">1.0</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>picture_adj <span class="ot">&lt;-</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">38.5</span>, <span class="fl">43.5</span>, <span class="fl">41.0</span>, <span class="fl">36.0</span>, <span class="fl">36.0</span>, <span class="fl">33.5</span>, <span class="fl">46.0</span>, <span class="fl">38.5</span>, <span class="fl">43.5</span>, <span class="fl">41.0</span>, <span class="fl">33.5</span>, <span class="fl">49.0</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>real_adj <span class="ot">&lt;-</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">48.5</span>, <span class="fl">43.5</span>, <span class="fl">46.0</span>, <span class="fl">51.0</span>, <span class="fl">51.0</span>, <span class="fl">53.5</span>, <span class="fl">41.0</span>, <span class="fl">48.5</span>, <span class="fl">43.5</span>, <span class="fl">46.0</span>, <span class="fl">53.5</span>, <span class="fl">38.0</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>pMean2 <span class="ot">&lt;-</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>, <span class="fl">43.5</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">gl</span>(<span class="dv">12</span>, <span class="dv">1</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="fu">paste</span>(<span class="st">"P"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>, <span class="at">sep =</span> <span class="st">"_"</span>)))</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(spiderWide)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  picture real pMean   adj picture_adj real_adj pMean2  id
+1      30   40  35.0   8.5        38.5     48.5   43.5 P_1
+2      35   35  35.0   8.5        43.5     43.5   43.5 P_2
+3      45   50  47.5  -4.0        41.0     46.0   43.5 P_3
+4      40   55  47.5  -4.0        36.0     51.0   43.5 P_4
+5      50   65  57.5 -14.0        36.0     51.0   43.5 P_5
+6      35   55  45.0  -1.5        33.5     53.5   43.5 P_6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>adjustedData <span class="ot">&lt;-</span> spiderWide <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"picture_adj"</span>, <span class="st">"real_adj"</span>),</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"variable"</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"value"</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(adjustedData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 8
+  picture  real pMean   adj pMean2 id    variable    value
+    &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; &lt;chr&gt;       &lt;dbl&gt;
+1      30    40  35     8.5   43.5 P_1   picture_adj  38.5
+2      30    40  35     8.5   43.5 P_1   real_adj     48.5
+3      35    35  35     8.5   43.5 P_2   picture_adj  43.5
+4      35    35  35     8.5   43.5 P_2   real_adj     43.5
+5      45    50  47.5  -4     43.5 P_3   picture_adj  41  
+6      45    50  47.5  -4     43.5 P_3   real_adj     46  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>adjustedData<span class="ot">&lt;-</span>adjustedData[, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)]</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(adjustedData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  id    variable    value
+  &lt;fct&gt; &lt;chr&gt;       &lt;dbl&gt;
+1 P_1   picture_adj  38.5
+2 P_1   real_adj     48.5
+3 P_2   picture_adj  43.5
+4 P_2   real_adj     43.5
+5 P_3   picture_adj  41  
+6 P_3   real_adj     46  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(adjustedData)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"Group"</span>, <span class="st">"Anxiety_Adj"</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>adjustedData<span class="sc">$</span>Group <span class="ot">&lt;-</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">factor</span>(adjustedData<span class="sc">$</span>Group, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Spider Picture"</span>, <span class="st">"Real Spider"</span>))</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(adjustedData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  id    Group          Anxiety_Adj
+  &lt;fct&gt; &lt;fct&gt;                &lt;dbl&gt;
+1 P_1   Spider Picture        38.5
+2 P_1   Real Spider           48.5
+3 P_2   Spider Picture        43.5
+4 P_2   Real Spider           43.5
+5 P_3   Spider Picture        41  
+6 P_3   Real Spider           46  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>bar <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(adjustedData, <span class="fu">aes</span>(Group, Anxiety_Adj))</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>bar <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y =</span> mean, <span class="at">geom =</span> <span class="st">"bar"</span>, <span class="at">fill =</span> <span class="st">"White"</span>, <span class="at">colour =</span> <span class="st">"Black"</span>) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> mean_cl_normal, <span class="at">geom =</span> <span class="st">"pointrange"</span>) <span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Type of Stimulus"</span>, <span class="at">y =</span> <span class="st">"Anxiety"</span>) <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">70</span>), <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">70</span>, <span class="at">by =</span> <span class="dv">10</span>)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_9_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="the-t-test" class="level2">
+<h2 class="anchored" data-anchor-id="the-t-test">9.4. The <em>t</em>-test</h2>
+<p><em>t</em>-test is used in various situations such as:<br>
+testing whether a correlation coefficient is different from 0; testing whether a regression coefficient, <em>b</em>, is different from 0; testing whether two group means are different.</p>
+<p>There are two different <em>t</em>-tests depending on whether the independent variable was manipulated using the same participants or different:</p>
+<ul>
+<li><p><strong>Independent-means</strong> <strong><em>t</em>-test (Independent measures)</strong> is used when there are two experimental conditions and different participants were assigned to each condition.</p></li>
+<li><p><strong>Dependent-means <em>t</em>-test (Paired-samples <em>t</em>-test)</strong> is used when there are two experimental conditions and the same participants took part in both conditions of the experiment.</p></li>
+</ul>
+<section id="rationale-for-the-t-test" class="level3">
+<h3 class="anchored" data-anchor-id="rationale-for-the-t-test">9.4.1. Rationale for the <em>t</em>-test</h3>
+<p>Both <em>t</em>-tests have a similar rationale.</p>
+<ul>
+<li><p>Two samples of data are collected and the sample means calculated.</p></li>
+<li><p>If the samples come from the same population, then we expect their means to be roughly equal. Under the null hypothesis we assume that the experimental manipulation has no effect on the participants. Therefore, we expect the sample means to be very similar.</p></li>
+<li><p>We compare the difference between the sample means that we collected to the difference between the sample means that we would expect to obtain if there were no effect. If the difference between the samples we have collected is larger than we would expect then we can assume one of the two things:</p>
+<ul>
+<li><p>We have, by chance, collected two samples that are atypical of the population from which they came.</p></li>
+<li><p>The two samples means differ because of the different experimental manipulation imposed on each sample.</p></li>
+</ul></li>
+</ul>
+<p>Test statistics can be thought as the ‘variance explained by the model’ divided by the ‘variance that the model can’t explain’. In other words, ‘effect/error’. We can use the standard error of the differences between the two means as an estimate of the error in our model.</p>
+<p>t = <span class="math inline">\(\frac{observed difference b/w sample means - expected difference b/w population means}{estimate of the SE of the difference b/w two sample means}\)</span></p>
+<p>The exact form that this equation takes depends on whether the same or different participants were used in each experimental condition.</p>
+</section>
+<section id="the-t-test-as-a-general-linear-model" class="level3">
+<h3 class="anchored" data-anchor-id="the-t-test-as-a-general-linear-model">9.4.2. The <em>t</em>-test as a general linear model</h3>
+<p>All statistical procedures have simple model: outcome = (model) + error</p>
+<p><span class="math inline">\(A_i = (b_0 + b_1 G_i) + \epsilon_i\)</span></p>
+<p><span class="math inline">\(b_0\)</span> (the intercept) is equal to the mean of the baseline group. <span class="math inline">\(b_1\)</span> represents the difference between the group means (put 0 and 1 to <span class="math inline">\(G_i\)</span>). In regression, the <em>t</em>-test is used to ascertain whether the regression coefficient <span class="math inline">\(b_1\)</span> is equal to 0, and when we carry out a <em>t</em>-test on grouped data, we test whether the difference between group means is equal to 0.</p>
+<section id="self-test-3" class="level4">
+<h4 class="anchored" data-anchor-id="self-test-3">SELF-TEST</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>lmspider <span class="ot">&lt;-</span> <span class="fu">lm</span>(spiderLong<span class="sc">$</span>Anxiety <span class="sc">~</span> spiderLong<span class="sc">$</span>Group)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lmspider)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = spiderLong$Anxiety ~ spiderLong$Group)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+ -17.0   -8.5    1.5    8.0   18.0 
+
+Coefficients:
+                            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                   40.000      2.944  13.587 3.53e-12 ***
+spiderLong$GroupReal Spider    7.000      4.163   1.681    0.107    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 10.2 on 22 degrees of freedom
+Multiple R-squared:  0.1139,    Adjusted R-squared:  0.07359 
+F-statistic: 2.827 on 1 and 22 DF,  p-value: 0.1068</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>mean_picture <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">45</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">35</span>, <span class="dv">55</span>, <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">45</span>, <span class="dv">40</span>, <span class="dv">50</span>))</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>mean_picture</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 40</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>mean_spider <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">35</span>, <span class="dv">50</span>, <span class="dv">55</span>, <span class="dv">65</span>, <span class="dv">55</span>, <span class="dv">50</span>, <span class="dv">35</span>, <span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">60</span>, <span class="dv">39</span>))</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>mean_spider</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 47</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>mean_spider <span class="sc">-</span> mean_picture</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 7</code></pre>
+</div>
+</div>
+<p>The first thing to notice is the value of the constant <span class="math inline">\(b_0\)</span>: its value is 40, the same as the mean of the base category (the picture group). The second thing to notice is that the value of the regression coefficient is 7, which is the difference between the two group means (<code>mean_spider</code> - <code>mean_picture</code>). Finally, the<br>
+<em>t</em>-statistic, which tests whether <span class="math inline">\(b_1\)</span> is significantly different from zero, is not significant, indicating that <span class="math inline">\(b_1\)</span> is not significantly different from zero.</p>
+</section>
+</section>
+<section id="assumptions-of-the-t-test" class="level3">
+<h3 class="anchored" data-anchor-id="assumptions-of-the-t-test">9.4.3. Assumptions of the <em>t</em>-test</h3>
+<p>Given that the <em>t</em>-test is basically regression, it has much the same assumptions. Both the independent<br>
+<em>t</em>-test and the dependent <em>t</em>-test are parametric tests based on the normal distribution. Therefore, they assume:</p>
+<ul>
+<li>The sampling distribution is normally distributed. In the dependent <em>t</em>-test this means that the sampling distribution of the <em>differences</em> between scores should be normal, not the scores themselves.</li>
+</ul>
+<p>The independent <em>t</em>-test, because it is used to test different groups of people, also assumes:</p>
+<ul>
+<li><p>Scores in different treatment conditions are independent.</p></li>
+<li><p>Homogeneity of variance. However, statisticians recently have stopped using this approach for three reasons. First, if we don’t have unequal group sizes, the assumption is pretty much irrelevant and can be ignored. Second, the tests of homogeneity of variance don’t work with unequal group sizes and smaller samples. Third, there is an adjustment called Welch’s <em>t</em>-test, which is able to correct for violation of this assumption.</p></li>
+</ul>
+</section>
+</section>
+<section id="the-independent-t-test" class="level2">
+<h2 class="anchored" data-anchor-id="the-independent-t-test">9.5. The independent <em>t</em>-test</h2>
+<section id="the-independent-t-test-equation-explained" class="level3">
+<h3 class="anchored" data-anchor-id="the-independent-t-test-equation-explained">9.5.1. The independent <em>t-</em>test equation explained</h3>
+<p>We are dealing with the situation in which different entities have been tested in the different conditions of our experiment. When different participants participate in different conditions, pairs of scores will differ not just because of the experimental manipulation, but also because of other sources of variance. Therefore, we have to make comparisons on a <em>per condition</em> basis.</p>
+<p>For the independent <em>t</em>-test we are looking at differences between groups and so we divide by the standard deviation of differences between groups. The majority of samples from a population will have fairly similar means. If we plot a sampling distribution of the differences between every pair of sample means that could be taken from two populations, we would find that it had a normal distribution with a mean equal to the difference between population means <span class="math inline">\((\mu_1 - \mu_2)\)</span>. The SD of the sampling distribution (the standard error) tells us how variable the differences between sample means can occur by chance. We divide the difference between sample means by the SD of the sampling distribution. The <strong>variance sum law</strong> states that the variance of a difference between two independent variables is equal to the sum of their variances. To restate, the variance of the sampling distribution is equal to the sum of the variances of the two populations from which the samples were taken.</p>
+<p>(Equations are in p.374~375)</p>
+<p>The pooled variance estimate <em>t</em>-test is used, which takes account of the difference in sample size by <em>weighting</em> the variance of each sample. The pooled variance estimate is simply a weighted average in which each variance is multiplied (weighted) by its degrees of freedom, and then we divide by the sum of weights.</p>
+<p>We can compare the obtained value of <em>t</em> against the maximum value we would expect to get by chance alone in a <em>t</em>-distribution with the same degrees of freedom. If the value we obtain exceeds this critical value we can be confident that this reflects an effect of our independent variable.</p>
+<section id="rs-souls-tip" class="level4">
+<h4 class="anchored" data-anchor-id="rs-souls-tip">R’s Souls’ Tip</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Defining a function which calculates the t-statistic</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">mean</span>(spiderLong[spiderLong<span class="sc">$</span>Group <span class="sc">==</span> <span class="st">"Real Spider"</span>, ]<span class="sc">$</span>Anxiety)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">mean</span>(spiderLong[spiderLong<span class="sc">$</span>Group <span class="sc">==</span> <span class="st">"Picture"</span>, ]<span class="sc">$</span>Anxiety)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>sd1 <span class="ot">&lt;-</span> <span class="fu">sd</span>(spiderLong[spiderLong<span class="sc">$</span>Group <span class="sc">==</span> <span class="st">"Real Spider"</span>, ]<span class="sc">$</span>Anxiety)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>sd2 <span class="ot">&lt;-</span> <span class="fu">sd</span>(spiderLong[spiderLong<span class="sc">$</span>Group <span class="sc">==</span> <span class="st">"Picture"</span>, ]<span class="sc">$</span>Anxiety)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>n1 <span class="ot">&lt;-</span> <span class="fu">length</span>(spiderLong[spiderLong<span class="sc">$</span>Group <span class="sc">==</span> <span class="st">"Real Spider"</span>, ]<span class="sc">$</span>Anxiety)</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>n2 <span class="ot">&lt;-</span> <span class="fu">length</span>(spiderLong[spiderLong<span class="sc">$</span>Group <span class="sc">==</span> <span class="st">"Picture"</span>, ]<span class="sc">$</span>Anxiety)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>ttestfromMeans<span class="ot">&lt;-</span><span class="cf">function</span>(x1, x2, sd1, sd2, n1, n2)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> n1 <span class="sc">+</span> n2 <span class="sc">-</span> <span class="dv">2</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>  poolvar <span class="ot">&lt;-</span> (((n1 <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> sd1<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> ((n2 <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> sd2<span class="sc">^</span><span class="dv">2</span>)) <span class="sc">/</span> df</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  t <span class="ot">&lt;-</span> (x1 <span class="sc">-</span> x2) <span class="sc">/</span> <span class="fu">sqrt</span>(poolvar <span class="sc">*</span> ((<span class="dv">1</span> <span class="sc">/</span> n1) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">/</span> n2)))</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  sig <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span>(<span class="dv">1</span> <span class="sc">-</span> (<span class="fu">pt</span>(<span class="fu">abs</span>(t), df)))</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="st">"t(df = "</span>, df, <span class="st">") = "</span>, t, <span class="st">", p = "</span>, sig, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ttestfromMeans</span>(x1, x2, sd1, sd2, n1, n2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "t(df = 22) = 1.68134561495341, p = 0.106839192382597"</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="doing-the-independent-t-test" class="level3">
+<h3 class="anchored" data-anchor-id="doing-the-independent-t-test">9.5.2. Doing the independent <em>t-</em>test</h3>
+<section id="general-procedure-for-the-independent-t-test" class="level4">
+<h4 class="anchored" data-anchor-id="general-procedure-for-the-independent-t-test">9.5.2.1. General procedure for the independent <em>t</em>-test</h4>
+<p>This is a general procedure of the independent <em>t</em>-test.</p>
+<ol type="1">
+<li>Enter data.</li>
+<li>Explore data by graphing or computing some descriptive statistics. Check distributional assumptions.</li>
+<li>Run the <em>t</em>-test.</li>
+<li>Calculate an effect size.</li>
+</ol>
+</section>
+<section id="entering-data" class="level4">
+<h4 class="anchored" data-anchor-id="entering-data">9.5.2.2. Entering data</h4>
+<p>The <code>t.test()</code> function contains an option <code>paired = TRUE/FALSE</code>, which tells it whether to treat data as dependent or independent. However, R Commander does care, so we will enter the data in a long format.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>Group <span class="ot">&lt;-</span> <span class="fu">gl</span>(<span class="dv">2</span>, <span class="dv">12</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Picture"</span>, <span class="st">"Real Spider"</span>))</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>Anxiety <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">45</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">35</span>, <span class="dv">55</span>, <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">45</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">40</span>, <span class="dv">35</span>, <span class="dv">50</span>, <span class="dv">55</span>, </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>             <span class="dv">65</span>, <span class="dv">55</span>, <span class="dv">50</span>, <span class="dv">35</span>, <span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">60</span>, <span class="dv">39</span>)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>spiderLong <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(Group, Anxiety)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="the-independent-t-test-using-r-commander" class="level4">
+<h4 class="anchored" data-anchor-id="the-independent-t-test-using-r-commander">9.5.2.3. The independent <em>t</em>-test using R Commander</h4>
+<p>Import data -&gt; Statistics -&gt; Means -&gt; Independent samples <em>t</em>-test.</p>
+</section>
+<section id="exploring-data-and-testing-assumptions" class="level4">
+<h4 class="anchored" data-anchor-id="exploring-data-and-testing-assumptions">9.5.2.4. Exploring data and testing assumptions</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>spiderBoxplot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(spiderLong, <span class="fu">aes</span>(Group, Anxiety))</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>spiderBoxplot <span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Type of Stimulus"</span>, <span class="at">y =</span> <span class="st">"Anxiety"</span>) <span class="sc">+</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>), <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">100</span>, <span class="at">by =</span> <span class="dv">10</span>)</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_9_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>bar <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(spiderLong, <span class="fu">aes</span>(Group, Anxiety))</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>bar <span class="sc">+</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y =</span> mean, <span class="at">geom =</span> <span class="st">"bar"</span>, <span class="at">fill =</span> <span class="st">"White"</span>, <span class="at">colour =</span> <span class="st">"Black"</span>) <span class="sc">+</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> mean_cl_normal, <span class="at">geom =</span> <span class="st">"pointrange"</span>) <span class="sc">+</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Type of Stimulus"</span>, <span class="at">y =</span> <span class="st">"Anxiety"</span>) <span class="sc">+</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">60</span>), <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">60</span>, <span class="at">by =</span> <span class="dv">10</span>)</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 rows containing non-finite values (`stat_summary()`).
+Removed 1 rows containing non-finite values (`stat_summary()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_9_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>On face value, there are no between-group differences. To get some descriptive statistics for each group we can use the <code>by()</code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(spiderLong<span class="sc">$</span>Anxiety, spiderLong<span class="sc">$</span>Group, stat.desc, <span class="at">basic =</span> <span class="cn">FALSE</span>, <span class="at">norm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>spiderLong$Group: Picture
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+  40.0000000   40.0000000    2.6827168    5.9046200   86.3636364    9.2932038 
+    coef.var     skewness     skew.2SE     kurtosis     kurt.2SE   normtest.W 
+   0.2323301    0.0000000    0.0000000   -1.3939289   -0.5656047    0.9650165 
+  normtest.p 
+   0.8522870 
+------------------------------------------------------------ 
+spiderLong$Group: Real Spider
+       median          mean       SE.mean  CI.mean.0.95           var 
+ 50.000000000  47.000000000   3.183765638   7.007420922 121.636363636 
+      std.dev      coef.var      skewness      skew.2SE      kurtosis 
+ 11.028887688   0.234657185  -0.005590699  -0.004386224  -1.459758279 
+     kurt.2SE    normtest.W    normtest.p 
+ -0.592315868   0.948872904   0.620569431 </code></pre>
+</div>
+</div>
+<p>Both normality tests are non-significant, implying that we can probably assume normality of errors in the model.</p>
+</section>
+<section id="the-independent-t-test-using-r" class="level4">
+<h4 class="anchored" data-anchor-id="the-independent-t-test-using-r">9.5.2.5. The independent <em>t</em>-test using R</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>ind.t.test <span class="ot">&lt;-</span> <span class="fu">t.test</span>(Anxiety <span class="sc">~</span> Group, <span class="at">data =</span> spiderLong)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>ind.t.test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Welch Two Sample t-test
+
+data:  Anxiety by Group
+t = -1.6813, df = 21.385, p-value = 0.1072
+alternative hypothesis: true difference in means between group Picture and group Real Spider is not equal to 0
+95 percent confidence interval:
+ -15.648641   1.648641
+sample estimates:
+    mean in group Picture mean in group Real Spider 
+                       40                        47 </code></pre>
+</div>
+</div>
+<p>The above code created a model called <code>ind.t.test</code> based on predicting anxiety scores (<strong>Anxiety</strong>) from group membership (<strong>Group</strong>).</p>
+<p>Alternatively, if we use the data <code>spiderWide</code> as an input, we would need to run the <em>t</em>-test by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>ind.t.test <span class="ot">&lt;-</span> <span class="fu">t.test</span>(spiderWide<span class="sc">$</span>real, spiderWide<span class="sc">$</span>picture)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>ind.t.test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Welch Two Sample t-test
+
+data:  spiderWide$real and spiderWide$picture
+t = 1.6813, df = 21.385, p-value = 0.1072
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -1.648641 15.648641
+sample estimates:
+mean of x mean of y 
+       47        40 </code></pre>
+</div>
+</div>
+</section>
+<section id="output-from-the-independent-t-test" class="level4">
+<h4 class="anchored" data-anchor-id="output-from-the-independent-t-test">9.5.2.6. Output from the independent <em>t</em>-test</h4>
+<p>The degrees of freedom are calculated by adding the two sample sizes and then subtracting the number of samples. However, the output reports 21.39. This discrepancy is because this function uses a <strong>Welch’s <em>t</em>-test</strong>, which does not make the assumption of homogeneity of variance. The Welch uses a correction which adjusts the degrees of freedom based on the homogeneity of variance.</p>
+</section>
+<section id="robust-methods-to-compare-independent-means" class="level4">
+<h4 class="anchored" data-anchor-id="robust-methods-to-compare-independent-means">9.5.2.7. Robust methods to compare independent means</h4>
+<p>Wilcox (2005) describes some robust procedures for comparing two means from independent groups.</p>
+<p>The first robust function, <code>yuen()</code>, is based on a trimmed mean. It takes the general form:<br>
+<code>yuen(scores group 1, scores group 2, tr = .2, alpha = .05)</code>, in which:</p>
+<ul>
+<li><p><code>scores group 1(2)</code> is a variable that contains the scores for the first(second) group.</p></li>
+<li><p><code>tr</code> is the proportion of trimming to be done. The default is 20%.</p></li>
+<li><p><code>alpha</code> sets the alpha level for the test.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">any</span>(<span class="fu">is.na</span>(spiderWide<span class="sc">$</span>real))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">any</span>(<span class="fu">is.na</span>(spiderWide<span class="sc">$</span>picture))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(spiderWide<span class="sc">$</span>real)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "integer"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(spiderWide<span class="sc">$</span>picture)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "integer"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(spiderWide<span class="sc">$</span>real)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 11.02889</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(spiderWide<span class="sc">$</span>picture)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9.293204</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># yuen(formula = real ~ picture, tr = 0.1, data = spiderWide)</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="co"># yuen(spiderWide$real ~ spiderWide$picture)</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a><span class="co"># yuen(spiderWide$real ~ spiderWide$picture, tr = .1)</span></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a><span class="co"># yuenbt(spiderWide$real, spiderWide$picture, nboot = 2000)</span></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a><span class="co"># pb2gen(spiderWide$real, spiderWide$picture, alpha = .05, nboot = 2000, est = mom)</span></span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a><span class="co"># pb2gen(spiderWide$real, spiderWide$picture, nboot = 2000)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculating-the-effect-size" class="level4">
+<h4 class="anchored" data-anchor-id="calculating-the-effect-size">9.5.2.8. Calculating the effect size</h4>
+<p><span class="math inline">\(r=\sqrt{\frac{t^2}{t^2 + df}}\)</span> converts a <em>t</em>-value into an <em>r</em>-value. Even though our <em>t</em>-statistic is statistically significant, this doesn’t mean our effect is important in practical terms. We can also calculate <em>r</em> using <strong>R</strong> by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>t <span class="ot">&lt;-</span> ind.t.test<span class="sc">$</span>statistic[[<span class="dv">1</span>]]</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.681346</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> ind.t.test<span class="sc">$</span>parameter[[<span class="dv">1</span>]]</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 21.38502</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(t<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (t<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> df))</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>r</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3416978</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(r, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.342</code></pre>
+</div>
+</div>
+<p>The ‘<code>[[1]]</code>’ tells <strong>R</strong> that we want the first value only.</p>
+</section>
+<section id="reporting-the-independent-t-test" class="level4">
+<h4 class="anchored" data-anchor-id="reporting-the-independent-t-test">9.5.2.9. Reporting the independent <em>t</em>-test</h4>
+<ul>
+<li>On average, participants experienced great anxiety from real spiders (M = 47.00, SE = 3.18), than from pictures of spiders (M = 40.00, SE = 2.68). This difference was not significant t(21.39) = -1.68, p &gt; .05; however, it did represent a medium-sized effect r = .34</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="the-dependent-t-test" class="level2">
+<h2 class="anchored" data-anchor-id="the-dependent-t-test">9.6. The dependent <em>t</em>-test</h2>
+<p><span class="math inline">\(t = \frac{D-\mu_D}{\frac{s_D}{\sqrt{N}}}\)</span> <span class="math inline">\(D\)</span> : The mean difference between our samples<br>
+<span class="math inline">\(\mu_D\)</span> : The difference that we would expect to find between population means<br>
+Denominator: The SE of the differences</p>
+<p>This equation compares he mean difference between our samples to the difference that we would expect to find between population means, and then takes into account the standard error of the differences. If the null hypothesis is true, then we expect there to be no difference between the population means.</p>
+<section id="sampling-distributions-and-the-standard-error" class="level3">
+<h3 class="anchored" data-anchor-id="sampling-distributions-and-the-standard-error">9.6.1. Sampling distributions and the standard error</h3>
+<p>The standard error is the standard deviation of the sampling distribution.</p>
+<p>Three properties of sampling distribution:</p>
+<ul>
+<li><p>If the population is normally distributed, the sampling distribution is normally distributed.</p></li>
+<li><p>The mean of the sampling distribution is equal to the mean of the population.</p></li>
+<li><p>The SD of sampling distribution is equal to the standard deviation of the population divided by the square root of the number of observations in the sample. This SD is known as the standard error.</p></li>
+</ul>
+<p>Most of the time, the difference between sample means from the same population will be zero, or close to zero. The <strong>standard error of differences</strong> is the SD of the sampling distribution. A small SE tells us that most pairs of samples from a population will have very similar means. A large SE tells us that sample means can deviate quite a lot from the population mean.</p>
+</section>
+<section id="the-dependent-t-test-equation-explained" class="level3">
+<h3 class="anchored" data-anchor-id="the-dependent-t-test-equation-explained">9.6.2. The dependent <em>t</em>-test equation explained</h3>
+<p>The average difference is calculated by adding the differences between each person’s score in each condition (total amount of difference) and dividing this by the number of participants. This average difference is an indicator of the systematic variation in the data, which represents the experimental effect. We need to compare this systematic variation against some kind of measure of the ‘systematic variation that we could naturally expect to find’.</p>
+<p>The SE is a measure of the error in the mean as a model of the population. If we had taken two random samples from a population, then the means could be different just by chance. The SE tells us by how much these samples could differ. Our model is the average difference between condition means, and we divide by the SE which represents the error associated with this model.</p>
+<p>By dividing by the SE we are doing two things:</p>
+<ul>
+<li><p>Standardizing the average difference between conditions.</p></li>
+<li><p>Contrasting the difference between means that we have against the difference that we could <em>expect</em> to get based on how well the samples represent the populations from which they came.</p></li>
+</ul>
+<p>In a perfect world, we could calculate the SE by taking all possible pairs of samples from a population, but it’s impossible. Therefore, we estimate the standard error from the SD of differences obtained within the sample <span class="math inline">\(s_D\)</span> and the sample size <span class="math inline">\(N\)</span>.</p>
+<p>If the SE of differences is a measure of the unsystematic variation within the data, and the sum of difference scores represents the systematic variation, then it should be clear that the <em>t</em>-statistic is simply the ratio of the systematic variation in the experiment to the unsystematic variation.</p>
+<ul>
+<li><p>Unsystematic variation: Difference created by unknown factors.</p></li>
+<li><p>Systematic variation: Difference created by a specific experimental manipulation.</p></li>
+</ul>
+<p>If the experimental manipulation creates any kind of effect, then we would expect the systematic variation to be much greater than the unsystematic variation (therefore, <em>t</em> &gt; 1). We can compare the obtained value of <em>t</em> against the maximum value we would expect to get by chance alone in a <em>t</em>-distribution with the same degrees of freedom. If the value we obtain exceeds this critical value, we can be confident that this reflects an effect of our independent variable.</p>
+</section>
+<section id="dependent-t-tests-using-r" class="level3">
+<h3 class="anchored" data-anchor-id="dependent-t-tests-using-r">9.6.3. Dependent <em>t</em>-tests using R</h3>
+<section id="general-procedure-for-the-dependent-t-test" class="level4">
+<h4 class="anchored" data-anchor-id="general-procedure-for-the-dependent-t-test">9.6.3.1. General procedure for the dependent <em>t</em>-test</h4>
+<ul>
+<li><p>Enter data.</p></li>
+<li><p>Graph the data, compute some descriptive statistics, check distributional assumptions.</p></li>
+<li><p>Run the <em>t</em>-test.</p></li>
+<li><p>Calculate an effect size.</p></li>
+</ul>
+</section>
+<section id="entering-data-1" class="level4">
+<h4 class="anchored" data-anchor-id="entering-data-1">9.6.3.2. Entering data</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>picture <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">45</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">35</span>, <span class="dv">55</span>, <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">45</span>, <span class="dv">40</span>, <span class="dv">50</span>)</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>real <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">35</span>, <span class="dv">50</span>, <span class="dv">55</span>, <span class="dv">65</span>, <span class="dv">55</span>, <span class="dv">50</span>, <span class="dv">35</span>, <span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">60</span> ,<span class="dv">39</span>)</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>spiderWide <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(picture, real)</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>spiderWide</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   picture real
+1       30   40
+2       35   35
+3       45   50
+4       40   55
+5       50   65
+6       35   55
+7       55   50
+8       25   35
+9       30   30
+10      45   50
+11      40   60
+12      50   39</code></pre>
+</div>
+</div>
+</section>
+<section id="the-dependent-t-test-using-r-commander" class="level4">
+<h4 class="anchored" data-anchor-id="the-dependent-t-test-using-r-commander">9.6.3.3. The dependent <em>t</em>-test using R Commander</h4>
+<p>Statistics -&gt; Means -&gt; Paired <em>t</em>-test</p>
+</section>
+<section id="exploring-data-and-testing-assumptions-1" class="level4">
+<h4 class="anchored" data-anchor-id="exploring-data-and-testing-assumptions-1">9.6.3.4. Exploring data and testing assumptions</h4>
+<p>By executing the following command, we can get descriptive statistics:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stat.desc</span>(spiderWide, <span class="at">basic =</span> <span class="cn">FALSE</span>, <span class="at">norm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                picture          real
+median       40.0000000  50.000000000
+mean         40.0000000  47.000000000
+SE.mean       2.6827168   3.183765638
+CI.mean.0.95  5.9046200   7.007420922
+var          86.3636364 121.636363636
+std.dev       9.2932038  11.028887688
+coef.var      0.2323301   0.234657185
+skewness      0.0000000  -0.005590699
+skew.2SE      0.0000000  -0.004386224
+kurtosis     -1.3939289  -1.459758279
+kurt.2SE     -0.5656047  -0.592315868
+normtest.W    0.9650165   0.948872904
+normtest.p    0.8522870   0.620569431</code></pre>
+</div>
+</div>
+<p>Parametric tests assume that the sampling distribution is normal. This should be true in large samples, but in small samples we often check the normality of our data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>spiderWide<span class="sc">$</span>diff<span class="ot">&lt;-</span>spiderWide<span class="sc">$</span>real<span class="sc">-</span>spiderWide<span class="sc">$</span>picture</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>spiderWide</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   picture real diff
+1       30   40   10
+2       35   35    0
+3       45   50    5
+4       40   55   15
+5       50   65   15
+6       35   55   20
+7       55   50   -5
+8       25   35   10
+9       30   30    0
+10      45   50    5
+11      40   60   20
+12      50   39  -11</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stat.desc</span>(spiderWide<span class="sc">$</span>diff, <span class="at">basic =</span> <span class="cn">FALSE</span>, <span class="at">desc =</span> <span class="cn">FALSE</span>, <span class="at">norm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  skewness   skew.2SE   kurtosis   kurt.2SE normtest.W normtest.p 
+-0.2464810 -0.1933785 -1.2342159 -0.5007991  0.9557903  0.7224801 </code></pre>
+</div>
+</div>
+<p>The output shows that the distribution of differences is not significantly different form normal, W = 0.956, p &gt; .05.</p>
+</section>
+<section id="the-dependent-t-test-using-r" class="level4">
+<h4 class="anchored" data-anchor-id="the-dependent-t-test-using-r">9.6.3.5. The dependent <em>t</em>-test using R</h4>
+<p>We again use the function <code>t.test()</code>, but this time we include the option <code>paired = TRUE</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>dep.t.test <span class="ot">&lt;-</span> <span class="fu">t.test</span>(spiderWide<span class="sc">$</span>real, spiderWide<span class="sc">$</span>picture, <span class="at">paired =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>dep.t.test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Paired t-test
+
+data:  spiderWide$real and spiderWide$picture
+t = 2.4725, df = 11, p-value = 0.03098
+alternative hypothesis: true mean difference is not equal to 0
+95 percent confidence interval:
+  0.7687815 13.2312185
+sample estimates:
+mean difference 
+              7 </code></pre>
+</div>
+</div>
+<p>If we had our data stored in long format so that our group scores are in a single column and group membership is expressed in a second column, we can still run a dependent <em>t</em>-test by executing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>dep.t.test <span class="ot">&lt;-</span> <span class="fu">t.test</span>(Anxiety <span class="sc">~</span> Group, <span class="at">data =</span> spiderLong, <span class="at">paired =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>dep.t.test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Paired t-test
+
+data:  Anxiety by Group
+t = -2.4725, df = 11, p-value = 0.03098
+alternative hypothesis: true mean difference is not equal to 0
+95 percent confidence interval:
+ -13.2312185  -0.7687815
+sample estimates:
+mean difference 
+             -7 </code></pre>
+</div>
+</div>
+</section>
+<section id="output-from-the-dependent-t-test" class="level4">
+<h4 class="anchored" data-anchor-id="output-from-the-dependent-t-test">9.6.3.6. Output from the dependent <em>t</em>-test</h4>
+<p>The probability for the spider data is very low (p = .031) and in fact it tells us that there is only a 3.1% chance that a value of <em>t</em> this big could happen if the null hypothesis were true. Therefore, the result<br>
+<em>t(</em>11) = 2.47, p &lt; .05 is significant.</p>
+<p>The output also provides a 95% confidence interval <strong>for the mean difference</strong>. The confidence interval tells us the boundaries within which the true mean difference is likely to lie. <strong>So, assuming this sample’s confidence interval is one of the 95 out of 100 that contains the population value, we can say that the true mean difference lies between 0.77 and 13.23.</strong> The importance of this interval is that it does not contain zero (both limits are positive) because this tells us that the true value of the mean difference is unlikely to be zero. If we were to compare pairs of random samples from a population, we would expect most of the differences between sample means to be zero. But since our interval, based on our two samples, does not contain zero, we can be confident that our two samples do not represent random samples from the same population. Instead, they represent samples from different populations induced by the experimental manipulation.</p>
+</section>
+<section id="robust-methods-to-compare-dependent-means" class="level4">
+<h4 class="anchored" data-anchor-id="robust-methods-to-compare-dependent-means">9.6.3.7. Robust methods to compare dependent means</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="co"># yuend(spiderWide$real, spiderWide$picture)</span></span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ydbt(spiderWide$real, spiderWide$picture, nboot = 2000)</span></span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="co"># bootdcpi(spiderWide$real, spiderWide$picture, est = tmean, nboot = 2000)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculating-the-effect-size-1" class="level4">
+<h4 class="anchored" data-anchor-id="calculating-the-effect-size-1">9.6.3.8. Calculating the effect size</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>t <span class="ot">&lt;-</span> dep.t.test<span class="sc">$</span>statistic[[<span class="dv">1</span>]]</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> dep.t.test<span class="sc">$</span>parameter[[<span class="dv">1</span>]]</span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(t<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (t<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> df))</span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(r, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.598</code></pre>
+</div>
+</div>
+<p>The <em>r</em> is calculated as 0.598, which indicates that the effect is large.</p>
+</section>
+<section id="reporting-the-dependent-t-test" class="level4">
+<h4 class="anchored" data-anchor-id="reporting-the-dependent-t-test">9.6.3.9. Reporting the dependent <em>t</em>-test</h4>
+<ul>
+<li>On average, experienced significantly greater anxiety from real spiders (M = 47.00, SE = 3.18) than from pictures of spiders (M = 40.00, SE = 2.68), t(11) = 2.47, p &lt; .05, r = .60.</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="between-groups-or-repeated-measures" class="level2">
+<h2 class="anchored" data-anchor-id="between-groups-or-repeated-measures">9.7. Between groups or repeated measures?</h2>
+<p>There was a significant difference between means when the data was analysed from the same participants, but the difference between means was not significant when the data was analysed from different participants. When the same participants are used across conditions the unsystematic variance (error variance) is reduced dramatically, making it easier to detect any systematic variance.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

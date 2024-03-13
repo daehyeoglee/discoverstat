@@ -1,0 +1,526 @@
+---
+title: "Chapter 19. Multilevel linear models"
+author: "Daehyeog Lee"
+date: "2023-03-02"
+date-modified: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+## 19.1. What will this chapter tell me?
+
+## 19.2. Hierarchical data
+
+Data are often hierarchical. This means that some variables are clustered or *nested* within other variables. If we are experimenting with students from different classes, the classroom is known as a *contextual variable*. Our manipulation of the information that we give the children also has to be placed within the context of the classroom to which the child belongs. If we run a study incorporating lots of different schools, as well as different classrooms within those schools, then we would have to add another level to the hierarchy.
+
+Hierarchical data structures can also be nested within people. The information can be nested within the person and their recall depends on the person. As such, the person acts as a context within which memories are recalled.
+
+### 19.2.1. The intraclass correlation
+
+The main problem is that the contextual variables in the hierarchy introduce dependency in the data. This means that residuals will be correlated. This similarity is a problem because we always assumed that cases are independent. However, when entities are sampled from similar contexts, this independence is unlikely to be true.
+
+By thinking about contextual variables and factoring them into the analysis we can overcome this problem of non-independent observations. One way to do this is using the intraclass correlation (ICC). In the classroom example, the ICC represents the proportion of the total variability in the outcome that is attributable to the classes. If a class has had a big effect on the children within it then the variability within the class will be small (children will behave similarly). If the class has little effect on the children then the outcome will vary a lot within classes, which will make differences between classes relatively small, therefore, small ICC.
+
+### 19.2.2. Benefits of multilevel models
+
+-   When we do ANCOVA, we have to assume that the relationship between our covariate and our outcome is the same across the different groups that make up our predictor variable. However, in multilevel models, we can explicitly model this variability in regression slopes.
+
+-   In independent ANOVA we have to assume that the different cases of data are independent. However, multilevel models are specifically designed to allow us to model these relationships between cases.
+
+-   Multilevel models do not require complete data sets and so when data are missing for one time point they do not need to be imputed, nor does the whole case need to be deleted.
+
+## 19.3. Theory of multilevel linear models
+
+### 19.3.1. An example
+
+There are two main reasons to have cosmetic surgery: (1) for physical reason (relieve main), (2) for psychological reason (improve self-esteem). We look at the effect of cosmetic surgery on quality of life (QoL).
+
+People being treated in the same surgeries are not independent of each other because they will have had surgery fro the same surgeon.
+
+### 19.3.2. Fixed and random coefficients
+
+-   **Fixed effect**: All possible treatment conditions that a researcher is interested in are present in the experiment. Fixed effects can be **generalized only to the situations in our experiment**. A fixed variable is one that never supposed to change over time.
+
+-   **Random effect**: The experiment contains only a random sample of possible treatment conditions. It cn be **generalized beyond the treatment conditions in the experiment**. A random variable varies over time.
+
+In the context of multilevel models we need to make a distinction between fixed coefficients and random coefficients. Up until now we have thought of regression models as having fixed intercepts and fixed slopes.
+
+#### 19.3.2.1. The random intercept model
+
+The simplest way to introduce random parameters into the model is to assume that the intercepts vary across contexts. Because the intercepts vary, we call them **random intercepts**. In the random intercept model, the relationship between variables is the same, but the models for each group are in different locations (have different intercepts).
+
+#### 19.3.2.2. Random slope model
+
+We can also assume that the slopes vary across contexts. Homogeneity of regression slopes is the assumption that regression slopes are the same across contexts. If this assumption is not tenable then we can use a multilevel model to explicitly estimate that variability in slopes.
+
+#### 19.3.2.3. The random intercept and slope model
+
+The most realistic situation is to assume that both intercepts and slopes vary around the overall model.
+
+## 19.4. The multilevel model
+
+Since we have a level 2 variable, we can allow the model that represents the effect of surgery on quality of life to vary across clinics, or by allowing the slopes to vary across clinics or by allowing both to vary across clinics.
+
+For the intercept, the intercept changes from $b_0$ to become $b_0 + u_{0j}$, therefore $Y_{ij} = (b_0 + u_{0j}) + b_1X_{ij} + \epsilon_{ij}$. The *j*s reflect levels of the variable over which the intercept varies (in this case the clinic).
+
+If we want to include random slopes, the gradient changes from $b_1 + u_{1j}$, therefore $Y_{ij} = b_0 + (b_1 + u_{1j})X_{ij} + \epsilon_{ij}$.
+
+If we want to model a situation with random slopes *and* interactions, we combine the two models above, therefore
+
+$Y_{ij} = (b_0 + u_{0j}) + (b_1 + u_{1j})X_{ij} + \epsilon_{ij}$
+
+$= b_{0j} + b_{1j}X_{ij} + \epsilon_{ij}$
+
+Multilevel model is a fancy regression in which we allow either the intercepts or slopes, or both, to vary across different contexts. We can add new predictors to the model and for each one decide whether its regression parameter is fixed or random
+
+### 19.4.1. Assessing the fit and comparing multilevel models
+
+The overall fit of a multilevel model is tested using a chi-square likelihood ratio test and **R** reports the -2log-likelihood. The smaller the value of the log-likelihood, the better. **R** also provides two adjusted versions of the log-likelihood value:
+
+-   **AIC**: A goodness-of-fit measure that is corrected for model complexity.
+
+-   **BIC**: Similar to AIC, although it is slightly more conservative.
+
+Many writers recommend building up multilevel models starting with a 'basic' model in which all parameters are fixed and then adding in random coefficients as appropriate and exploring confounding variables.
+
+## 19.4.2. Types of covariance structures
+
+If we have any random effects or repeated measures in our multilevel model then we have to decide upon the *covariance structure* of our data. The **covariance structure** simply specifies the form of the variance-covariance matrix. This is important because **R** uses it as a starting point to estimate the model parameters. If we make specify a covariance structure that is too simple then we are more likely to make a Type I error. If the covariance structure is too complex, we are risk of making a Type II error.
+
+Four covariance structures
+
+-   **Variance components (Independence model)**: It assumes that all random effects are independent. Variances of random effects are assumed to be the same.
+
+-   **Diagonal**: This is like variance components except that variances are assumed to be heterogeneous. This structure assumes that variances are independent and, therefore, that all of the covariances are 0.
+
+-   **AR(1) (First-order autoregressive structure)**: The relationship between variances changes in a systematic way. The correlation between time points next to each other are assumed to be $\rho$, scores two intervals apart are assumed to have correlations of $\rho^2$, ... . So, the correlation between scores gets smaller over time.
+
+-   **Unstructured**: This structure is completely general, and the covariances are assumed to be completely unpredictable.
+
+## 19.5. Some practical issues
+
+### 19.5.1. Assumptions
+
+Multilevel linear models are an extension of regression, so all of the assumptions for regression apply to multilevel models. However, the assumptions of independence and independent errors can sometimes be solved by a multilevel model because the purpose of this model is to factor in the correlations between cases caused by higher-level variables.
+
+Two additional assumptions:
+
+-   For random intercepts model, the intercepts in the different contexts are assumed to be normally distributed around the overall model.
+
+-   For random slopes model, the slopes of the models in different contexts are assumed to be normally distributed.
+
+### 19.5.2. Sample size and power
+
+As more levels are introduced into the model, more parameters need to be estimated and the larger the sample sizes need to be.
+
+### 19.5.3. Centring variables
+
+**Centring** refers to the process of transforming a variable into deviations around a fixed point. Typically, we use the grand mean for the fixed point.
+
+Two forms of centring:
+
+-   **Grand mean centring**: For a given variable we take each score and subtract from it the mean of all scores. It should be used when the primary interest is in the level 2 variable but we want to control for the level 1 covariate.
+
+-   **Group mean centring**: For a given variable we take each score and subtract from it the mean of the scores within a given group. It should be used if the primary interest is in an association between variables measured at level 1. It is also preferable for examining cross-level interactions.
+
+For example, if we are using heart rate as a predictor variable then a value of 0 would be meaningless. Centring heart rate around its mean changes the meaning of the intercept. The intercept becomes the value of the outcome when heart rate is its average value.
+
+In general terms, if all predictors are centred around their mean then the intercept is the value of the outcome when all predictors are the value of their mean. The decision about whether to centre or not is quite complicated. Centring can be a useful way to deal with multicollinearity between predictor variables. It's also helpful when predictors do not have a meaningful zero point.
+
+## 19.6. Multilevel modelling in R
+
+### 19.6.1. Packages for multilevel modelling in R
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme); library(clinfun); library(pgirmess)
+library(MASS); library(mvoutlier); library(mvnormtest)
+library(corpcor); library(GPArotation); library(psych); library(DSUR.noof)
+```
+
+### 19.6.2. Entering the data
+
+```{r}
+surgeryData = read.delim(here("ch19", "Cosmetic Surgery.dat"), header = TRUE)
+head(surgeryData)
+```
+
+### 19.6.3. Picturing the data
+
+```{r}
+pgrid <- ggplot(surgeryData, aes(Base_QoL, Post_QoL))
+pgrid +
+  geom_point(aes(colour = Surgery_Text)) +
+  geom_smooth(aes(colour = Surgery_Text), method = "lm", se = F) +
+  facet_wrap(~Clinic, ncol = 5) +
+  labs(x = "Quality of Life (Baseline)", y = "Quality of Life (After Surgery)")
+```
+
+### 19.6.4. Ignoring the data structure: ANOVA
+
+```{r}
+surgeryANOVA <- aov(Post_QoL~Surgery, data = surgeryData)
+summary(surgeryANOVA)
+
+surgeryLinearModel <- lm(Post_QoL~Surgery, data = surgeryData)
+summary(surgeryLinearModel)
+```
+
+When analysing the data with a simple one-way independent ANOVA, we found a non-significant effect of surgery on quality of life, $F(1, 274) = 0.33, p > .05$.
+
+If we ignore the hierarchical structure of the data, then what we are left with something very familiar: an ANOVA/regression.
+
+### 19.6.5. Ignoring the data structure: ANCOVA
+
+```{r}
+surgeryANCOVA <- aov(Post_QoL~Base_QoL + Surgery, data = surgeryData)
+summary(surgeryANCOVA)
+Anova(surgeryANCOVA, type = "III")
+
+surgeryLinearModel <- lm(Post_QoL~Surgery + Base_QoL, data = surgeryData)
+summary(surgeryLinearModel)
+```
+
+With baseline quality of life included, we found a significant effect of surgery on quality of life, $F(1, 273) = 4.04, p < .05$. Baseline quality of life also predicted quality of life after surgery, $F(1, 273) = 214.89, p < .001$.
+
+To sum up, we have seen that when we factor in the pre-surgery quality of life scores, which themselves significantly predict post-surgery quality of life scores, surgery seems to positively affect quality of life. However, at this stage we have ignored the fact that our data have a hierarchical structure. We have violated the independence assumption because scores from people who had their surgery at the same clinic are likely to be related to each other.
+
+### 19.6.6. Assessing the need for a multilevel model
+
+We have to ascertain whether there is variation over our contexts. First, we need to fit a baseline model in which we include only the intercept. Next, we fit a model that allows intercepts to vary over contexts. Finally, we compare these two models to see whether the fit has improved as a result of allowing intercepts to vary.
+
+```{r}
+# Baseline model that includes only the intercept
+interceptOnly <- gls(Post_QoL ~ 1, data = surgeryData, method = "ML")
+summary(interceptOnly)
+```
+
+Next, we need to fit the same model, but this time allowing the intercepts to vary across contexts (clinics). We need to specify the random part of the model using the option `random = x|y`, in which `x` is an equation specifying the random parts of the model and `y` is the contextual variable or variables across which we want to model variance.
+
+In the current example, we are trying to model intercepts that vary across clinics; therefore, we could add the instruction `random = ~ 1|Clinic`. We use `1` to denote the intercept, and that `Clinic` is the variable that contains information about the clinic that a given person attended:
+
+```{r}
+randomInterceptOnly <-
+  lme(Post_QoL ~ 1, data = surgeryData, random =~ 1|Clinic, method = "ML")
+summary(randomInterceptOnly)
+
+logLik(interceptOnly) * (-2)
+logLik(randomInterceptOnly) * (-2)
+
+anova(interceptOnly, randomInterceptOnly)
+```
+
+-   When intercepts are allowed to vary, the BIC value got smaller. The smaller values of BIC indicate a better fit of the data.
+
+-   $\chi_{change}^2 = 2013.12 - 1905.47 = 107.65$, $df_{change} = 3 - 2 = 1$. This is highly significant, which is the same as the output of `anova(interceptOnly, randomInterceptOnly)`.
+
+We can conclude that the intercepts vary significantly across the different clinics.
+
+### 19.6.7. Adding in fixed effects
+
+However, we originally had hypotheses about how surgery and baseline quality of life will affect quality of life after surgery. Therefore, we add the `Surgery` variable. We replace `Post_QoL ~ 1` with `Post_QoL ~ Surgery`:
+
+```{r}
+randomInterceptSurgery <-
+  lme(
+    Post_QoL ~ Surgery, data = surgeryData, random = ~ 1|Clinic, method = "ML"
+    )
+summary(randomInterceptSurgery)
+```
+
+`Surgery` has not improved the fit of the model.
+
+Next, we have a final model that also included baseline quality of life, so we add that fixed effect. We replace `Post_QoL ~ 1` with `Post_QoL ~ Surgery + Base_Qol`:
+
+```{r}
+randomInterceptSurgeryQoL <-
+  lme(
+    Post_QoL~Surgery + Base_QoL,
+    data = surgeryData,
+    random = ~ 1|Clinic, method = "ML"
+    )
+summary(randomInterceptSurgeryQoL)
+```
+
+The BIC and AIC have both decreased since the previous model. We can compare these models by using the `anova()` function:
+
+```{r}
+anova(randomInterceptOnly, randomInterceptSurgery, randomInterceptSurgeryQoL)
+```
+
+We can see that in model 3, adding the effect of baseline quality of life, had a dramatic effect. The *-2LL* changed by 64.65 and this change was highly significant, $\chi^2(1) = 64.65, p < .0001$.
+
+### 19.6.8. Introducing random slopes
+
+Whereas before we specified random part of the model is `random = 1|Clinic`, we now need to change this to `random ~ Surgery|Clinic`. This change tells **R** that the model now allows the effect of `Surgery` to vary across clinics. This change will give us both random intercepts over clinics, but also random slopes for the variable `Surgery`:
+
+```{r}
+addRandomSlope <-
+  lme(
+    Post_QoL~Surgery + Base_QoL,
+    data = surgeryData,
+    random = ~Surgery|Clinic,
+    method = "ML"
+    )
+summary(addRandomSlope)
+
+anova(randomInterceptSurgeryQoL,addRandomSlope)
+```
+
+By allowing the effect of Surgery to vary across clinics we have reduced the BIC from 1865.59 to 1837.97, and the *-2LL* has changed significantly, $\chi^2(2) = 38.87, p < .0001$. In short, adding random slopes to the model has significantly improved its fit, **which means there is significant variability in the effect of surgery across clinics.**
+
+Across this model and the previous one, we can conclude from the *-2LL* as we built up the models that the intercepts, $\chi^2(1) = 64.65, p < .0001$, and slopes, $\chi^2(2) = 38.87, p < .0001$, for the relationship between surgery and quality of life vary significantly across the different clinics.
+
+### 19.6.9. Adding an interaction term to the model
+
+One of the variables we measured was the reason for the person having cosmetic surgery. We can add this variable `Reason` to the model, and also look at whether it interacts with surgery in predicting quality of life:
+
+```{r}
+addReason <-
+  lme(
+    Post_QoL ~ Surgery + Base_QoL + Reason,
+    data = surgeryData,
+    random = ~Surgery|Clinic,
+    method = "ML"
+    )
+summary(addReason)
+```
+
+The `finalModel` adds interaction term between `Surgery` and `Reason` to the previous model:
+
+```{r}
+finalModel <-
+  lme(
+    Post_QoL ~ Surgery + Base_QoL + Reason + Reason:Surgery,
+    data = surgeryData,
+    random = ~Surgery|Clinic,
+    method = "ML"
+    )
+summary(finalModel)
+```
+
+Quality of life before surgery significantly predicted quality of life after surgery, $t(262) = 5.75, p < .001$, surgery still didn't significantly predict quality of life, $t(262) = -1.46, p = .15$, but the reason for surgery, $t(262) = -3.08, p < .01$, and the interaction of the reason for surgery and surgery, $t(262) = 2.48, p < .05$, both did significantly predict quality of life.
+
+Finally, we compare these two models:
+
+```{r}
+anova(addRandomSlope, addReason, finalModel)
+```
+
+Adding `Reason` to the model is not quite a significant change, while adding the `Reason:Surgery` interaction reduces the *-2LL* by 5.78, which is a significant change.
+
+Given that we coded the predictor as 1 = physical reason and 0 = change appearance, the negative coefficient tells us that as reason increases (person goes from having surgery to change their appearance to having it for a physical reason) quality of life decreases.
+
+To break down the interaction, we could rerun the analysis separately for the two 'reason groups':
+
+```{r}
+physicalSubset <- surgeryData$Reason == 1 
+cosmeticSubset <- surgeryData$Reason == 0
+
+physicalModel <-
+  lme(
+    Post_QoL ~ Surgery + Base_QoL,
+    data = surgeryData,
+    random = ~ Surgery|Clinic,
+    subset = physicalSubset,
+    method = "ML"
+    )
+
+cosmeticModel<-
+  lme(
+    Post_QoL~Surgery + Base_QoL,
+    data = surgeryData,
+    random = ~ Surgery|Clinic,
+    subset = cosmeticSubset,
+    method = "ML")
+
+summary(physicalModel)
+summary(cosmeticModel)
+```
+
+For those operated on only to change their appearance, surgery almost significantly predicted quality of life after surgery, $b = -4.31, t(87) = -1.89, p = .06$. The negative gradient shows that for these people quality of life after surgery was lowered compared to the control group.
+
+However, for those who had surgery to solve a physical problem surgery did not significantly predict quality of life, $b = 1.20, t(166) = 0.57, p = .57$. The slope was positive, indicating that people who had surgery scored higher on quality of life than those on the waiting list (although not significant).
+
+## 19.7. Growth models
+
+In a growth model the aim is to look at the rate of change of a variable over time.
+
+### 19.7.1. Growth curves (polynomials)
+
+-   First-order polynomial: Linear trend
+
+-   Second-order polynomial: Quadratic trend
+
+-   Third-order polynomial: Cubic trend
+
+By fitting a growth model to the data we can see which trend best describes the growth of an outcome variable over time.
+
+Two important things to remember when fitting growth curves:
+
+-   We can fit polynomials up to one less than the number of time points that we have.
+
+-   A polynomial is defined by a simple power function.
+
+### 19.7.2. An example: the honeymoon period
+
+Variables:
+
+-   **Satisfaction_Baseline** on a 10-point scale.
+
+-   **Gender**
+
+-   Measures of life satisfaction at **6 months**, **12 months**, and **18 months**.
+
+```{r}
+satisfactionData =
+  read.delim(here("ch19", "Honeymoon Period.dat"), header = TRUE)
+head(satisfactionData)
+```
+
+By looking at the data we can know that
+
+-   time 0 is before the people enter into their new relationship, yet already there is **a lot of variability in their responses**.
+
+-   there is also a lot of variability in life satisfaction after the relationship has started and at all subsequent time points, which suggests that **the slope of the relationship between time and life satisfaction might vary across people** also.
+
+### 19.7.3. Restructuring the data
+
+```{r}
+restructuredData <-
+  melt(
+    satisfactionData,
+    id = c("Person", "Gender"),
+    measured = c
+    (
+      "Satisfaction_Base", "Satisfaction_6_Months",
+      "Satisfaction_12_Months", "Satisfaction_18_Months"
+    )
+  )
+names(restructuredData) <- c("Person", "Gender", "Time", "Life_Satisfaction")
+restructuredData[,"Time"] <- as.numeric(restructuredData[,"Time"]) - 1
+
+head(restructuredData)
+```
+
+### 19.7.4. Setting up the basic model
+
+Because we are working with time series data, we have to model the covariance structure. The most common way to do this is to assume a **first-order autoregressive covariance structure**. This means that data points close in time are assumed to be more highly correlated than data points distant in time.
+
+First, we fit a baseline model in which we include only the intercept:
+
+```{r}
+intercept <-
+  gls(
+    Life_Satisfaction ~ 1,
+    data = restructuredData,
+    method = "ML",
+    na.action = na.exclude
+    )
+```
+
+We have specified that `Life_Satisfaction` is the outcome variable and that it is predicted from only the intercept.
+
+Next, we need to fit the same model, but this time allowing the intercepts to vary across contexts (in this case, people):
+
+```{r}
+randomIntercept <-
+  lme(
+    Life_Satisfaction ~ 1,
+    data = restructuredData,
+    random = ~ 1 | Person,
+    method = "ML",
+    na.action = na.exclude,
+    control = list(opt = "optim")
+    )
+```
+
+We have created a model that predicts life satisfaction from only the intercept (`Life_Satisfaction ~ 1`), but also allows intercepts to vary across people (`random = ~ 1|Person`).
+
+### 19.7.5. Adding in time as a fixed effect
+
+We can quickly update the previous model to include `Time` as a predictor by executing:
+
+```{r}
+timeRI <- update(randomIntercept, .~. + Time)
+```
+
+### 19.7.6. Introducing random slopes
+
+If we want slopes to vary across people as well, then we're saying that the effect of `Time` is different in different people. Therefore, we want to update the random part of the model to be `random = ~ Time|Person`, which means that intercepts and the effects of time (`~Time`) vary across people (`Person`):
+
+```{r}
+timeRS <- update(timeRI, random = ~ Time|Person)
+```
+
+### 19.7.7. Modelling the covariance structure
+
+Now we have a basic random effects model, we can introduce a term that models the covariance structure or errors. We do this by using the option `correlation = x`, where `x` is one of several pre-defined covariance structures:
+
+```{r}
+ARModel <- update(timeRS, correlation = corAR1(0, form = ~Time|Person))
+```
+
+### 19.7.8. Comparing models
+
+```{r}
+anova(intercept, randomIntercept, timeRI, timeRS, ARModel)
+```
+
+-   Adding a random intercept significantly improved the fit of the model.
+
+-   Adding the fixed effect of time to the model significantly improved the fit compared to the previous model.
+
+-   Adding a random slope for the effect of time across participants did not significantly improve the model.
+
+-   Adding a first-order autoregressive covariance structure did more or less significantly improve the model.
+
+For each model the degrees of freedom changed by 1 because we have added only a single parameter.\
+
+```{r}
+summary(ARModel)
+#intervals(ARModel)
+```
+
+The effect of `Time` was highly significant, indicating that life satisfaction significantly changed over the 18 month period. This finding contradicts the results of the log-likelihood statistic, which implied that adding random slopes did not significantly improve the model. This implies that we might be wise to give more weight to the log-likelihood.
+
+### 19.7.9. Adding higher-order polynomials
+
+The main effect, which is the linear trend of time, was significant. However, we might want to check whether there was a more curvilinear change over time. To capture this trend we would need to add a quadratic or perhaps even cubic trend. **R** can create these new quadratic terms by specifying *I* as a new predictor:
+
+```{r}
+# Add quadratic term
+timeQuadratic <- update(ARModel, .~. + I(Time^2))
+
+# Add cubic term
+timeCubic <- update(timeQuadratic, .~. + I(Time^3))
+anova(ARModel, timeQuadratic, timeCubic)
+```
+
+Adding the quadratic term to the model significantly improves the fit. However, adding in the cubic trend does not.
+
+```{r}
+summary(timeCubic)
+intervals(timeCubic)
+```
+
+The trend in the data is best described by a second-order polynomial, or a quadratic trend. This reflects the initial increase in life satisfaction 6 months after finding a new partner but a subsequent reduction in life satisfaction at 12 and 18 months after the start of the relationship.
+
+The outputs for the final model also tell us about the random parameters in the model:
+
+-   The SD of the random intercepts was 1.88. The CI didn't cross zero, which suggests that we were correct to assume that life satisfaction **at baseline** varied significantly across people.
+
+-   The variance of slope of time varied significantly across people and the CI didn't cross zero. This suggests that the change in life satisfaction **over time** varied significantly across people.
+
+### 19.7.10 Further analysis
+
+We could redo the analysis and allow random intercepts and slopes for the higher order polynomial also. To do these we would just have to specify these terms in the random parts of the model.
+
+## 19.8. How to report a multilevel model
+
+-   The relationship between surgery and quality of life showed significant variance in intercepts across participants, SD = 5.48, (95% CI: 3.31, 9.07), $\chi^2(1) = 107.65, p < .0001$. In addition, the slopes varies across participants, SD = 5.42, (95% CI: 3.13, 9.37), $\chi^2(2) = 38.87, p < .0001$, and the slopes and intercepts were negatively and significantly correlated, cor = -.95 (-.99, -.60).
+
+-   Quality of life before surgery significantly predicted quality of life after surgery, $b = 0.31, t(262) = 5.75, p < .001$, surgery did not significantly predict quality of life, $b = -3.19, t(262) = -1.46, p < .15$, but the reason for surgery, $b = 3.52, t(262) = -3.08, p < .01$, and the interaction of the reason for surgery and surgery, $b = 4.22, t(262) = 2.48, p < .05$, both did significantly predict quality of life. This interaction was broken down by conducting separate multilevel models on the 'physical reason' and 'attractiveness reason'. The models specified were the same as the main model but excluded the main effect and interaction term involving the reason for surgery. These analyses showed that for those operated on only to change their appearance, surgery almost significantly predicted quality of life after surgery, $b = 4.31, t(87) = -1.89, p < .06$: quality of life was lower after surgery compared to the control group. However, for those who had surgery to solve a physical problem, surgery did not significantly predict quality of life, $b = 1.20, t(166) = 0.57, p =.57$. The interaction effect, therefore, reflects the difference in slopes for surgery as a predictor of quality of life in those who had surgery for physical problems (slight positive slope) and those who had surgery purely for vanity (a negative slope).
+
+Alternatively, we could present parameter information in a table.

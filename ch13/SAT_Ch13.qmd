@@ -1,0 +1,192 @@
+---
+title: "SMT_Ch12"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here); library(ez); library(nlme)
+```
+
+## SAT2
+
+```{r}
+tutorData <- read.delim(here("ch13", "TutorMarks.dat"), header = TRUE)
+head(marksData)
+longTutor <-
+  melt(
+    tutorData,
+    id = "Essay",
+    measured = c("tutor1", "tutor2", "tutor3", "tutor4")
+    )
+names(longTutor) <- c("Essay", "Tutor", "Mark")
+longTutor$Tutor <- factor(
+  longTutor$Tutor, labels = c("Tutor1", "Tutor2", "Tutor3", "Tutor4"))
+longTutor <- longTutor[order(longTutor$Essay),]
+
+tutorBar <- ggplot(longTutor, aes(Tutor, Mark))
+tutorBar +
+  stat_summary(fun.y = mean, geom = "bar", fill = "White", color = "Black") +
+  stat_summary(fun.data = mean_cl_boot, geom = "pointrange") +
+  labs(x = "Tutor", y = "Mean Percentage Mark")
+
+by(longTutor$Mark, longTutor$Tutor, stat.desc)
+
+T4vsother <- c(1, 1, 1, -3)
+T1vsT2T3 <- c(2, -1, -1, 0)
+T2vsT3 <- c(0, 1, -1, 0)
+contrasts(longTutor$Tutor) <- cbind(T4vsother, T1vsT2T3, T2vsT3)
+
+tutorModel <-
+  ezANOVA(
+    data = longTutor,
+    dv = .(Mark),
+    wid = .(Essay),
+    within = .(Tutor),
+    type = 3,
+    detailed = TRUE
+    )
+tutorModel
+summary(tutorModel)
+```
+
+## SAT3
+
+```{r}
+rovingData <- read.delim(here("ch13", "RovingEye.dat"), header = TRUE)
+head(rovingData)
+longRoving <-
+  melt(
+    rovingData,
+    id = "Participant",
+    measured = c("pint1", "pint2", "pint3", "pint4")
+    )
+head(longRoving)
+names(longRoving) <- c("Participant", "Pint", "Number_of_Women")
+head(longRoving)
+longRoving <- longRoving[order(longRoving$Participant),]
+head(longRoving)
+
+rovingBar <- ggplot(longRoving, aes(Pint, Number_of_Women))
+rovingBar +
+  stat_summary(fun.y = mean, geom = "bar", fill = "White", color = "Black") +
+  stat_summary(fun.data = mean_cl_boot, geom = "pointrange") +
+  labs(x = "Pint", y = "Number_of_Women")
+
+Pint1vsMore <- c(3, -1, -1, -1)
+Pint4vsPint23 <- c(0, -1, -1, 2)
+Pint2vsPint3 <- c(0, 1, -1, 0)
+contrasts(longRoving$Pint) <- cbind(Pint1vsMore, Pint4vsPint23, Pint2vsPint3)
+contrasts(longRoving$Pint)
+
+rovingModel <-
+  ezANOVA(
+    data = longRoving,
+    dv = .(Number_of_Women),
+    wid = .(Participant),
+    within = .(Pint),
+    type = 3,
+    detailed = TRUE
+    )
+rovingModel
+
+pairwise.t.test(
+  longRoving$Number_of_Women,
+  longRoving$Pint,
+  paired = TRUE,
+  p.adjust.method = "bonferroni"
+  )
+```
+
+By adjusting Bonferroni method, we can see that the only difference between condition means is 2 and 3 pints of alcohol.
+
+```{r}
+ezStats(
+  data = longRoving,
+  dv = .(Number_of_Women),
+  wid = .(Participant),
+  within = .(Pint),
+  type = 3
+  )
+```
+
+Result
+
+-   Mauchly's test indicated that the assumption of sphericity had been violated, $W = .48, p = .022$, therefore degrees of freedom were corrected using Huynh-Feldt estimates of sphericity $\epsilon = .85$. The results show that the number of women eyed up was significantly affected by the amount of alcohol drunk, $F(2.55, 48.40) = 4.73, p < .05, r = .40.$ Bonferroni *post hoc* tests revealed a significant difference in the number of women eyed up only between 2 and 3 pints, $p < .05$. No other comparisons were significant.
+
+Using `lme()`
+
+```{r}
+baseline <-
+  lme(
+    Number_of_Women ~ 1,
+    random = ~1|Participant/Pint,
+    data = longRoving,
+    method = "ML"
+    )
+
+rovingModel <- lme(
+  Number_of_Women ~ Pint,
+  random = ~1|Participant/Pint,
+  data = longRoving,
+  method = "ML"
+  )
+
+anova(baseline, rovingModel)
+```
+
+The result tells us that adding the variable `Pint` as a predictor significantly improves the model. The degrees of freedom between the models change from 4 to 7, which is a difference of 3. This is because `Pint` has been coded with three contrasts, which means that three parameters (one for each contrast) have been added to the model. The AIC and BIC tell us about the fit of the model (smaller value = better fit). The fact that these values are smaller in the final model than the baseline tells us that the fit of the model has got better. We can conclude that the number of pints consumed had a significant effect on the number of women that the men eyed up, $\chi^2(3) = 13.34, p = .004$.
+
+```{r}
+summary(rovingModel)
+```
+
+-   \[Contrast 1\] Comparing 1 pint to 2, 3, 4 pints: $b = -0.55, t(57) = -2.14, p = .04$
+
+-   \[Contrast 2\] Comparing 4 pints to 2, 3 pints: $b = 0.50, t(57) = 1.38, p = .17$
+
+-   \[Contrast 3\] Comparing 2 pints to 3 pints: $b = -1.75, t(57) = -2.78, p = .01$
+
+```{r}
+postHocs <- glht(rovingModel, linfct = mcp(Pint = "Tukey"))
+summary(postHocs)
+confint(postHocs)
+```
+
+## SAT4
+
+```{r}
+gogglesData <- read.delim(here("ch13", "BeerGogglesLighting.dat"), header = TRUE)
+head(gogglesData)
+
+longGoggles <-
+  melt(
+    gogglesData,
+    id = "Participant",
+    measured = c(
+      "din0", "bright0", "dim2", "bright2", "dim4", "bright4", "dim6", "bright6"
+      ),
+  )
+head(longGoggles)
+
+names(longGoggles) <- c("Participant", "Groups", "Attractiveness")
+head(longGoggles)
+
+longGoggles$Lighting <- gl(2, 26, 208, labels = c("Dim", "Bright"))
+longGoggles$Pints <- gl(4, 52, 208, labels = c("0", "2", "4", "6"))
+head(longGoggles)
+
+longGoggles <- longGoggles[order(longGoggles$Participant),]
+head(longGoggles)
+```
+
+```{r}
+gogglesBoxplot <- ggplot(longGoggles, aes(Pints, Attractiveness))
+gogglesBoxplot +
+  geom_boxplot() +
+  facet_wrap(~Lighting, nrow = 1) +
+  labs(x = "Type of Lighting", y = "Mean Attractiveness Score")
+```

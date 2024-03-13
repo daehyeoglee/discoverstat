@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Daehyeog Lee">
+<meta name="dcterms.date" content="2023-02-14">
+
+<title>Chapter 15. Non-parametric tests</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="chapter_15_files/libs/clipboard/clipboard.min.js"></script>
+<script src="chapter_15_files/libs/quarto-html/quarto.js"></script>
+<script src="chapter_15_files/libs/quarto-html/popper.min.js"></script>
+<script src="chapter_15_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="chapter_15_files/libs/quarto-html/anchor.min.js"></script>
+<link href="chapter_15_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="chapter_15_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="chapter_15_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="chapter_15_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="chapter_15_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Chapter 15. Non-parametric tests</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Daehyeog Lee </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 14, 2023</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">February 15, 2024</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="what-will-this-chapter-tell-me" class="level2">
+<h2 class="anchored" data-anchor-id="what-will-this-chapter-tell-me">15.1. What will this chapter tell me?</h2>
+</section>
+<section id="when-to-use-non-parametric-tests" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-use-non-parametric-tests">15.2. When to use non-parametric tests</h2>
+<p>Non-parametric tests are known as assumption-free tests because they make fewer assumptions about the type of data on which they can be used. Non-parametric tests make distributional assumptions (such as the continuous distribution), but they are less restrictive ones than their parametric counterparts.</p>
+<p>Non-parametric tests work on the principle of <strong>ranking</strong> the data. That is, finding the lowest score and giving it a rank of 1, then finding the next highest score and giving it a rank of 2, and so on. The analysis is then carried out on the ranks rather than the actual data.</p>
+</section>
+<section id="packages-used-in-this-chapter" class="level2">
+<h2 class="anchored" data-anchor-id="packages-used-in-this-chapter">15.3. Packages used in this chapter</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car); <span class="fu">library</span>(compute.es); <span class="fu">library</span>(effects); <span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>lattice theme set by effectsTheme()
+See ?effectsTheme for details.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(multcomp); <span class="fu">library</span>(pastecs); <span class="fu">library</span>(WRS2); <span class="fu">library</span>(reshape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: mvtnorm</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: survival</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: TH.data</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: MASS</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'TH.data'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:MASS':
+
+    geyser</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here); <span class="fu">library</span>(ez); <span class="fu">library</span>(nlme); <span class="fu">library</span>(clinfun); <span class="fu">library</span>(pgirmess)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at /Users/leedh/self_study/discoverstat</code></pre>
+</div>
+</div>
+</section>
+<section id="comparing-two-independent-conditions-the-wilcoxon-rank-sum-test" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-two-independent-conditions-the-wilcoxon-rank-sum-test">15.4. Comparing two independent conditions: the Wilcoxon rank-sum test</h2>
+<p>When we want to test differences between two conditions and different participants have been used in each condition, then we can perform the <strong>Mann-Whitney test</strong> and <strong>Wilcoxon’s rank-sum test</strong>. These tests are the non-parametric equivalent of the independent <em>t</em>-test.</p>
+<section id="theory-of-the-wilcoxon-rank-sum-test" class="level3">
+<h3 class="anchored" data-anchor-id="theory-of-the-wilcoxon-rank-sum-test">15.4.1. Theory of the Wilcoxon rank-sum test</h3>
+<ul>
+<li><p>Arrange the scores in ascending order, attach a label to remind ourselves which group they came from.</p></li>
+<li><p>Assign potential ranks starting with 1 for the lowest score.</p></li>
+<li><p>Add up all of the ranks for the two groups.</p></li>
+<li><p>Subtract the mean rank from the sum of the ranks.</p></li>
+<li><p>Take the smallest of these values to be the test statistic.</p></li>
+<li><p><strong>R</strong> then calculates the associated <em>p</em>-value.</p>
+<ul>
+<li><p>The <em>exact</em> approach uses a <strong>Monte Carlo method</strong> to obtain the significance level. It doesn’t make any assumptions about the distribution. It just put the people (data) into a random group, and then repeats it.</p></li>
+<li><p>When large sample sizes, a normal approximation is used. The normal approximation doesn’t assume that the data are normal. Instead, it assumes that the sampling distribution of the <em>W</em> statistic is normal. <strong>R</strong> uses a normal approximation if the sample size is larger than 40.</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="inputting-data-and-provisional-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="inputting-data-and-provisional-analysis">15.4.2. Inputting data and provisional analysis</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sundayBDI <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">35</span>, <span class="dv">16</span>, <span class="dv">18</span>, <span class="dv">19</span>, <span class="dv">17</span>, <span class="dv">27</span>, <span class="dv">16</span>, <span class="dv">13</span>, <span class="dv">20</span>, <span class="dv">16</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">13</span>,</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>               <span class="dv">14</span>, <span class="dv">19</span>, <span class="dv">18</span>, <span class="dv">18</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>wedsBDI <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">28</span>, <span class="dv">35</span>, <span class="dv">35</span>, <span class="dv">24</span>, <span class="dv">39</span>, <span class="dv">32</span>, <span class="dv">27</span>, <span class="dv">29</span>, <span class="dv">36</span>, <span class="dv">35</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">30</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">7</span>, <span class="dv">6</span>, <span class="dv">17</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>             <span class="dv">3</span>, <span class="dv">10</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>drug <span class="ot">&lt;-</span> <span class="fu">gl</span>(<span class="dv">2</span>, <span class="dv">10</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Ecstasy"</span>, <span class="st">"Alcohol"</span>))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>drugData <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(drug, sundayBDI, wedsBDI)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(drugData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     drug sundayBDI wedsBDI
+1 Ecstasy        15      28
+2 Ecstasy        35      35
+3 Ecstasy        16      35
+4 Ecstasy        18      24
+5 Ecstasy        19      39
+6 Ecstasy        17      32</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(drugData[,<span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>)], drugData<span class="sc">$</span>drug, stat.desc, <span class="at">basic=</span><span class="cn">FALSE</span>, <span class="at">norm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>drugData$drug: Ecstasy
+               sundayBDI    wedsBDI
+median       17.50000000 33.5000000
+mean         19.60000000 32.0000000
+SE.mean       2.08806130  1.5129074
+CI.mean.0.95  4.72352283  3.4224344
+var          43.60000000 22.8888889
+std.dev       6.60302961  4.7842334
+coef.var      0.33688927  0.1495073
+skewness      1.23571300 -0.2191665
+skew.2SE      0.89929826 -0.1594999
+kurtosis      0.26030385 -1.4810114
+kurt.2SE      0.09754697 -0.5549982
+normtest.W    0.81063991  0.9411413
+normtest.p    0.01952060  0.5657814
+------------------------------------------------------------ 
+drugData$drug: Alcohol
+               sundayBDI      wedsBDI
+median       16.00000000  7.500000000
+mean         16.40000000 10.100000000
+SE.mean       0.71802197  2.514181996
+CI.mean.0.95  1.62427855  5.687474812
+var           5.15555556 63.211111111
+std.dev       2.27058485  7.950541561
+coef.var      0.13845030  0.787182333
+skewness      0.11686189  1.500374383
+skew.2SE      0.08504701  1.091907319
+kurtosis     -1.49015904  1.079109997
+kurt.2SE     -0.55842624  0.404388605
+normtest.W    0.95946584  0.753466511
+normtest.p    0.77976459  0.003933024</code></pre>
+</div>
+</div>
+<ul>
+<li><p>Sunday / Ecstasy: <span class="math inline">\(W = 0.81, p = 0.02\)</span> -&gt; Significant -&gt; normal W</p></li>
+<li><p>Sunday / Alcohol: <span class="math inline">\(W = 0.96, p = 0.78\)</span> -&gt; Non-significant -&gt; non-normal W</p></li>
+<li><p>Wednesday / Ecstasy: <span class="math inline">\(W = 0.94, p = 0.56\)</span> -&gt; non-normal W</p></li>
+<li><p>Wednesday / Alcohol: <span class="math inline">\(W = 0.75, p = 0.004\)</span> -&gt; normal W</p></li>
+</ul>
+<p>This finding tells us the fact that the sampling distribution might also be non-normal for the Sunday and Wednesday data and that a non-parametric test should be used.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">leveneTest</span>(drugData<span class="sc">$</span>sundayBDI, drugData<span class="sc">$</span>drug, <span class="at">center =</span> <span class="st">"mean"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Levene's Test for Homogeneity of Variance (center = "mean")
+      Df F value  Pr(&gt;F)  
+group  1  3.6436 0.07236 .
+      18                  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">leveneTest</span>(drugData<span class="sc">$</span>wedsBDI, drugData<span class="sc">$</span>drug, <span class="at">center =</span> <span class="st">"mean"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Levene's Test for Homogeneity of Variance (center = "mean")
+      Df F value Pr(&gt;F)
+group  1  0.5081 0.4851
+      18               </code></pre>
+</div>
+</div>
+<p>The result of Levene’s test shows that</p>
+<ul>
+<li><p>Sunday data: <span class="math inline">\(F(1, 18) = 3.64, p = 0.07\)</span></p></li>
+<li><p>Wednesday data = <span class="math inline">\(F(1, 18) = 0.51, p = 0.49\)</span></p></li>
+</ul>
+<p>The variances are not significantly different, indicating that the assumption of homogeneity has been met.</p>
+</section>
+<section id="running-the-analysis-using-r-commander" class="level3">
+<h3 class="anchored" data-anchor-id="running-the-analysis-using-r-commander">15.4.3. Running the analysis using R Commander</h3>
+<p>Statistics -&gt; Nonparametric tests -&gt; Two-sample Wilcoxon test…</p>
+</section>
+<section id="running-the-analysis-using-r" class="level3">
+<h3 class="anchored" data-anchor-id="running-the-analysis-using-r">15.4.4. Running the analysis using R</h3>
+<p><code>newModel &lt;- wilcox.test(outcome ~ predictor, data = dataFrame, paired = FALSE/TRUE)</code></p>
+<p>If we have the data for different groups stored in two columns, then the <code>wilcox.test()</code> function takes this form:</p>
+<p><code>newModel &lt;- wilcox.test(scores group 1, scores group 2, paired = FALSE/TRUE)</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>sunModel <span class="ot">&lt;-</span> <span class="fu">wilcox.test</span>(sundayBDI <span class="sc">~</span> drug, <span class="at">data =</span> drugData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wilcox.test.default(x = DATA[[1L]], y = DATA[[2L]], ...): cannot
+compute exact p-value with ties</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>wedModel <span class="ot">&lt;-</span> <span class="fu">wilcox.test</span>(wedsBDI <span class="sc">~</span> drug, <span class="at">data =</span> drugData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wilcox.test.default(x = DATA[[1L]], y = DATA[[2L]], ...): cannot
+compute exact p-value with ties</code></pre>
+</div>
+</div>
+</section>
+<section id="output-from-the-wilcoxon-rank-sum-test" class="level3">
+<h3 class="anchored" data-anchor-id="output-from-the-wilcoxon-rank-sum-test">15.4.5. Output from the Wilcoxon rank-sum test</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>sunModel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon rank sum test with continuity correction
+
+data:  sundayBDI by drug
+W = 64.5, p-value = 0.2861
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>wedModel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon rank sum test with continuity correction
+
+data:  wedsBDI by drug
+W = 96, p-value = 0.000569
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+</div>
+<p>We could say that the type of drug did not significantly affect depression levels the day after.</p>
+</section>
+<section id="calculating-an-effect-size" class="level3">
+<h3 class="anchored" data-anchor-id="calculating-an-effect-size">15.4.6. Calculating an effect size</h3>
+<p><strong>R</strong> doesn’t calculate an effect size for us, but we can calculate approximate effect sizes by converting the <em>z</em>-value into an effect size estimate:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>rFromWilcox<span class="ot">&lt;-</span><span class="cf">function</span>(wilcoxModel, N){</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    z<span class="ot">&lt;-</span> <span class="fu">qnorm</span>(wilcoxModel<span class="sc">$</span>p.value<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    r<span class="ot">&lt;-</span> z<span class="sc">/</span> <span class="fu">sqrt</span>(N)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(wilcoxModel<span class="sc">$</span>data.name, <span class="st">"Effect Size, r = "</span>, r)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rFromWilcox</span>(sunModel, <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>sundayBDI by drug Effect Size, r =  -0.2385338</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rFromWilcox</span>(wedModel, <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>wedsBDI by drug Effect Size, r =  -0.7705401</code></pre>
+</div>
+</div>
+<p>The first command within the function calculates the value of <em>z</em> using the <code>qnorm()</code> function. The <em>p</em>-value associated with the model entered into function, divides it by 2 so that we’re looking at only one end of the normal distribution. The second command computes <em>r</em> using the equation above by dividing <em>z</em> by the square root of <em>N</em>. The final command prints to the console the object <code>data.name</code> from the original model.</p>
+</section>
+<section id="writing-the-results" class="level3">
+<h3 class="anchored" data-anchor-id="writing-the-results">15.4.7. Writing the results</h3>
+<ul>
+<li>Depression levels in ecstasy users (<em>Mdn</em> = 17.50) did not differ significantly from alcohol users (<em>Mdn</em> = 16.00) the day after the drugs were taken, <span class="math inline">\(W = 64.5, p = 0.286, r = -.25\)</span>. However, by Wednesday, ecstasy users (<em>Mdn</em> = 33.50) were significantly more depressed than alcohol users (<em>Mdn</em> = 7.50), <span class="math inline">\(W = 4, p &lt; .001, r = -.78\)</span>.</li>
+</ul>
+<p>Median is more appropriate than the mean for non-parametric tests. <strong>(Why?)</strong></p>
+</section>
+<section id="jane-superbrain-15.2-price-for-the-non-parametric-tests" class="level3">
+<h3 class="anchored" data-anchor-id="jane-superbrain-15.2-price-for-the-non-parametric-tests">Jane Superbrain 15.2: Price for the Non-parametric tests</h3>
+<ul>
+<li><p>By ranking the data we lose some information about the magnitude of differences between scores.</p></li>
+<li><p><strong>Statistical power:</strong> An ability of a test to find an effect that genuinely exists. It is also known as the probability of avoiding a Type II error.</p></li>
+<li><p>If we use a parametric test and a non-parametric on the same data, and those data meet the appropriate assumptions, then the parametric test will have greater power to detect the effect than the non-parametric test.</p></li>
+<li><p>However, when data are not normal we have no way of calculating power, because power is linked to the Type I error rate and the Type I error rate is 5% when the sampling distribution is normally distributed.</p></li>
+<li><p>Therefore, the statement “Non-parametric tests having an increased chance of a Type II error” is true only if the sampling distribution is normally distributed.</p></li>
+</ul>
+</section>
+</section>
+<section id="comparing-two-related-conditions-the-wilcoxon-signed-rank-test" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-two-related-conditions-the-wilcoxon-signed-rank-test">15.5. Comparing two related conditions: the Wilcoxon signed-rank test</h2>
+<p>The <strong>Wilcoxon signed-rank test</strong> is used in situations in which there are two sets of scores to compare, but these scores come from the <strong>same participants (within group)</strong>.</p>
+<p>For example, we might want to</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>drugData<span class="sc">$</span>BDIchange <span class="ot">&lt;-</span> drugData<span class="sc">$</span>wedsBDI<span class="sc">-</span>drugData<span class="sc">$</span>sundayBDI</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(drugData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     drug sundayBDI wedsBDI BDIchange
+1 Ecstasy        15      28        13
+2 Ecstasy        35      35         0
+3 Ecstasy        16      35        19
+4 Ecstasy        18      24         6
+5 Ecstasy        19      39        20
+6 Ecstasy        17      32        15</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(drugData<span class="sc">$</span>BDIchange, drugData<span class="sc">$</span>drug, stat.desc, <span class="at">basic =</span> <span class="cn">FALSE</span>, <span class="at">norm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>drugData$drug: Ecstasy
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+  14.0000000   12.4000000    2.5307004    5.7248420   64.0444444    8.0027773 
+    coef.var     skewness     skew.2SE     kurtosis     kurt.2SE   normtest.W 
+   0.6453853   -0.4140842   -0.3013525   -1.3686700   -0.5128991    0.9087803 
+  normtest.p 
+   0.2727175 
+------------------------------------------------------------ 
+drugData$drug: Alcohol
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+ -7.50000000  -6.30000000   2.09788253   4.74573999  44.01111111   6.63408706 
+    coef.var     skewness     skew.2SE     kurtosis     kurt.2SE   normtest.W 
+ -1.05302969   1.23907117   0.90174219   0.98664006   0.36973617   0.82795980 
+  normtest.p 
+  0.03161929 </code></pre>
+</div>
+</div>
+<p>For the ecstasy group, we have an approximaly normal distribution, <span class="math inline">\(W = 0.91, p = .273\)</span>, but for the alcohol group, we have a non-normal distribution, <span class="math inline">\(W = 0.83, p &lt; .05\)</span>.</p>
+<section id="theory-of-the-wilcoxon-signed-rank-test" class="level3">
+<h3 class="anchored" data-anchor-id="theory-of-the-wilcoxon-signed-rank-test">15.5.1 Theory of the Wilcoxon signed-rank test</h3>
+<ul>
+<li><p>Calculate the difference between Sunday and Wednesday. If the difference is zero, we exclude these data from the ranking.</p></li>
+<li><p>Rank the differences ignoring the sign of the difference.</p></li>
+<li><p>Collect together the ranks that came from a positive difference between the conditions, and add them up to get the sum of positive (T+) and negative (T-) ranks, respectively.</p></li>
+<li><p>The test statistic, T, is the smaller of the two values (T+ / T-).</p></li>
+<li><p>To calculate the significance of T, calculate the z value using the mean T and standard error.</p></li>
+</ul>
+</section>
+<section id="running-the-analysis-with-r-commander" class="level3">
+<h3 class="anchored" data-anchor-id="running-the-analysis-with-r-commander">15.5.2. Running the analysis with R Commander</h3>
+<p>Statistics -&gt; Nonparametric tests -&gt; Paired-samples Wilcoxon test…</p>
+</section>
+<section id="running-the-analysis-using-r-1" class="level3">
+<h3 class="anchored" data-anchor-id="running-the-analysis-using-r-1">15.5.3. Running the analysis using R</h3>
+<p>We want to run our analysis on the alcohol and ecstasy groups separately. Therefore, we have to first split the dataframe into two. Also, because our data are stored in different columns, we need to enter the names of the two variables we want to compare rather than a formula, and we need to include the option <code>paired = TRUE</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>alcoholData <span class="ot">&lt;-</span> <span class="fu">subset</span>(drugData, drug <span class="sc">==</span> <span class="st">"Alcohol"</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>ecstasyData <span class="ot">&lt;-</span> <span class="fu">subset</span>(drugData, drug <span class="sc">==</span> <span class="st">"Ecstasy"</span>)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>alcoholModel <span class="ot">&lt;-</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">wilcox.test</span>(</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    alcoholData<span class="sc">$</span>wedsBDI, alcoholData<span class="sc">$</span>sundayBDI,  <span class="at">paired =</span> <span class="cn">TRUE</span>, <span class="at">correct=</span> <span class="cn">FALSE</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wilcox.test.default(alcoholData$wedsBDI, alcoholData$sundayBDI, :
+cannot compute exact p-value with ties</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>ecstasyModel <span class="ot">&lt;-</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">wilcox.test</span>(</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    ecstasyData<span class="sc">$</span>wedsBDI, ecstasyData<span class="sc">$</span>sundayBDI, <span class="at">paired =</span> <span class="cn">TRUE</span>, <span class="at">correct=</span> <span class="cn">FALSE</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wilcox.test.default(ecstasyData$wedsBDI, ecstasyData$sundayBDI, :
+cannot compute exact p-value with ties</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wilcox.test.default(ecstasyData$wedsBDI, ecstasyData$sundayBDI, :
+cannot compute exact p-value with zeroes</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>alcoholModel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon signed rank test
+
+data:  alcoholData$wedsBDI and alcoholData$sundayBDI
+V = 8, p-value = 0.04657
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>ecstasyModel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon signed rank test
+
+data:  ecstasyData$wedsBDI and ecstasyData$sundayBDI
+V = 36, p-value = 0.01151
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+</div>
+</section>
+<section id="wilcoxon-signed-rank-test-output" class="level3">
+<h3 class="anchored" data-anchor-id="wilcoxon-signed-rank-test-output">15.5.4. Wilcoxon signed-rank test output</h3>
+<p>The result reports the value of T+ (which it calls V).</p>
+<ul>
+<li><p>When taking alcohol there was a significant decline in depression from the morning after to midweek, <span class="math inline">\(p = .047\)</span></p></li>
+<li><p>When taking ecstasy there was a significant increase in depression from the morning after to midweek, <span class="math inline">\(p = .012\)</span></p></li>
+</ul>
+</section>
+<section id="calculating-an-effect-size-1" class="level3">
+<h3 class="anchored" data-anchor-id="calculating-an-effect-size-1">15.5.5. Calculating an effect size</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rFromWilcox</span>(alcoholModel, <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>alcoholData$wedsBDI and alcoholData$sundayBDI Effect Size, r =  -0.4450246</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rFromWilcox</span>(ecstasyModel, <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ecstasyData$wedsBDI and ecstasyData$sundayBDI Effect Size, r =  -0.5649883</code></pre>
+</div>
+</div>
+<p>For the alcohol group there was a medium to large change in depression when alcohol was taken, <span class="math inline">\(r = -.45\)</span>.</p>
+<p>For the ecstasy group there was a large change in depression when ecstasy was taken, <span class="math inline">\(r = -.56\)</span>.</p>
+</section>
+<section id="writing-the-results-1" class="level3">
+<h3 class="anchored" data-anchor-id="writing-the-results-1">15.5.6. Writing the results</h3>
+<ul>
+<li>For ecstasy users, depression levels were significantly higher on Wednesday (<em>Mdn</em> = 33.50) than on Sunday (<em>Mdn</em> = 17.50), <span class="math inline">\(p = .047, r = -.56\)</span>. However, for alcohol users the opposite was true: depression levels were significantly lower on Wednesday (<em>Mdn</em> = 7.50), <span class="math inline">\(p = .012, r = -.45\)</span>.</li>
+</ul>
+</section>
+</section>
+<section id="differences-between-several-independent-groups-the-kruskal-wallis-test" class="level2">
+<h2 class="anchored" data-anchor-id="differences-between-several-independent-groups-the-kruskal-wallis-test">15.6. Differences between several independent groups: the Kruskal-Wallis test</h2>
+<p>Does soya meals uptake influences the number of sperms?</p>
+<p>Four groups (Control / 1 soya meals per week / 4 per week / 7 per week)</p>
+<section id="theory-of-the-kruskal-wallis-test" class="level3">
+<h3 class="anchored" data-anchor-id="theory-of-the-kruskal-wallis-test">15.6.1. Theory of the Kruskal-Wallis test</h3>
+<p>Kruskal-Wallis test is also based on ranked data.</p>
+<ul>
+<li><p>Simply order the scores from lowest to highest, ignoring the group to which the score belongs, and then assign the rank.</p></li>
+<li><p>Add up the ranks for each group.</p></li>
+<li><p>Calculate the test statistic, <em>H</em>, according to the formula.</p></li>
+</ul>
+<p>This test statistic follows the chi-square distribution and for this distribution there is one value for the degrees of freedom, which is one less than the number of groups <span class="math inline">\(k-1\)</span>, in this case 3</p>
+</section>
+<section id="inputting-data-and-provisional-analysis-1" class="level3">
+<h3 class="anchored" data-anchor-id="inputting-data-and-provisional-analysis-1">15.6.2. Inputting data and provisional analysis</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>Sperm <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.35</span>, <span class="fl">0.58</span>, <span class="fl">0.88</span>, <span class="fl">0.92</span>, <span class="fl">1.22</span>, <span class="fl">1.51</span>, <span class="fl">1.52</span>, <span class="fl">1.57</span>, <span class="fl">2.43</span>, <span class="fl">2.79</span>, <span class="fl">3.40</span>,</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>           <span class="fl">4.52</span>, <span class="fl">4.72</span>, <span class="fl">6.90</span>, <span class="fl">7.58</span>, <span class="fl">7.78</span>, <span class="fl">9.62</span>, <span class="fl">10.05</span>, <span class="fl">10.32</span>, <span class="fl">21.08</span>, <span class="fl">0.33</span>, <span class="fl">0.36</span>,</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.63</span>, <span class="fl">0.64</span>, <span class="fl">0.77</span>, <span class="fl">1.53</span>, <span class="fl">1.62</span>, <span class="fl">1.71</span>, <span class="fl">1.94</span>, <span class="fl">2.48</span>, <span class="fl">2.71</span>, <span class="fl">4.12</span>, <span class="fl">5.65</span>,</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>           <span class="fl">6.76</span>, <span class="fl">7.08</span>, <span class="fl">7.26</span>, <span class="fl">7.92</span>, <span class="fl">8.04</span>, <span class="fl">12.10</span>, <span class="fl">18.47</span>, <span class="fl">0.40</span>, <span class="fl">0.60</span>, <span class="fl">0.96</span>, <span class="fl">1.20</span>,</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>           <span class="fl">1.31</span>, <span class="fl">1.35</span>, <span class="fl">1.68</span>, <span class="fl">1.83</span>, <span class="fl">2.10</span>, <span class="fl">2.93</span>, <span class="fl">2.96</span>, <span class="fl">3.00</span>, <span class="fl">3.09</span>, <span class="fl">3.36</span>, <span class="fl">4.34</span>,</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>           <span class="fl">5.81</span>, <span class="fl">5.94</span>, <span class="fl">10.16</span>, <span class="fl">10.98</span>, <span class="fl">18.21</span>, <span class="fl">0.31</span>, <span class="fl">0.32</span>, <span class="fl">0.56</span>, <span class="fl">0.57</span>, <span class="fl">0.71</span>, <span class="fl">0.81</span>,</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.87</span>, <span class="fl">1.18</span>, <span class="fl">1.25</span>, <span class="fl">1.33</span>, <span class="fl">1.34</span>, <span class="fl">1.49</span>, <span class="fl">1.50</span>, <span class="fl">2.09</span>, <span class="fl">2.70</span>, <span class="fl">2.75</span>, <span class="fl">2.83</span>,</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>           <span class="fl">3.07</span>, <span class="fl">3.28</span>, <span class="fl">4.11</span>)</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>Soya <span class="ot">&lt;-</span></span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gl</span>(</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">4</span>, <span class="dv">20</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Soya"</span>, <span class="st">"1 Soya Meal"</span>, <span class="st">"4 Soya Meals"</span>, <span class="st">"7 Soya Meals"</span>)</span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>soyaData <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(Sperm, Soya)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(soyaData<span class="sc">$</span>Sperm, soyaData<span class="sc">$</span>Soya, stat.desc, <span class="at">basic=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>soyaData$Soya: No Soya
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+    3.095000     4.987000     1.136926     2.379614    25.852022     5.084488 
+    coef.var 
+    1.019549 
+------------------------------------------------------------ 
+soyaData$Soya: 1 Soya Meal
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+    2.595000     4.606000     1.044822     2.186837    21.833057     4.672586 
+    coef.var 
+    1.014456 
+------------------------------------------------------------ 
+soyaData$Soya: 4 Soya Meals
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+   2.9450000    4.1105000    0.9861233    2.0639798   19.4487839    4.4100775 
+    coef.var 
+   1.0728810 
+------------------------------------------------------------ 
+soyaData$Soya: 7 Soya Meals
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+   1.3350000    1.6535000    0.2479774    0.5190226    1.2298555    1.1089885 
+    coef.var 
+   0.6706916 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  soyaData<span class="sc">$</span>Sperm,</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  soyaData<span class="sc">$</span>Soya,</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>  stat.desc,</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">desc =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">basic =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">norm =</span> <span class="cn">TRUE</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>soyaData$Soya: No Soya
+   skewness    skew.2SE    kurtosis    kurt.2SE  normtest.W  normtest.p 
+1.546140856 1.509598499 2.328051363 1.172959394 0.805255802 0.001035917 
+------------------------------------------------------------ 
+soyaData$Soya: 1 Soya Meal
+   skewness    skew.2SE    kurtosis    kurt.2SE  normtest.W  normtest.p 
+1.350565932 1.318645901 1.422731699 0.716825470 0.825831600 0.002153894 
+------------------------------------------------------------ 
+soyaData$Soya: 4 Soya Meals
+    skewness     skew.2SE     kurtosis     kurt.2SE   normtest.W   normtest.p 
+1.8222369167 1.7791691502 2.7926151830 1.4070240317 0.7427432543 0.0001359072 
+------------------------------------------------------------ 
+soyaData$Soya: 7 Soya Meals
+  skewness   skew.2SE   kurtosis   kurt.2SE normtest.W normtest.p 
+ 0.6086712  0.5942855 -0.9161653 -0.4615984  0.9122606  0.0703908 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">leveneTest</span>(soyaData<span class="sc">$</span>Sperm, soyaData<span class="sc">$</span>Soya)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Levene's Test for Homogeneity of Variance (center = median)
+      Df F value  Pr(&gt;F)  
+group  3  2.8606 0.04237 *
+      76                  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>The output shows that the test for those who ate seven meals per week is not quite significant, <span class="math inline">\(W(20) = 0.912, p = .07\)</span>. As such, the data for all of the groups are significantly different from normal.</p>
+<p>From the Levene’s test, the assumption of homogeneity of variance has been violated, <span class="math inline">\(F(3, 76) = 2.86, p = .042\)</span>. As such, theses data are not normally distributed, and the groups have heterogeneous variances.</p>
+</section>
+<section id="doing-the-kruskal-wallis-test-using-r-commander" class="level3">
+<h3 class="anchored" data-anchor-id="doing-the-kruskal-wallis-test-using-r-commander">15.6.3. Doing the Kruskal-Wallis test using R Commander</h3>
+<p>Statistics -&gt; Nonparametric tests -&gt; Kruskal-Wallis test</p>
+</section>
+<section id="doing-the-kruskal-wallis-test-using-r" class="level3">
+<h3 class="anchored" data-anchor-id="doing-the-kruskal-wallis-test-using-r">15.6.4. Doing the Kruskal-Wallis test using R</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kruskal.test</span>(Sperm <span class="sc">~</span> Soya, <span class="at">data =</span> soyaData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Kruskal-Wallis rank sum test
+
+data:  Sperm by Soya
+Kruskal-Wallis chi-squared = 8.6589, df = 3, p-value = 0.03419</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>soyaData<span class="sc">$</span>Ranks <span class="ot">&lt;-</span> <span class="fu">rank</span>(soyaData<span class="sc">$</span>Sperm)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(soyaData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Sperm    Soya Ranks
+1  0.35 No Soya     4
+2  0.58 No Soya     9
+3  0.88 No Soya    17
+4  0.92 No Soya    18
+5  1.22 No Soya    22
+6  1.51 No Soya    30</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtain the mean rank for each group using the by() and mean() functions</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(soyaData<span class="sc">$</span>Ranks, soyaData<span class="sc">$</span>Soya, mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>soyaData$Soya: No Soya
+[1] 46.35
+------------------------------------------------------------ 
+soyaData$Soya: 1 Soya Meal
+[1] 44.15
+------------------------------------------------------------ 
+soyaData$Soya: 4 Soya Meals
+[1] 44.15
+------------------------------------------------------------ 
+soyaData$Soya: 7 Soya Meals
+[1] 27.35</code></pre>
+</div>
+</div>
+</section>
+<section id="output-from-the-kruskal-wallis-test" class="level3">
+<h3 class="anchored" data-anchor-id="output-from-the-kruskal-wallis-test">15.6.5. Output from the Kruskal-Wallis test</h3>
+<p>The significance value is .034. Because this value is less than .05 we could conclude that the amount of soya meals eaten per week does significantly affect sperm counts. Like a one-way ANOVA, though, this test tells us only that a difference exists; it doesn’t tell us exactly where the differences lie.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(soyaData, <span class="fu">aes</span>(Soya, Sperm)) <span class="sc">+</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Sperm Count"</span>, <span class="at">x =</span> <span class="st">"Number of Soya Meals Per Week"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chapter_15_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="post-hoc-tests-for-the-kruskal-wallis-test" class="level3">
+<h3 class="anchored" data-anchor-id="post-hoc-tests-for-the-kruskal-wallis-test">15.6.6. <em>Post hoc</em> tests for the Kruskal-Wallis test</h3>
+<p>The non-parametric <em>post hoc</em> procedure is essentially the same as doing the Wilcoxon rank-sum tests on all possible comparisons. This involves taking the difference between the mean ranks of the different groups and comparing this to a value based on the value of <em>z</em> and a constant based on the total sample size and the sample size in the two groups being compared.</p>
+<ul>
+<li><p>Calculate the rank difference between groups (<code>by(soyaData$Ranks, soyaData$Soya, mean)</code>)</p></li>
+<li><p>Compare the value obtained above to the critical difference calculated by given formula.</p></li>
+</ul>
+<p>Inequality basically means that if the difference between mean ranks is bigger than or equal to the critical difference for that comparison, then that difference is significant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kruskalmc</span>(Sperm <span class="sc">~</span> Soya, <span class="at">data =</span> soyaData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Multiple comparison test after Kruskal-Wallis 
+alpha: 0.05 
+Comparisons
+                          obs.dif critical.dif stat.signif
+No Soya-1 Soya Meal           2.2     19.38715       FALSE
+No Soya-4 Soya Meals          2.2     19.38715       FALSE
+No Soya-7 Soya Meals         19.0     19.38715       FALSE
+1 Soya Meal-4 Soya Meals      0.0     19.38715       FALSE
+1 Soya Meal-7 Soya Meals     16.8     19.38715       FALSE
+4 Soya Meals-7 Soya Meals    16.8     19.38715       FALSE</code></pre>
+</div>
+</div>
+<p>None of the difference were bigger than the critical difference; hence they all say <em>FALSE</em>, which means that the differences are all non-significant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kruskalmc</span>(Sperm <span class="sc">~</span> Soya, <span class="at">data =</span> soyaData, <span class="at">cont =</span> <span class="st">'two-tailed'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Multiple comparison test after Kruskal-Wallis, treatments vs control (two-tailed) 
+alpha: 0.05 
+Comparisons
+                     obs.dif critical.dif stat.signif
+No Soya-1 Soya Meal      2.2     17.59209       FALSE
+No Soya-4 Soya Meals     2.2     17.59209       FALSE
+No Soya-7 Soya Meals    19.0     17.59209        TRUE</code></pre>
+</div>
+</div>
+<p>We have only three tests now and consequently our critical difference has decreased. The critical difference value was decreased, and this is because the significance level was highly adjusted than the adjusted significance level when six tests were performed.</p>
+</section>
+<section id="testing-for-trends-the-jonckheere-terpstra-test" class="level3">
+<h3 class="anchored" data-anchor-id="testing-for-trends-the-jonckheere-terpstra-test">15.6.7. Testing for trends: the Jonckheere-Terpstra test</h3>
+<p>The Jonckheere-Terpstra statistic tests for an ordered pattern to the medians of the groups we’re comparing. The test determines whether the medians of the groups ascend or descend in the order specified by the coding variable. In our data, for example, we might want to check whether there is an order to our medians: they should decrease across the groups.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jonckheere.test</span>(soyaData<span class="sc">$</span>Sperm, <span class="fu">as.numeric</span>(soyaData<span class="sc">$</span>Soya))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Jonckheere-Terpstra test
+
+data:  
+JT = 912, p-value = 0.01308
+alternative hypothesis: two.sided</code></pre>
+</div>
+</div>
+</section>
+<section id="calculating-an-effect-size-2" class="level3">
+<h3 class="anchored" data-anchor-id="calculating-an-effect-size-2">15.6.8. Calculating an effect size</h3>
+</section>
+<section id="writing-and-interpreting-the-results" class="level3">
+<h3 class="anchored" data-anchor-id="writing-and-interpreting-the-results">15.6.9. Writing and interpreting the results</h3>
+</section>
+</section>
+<section id="differences-between-several-related-groups-friedmans-anova" class="level2">
+<h2 class="anchored" data-anchor-id="differences-between-several-related-groups-friedmans-anova">15.7. Differences between several related groups: Friedman’s ANOVA</h2>
+</section>
+<section id="theory-of-friedmans-anova" class="level2">
+<h2 class="anchored" data-anchor-id="theory-of-friedmans-anova">15.7.1. Theory of Friedman’s ANOVA</h2>
+<section id="inputting-data-and-provisional-analysis-2" class="level3">
+<h3 class="anchored" data-anchor-id="inputting-data-and-provisional-analysis-2">15.7.2. Inputting data and provisional analysis</h3>
+</section>
+<section id="doing-friedmans-anova-in-r-commander" class="level3">
+<h3 class="anchored" data-anchor-id="doing-friedmans-anova-in-r-commander">15.7.3. Doing Friedman’s ANOVA in R Commander</h3>
+</section>
+<section id="friedmans-anova-using-r" class="level3">
+<h3 class="anchored" data-anchor-id="friedmans-anova-using-r">15.7.4. Friedman’s ANOVA using R</h3>
+</section>
+<section id="output-from-friedmans-anova" class="level3">
+<h3 class="anchored" data-anchor-id="output-from-friedmans-anova">15.7.5. Output from Friedman’s ANOVA</h3>
+</section>
+<section id="post-hoc-tests-for-friedmans-anova" class="level3">
+<h3 class="anchored" data-anchor-id="post-hoc-tests-for-friedmans-anova">15.7.6. <em>Post hoc</em> tests for Friedman’s ANOVA</h3>
+</section>
+<section id="calculating-an-effect-size-3" class="level3">
+<h3 class="anchored" data-anchor-id="calculating-an-effect-size-3">15.7.7. Calculating an effect size</h3>
+</section>
+<section id="writing-and-interpreting-the-results-1" class="level3">
+<h3 class="anchored" data-anchor-id="writing-and-interpreting-the-results-1">15.7.8. Writing and interpreting the results</h3>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

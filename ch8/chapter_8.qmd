@@ -1,0 +1,557 @@
+---
+title: "Chapter 8. Logistic Regression"
+author: "Daehyeog Lee"
+date: "2023-11-05"
+date-modified: "`r Sys.Date()`"
+format:
+  pdf:
+    toc: true
+    colorlinks: true
+editor: visual
+---
+
+## 8.1. What will this chapter tell me?
+
+Logistic regression allows us to predict categorical outcomes based on predictor variables.
+
+## 8.2. Background to logistic regression
+
+Binary logistic regression predicts membership of only two categorical outcomes.
+
+Multinomial (or polychotomous) logistic regression predict membership of more than two categories.
+
+## 8.3. What are the principles behind logistic regression?
+
+In logistic regression, instead of predicting the value of a variable Y from a predictor variable X1 or several predictor variables (Xs), we predict the **probability** of Y occurring given known values of X1 (or Xs).
+
+We cannot apply linear regression directly to a situation in which the outcome variable is categorical. It is because one of the assumptions of linear regression is that the relationship between variables is linear. When the outcome variable is categorical, this assumption is violated.
+
+### 8.3.1. Assessing the model: the log-likelihood statistic
+
+We denote P(Y_i) as the probability that Y occures for the ith person, and denote Y_i as the actual outcome for the ith person. So, for a given person, Y will be either 0 or 1, and the predicted value P(Y) will be a value between 0 and 1.
+
+In logistic regression, we can use the observed and predicted values to assess the fit of the model. The measure we use is the **log-likelihood**. The log-likelihood is an indicator of how much unexplained information there is after the model has been fitted.
+
+### 8.3.2. Assessing the model: the deviance statistic
+
+The **deviance** is closely related to the log-likelihood.
+
+deviance = -2 \* log-likelihood
+
+The deviance is often referred to as **-2LL** because of the way it is calculated. It's actually rather convenient to always use the deviance rather than the log-likelihood because it has a chi-square distribution, which makes it easy to calculate the significance of the value.
+
+Like multiple regression, our baseline model is the model that gives us the best prediction when we know nothing other than the values of the outcome. If we add one or more predictors to the model, we can compute the improvement of the model as follows:
+
+chi-square = (-2LL(baseline))-(-2LL(new))
+
+= 2LL(new)-2LL(baseline)
+
+df = *k*\_new - *k*\_baseline
+
+This difference is known as a likelihood ratio, and has a chi-square distribution with degrees of freedom equal to the number of parameters, *k*. The number of parameters in the baseline model will always be 1.
+
+### 8.3.3. Assessing the model: R and $R^2$
+
+The multiple correlation coefficient R and the corresponding $R^2$ are useful measures of how well the model fits the data. We can calculate a more literal version of the multiple correlation in logistic regression known as the R-statistic. Wald statistic, Hosmer and Lemeshow's $R^2$, Cox and Snell's $R^2$, Nagelkerke's $R^2$ take different formulas to calculate $R^2$ in logistic regression.
+
+### 8.3.4. Assessing the model: information criteria
+
+Akaike information criterion (AIC) and the Bayes information criterion (BIC) are used to judge model fit.
+
+AIC = -2LL + 2k
+
+BIC = -2LL + 2K \* log(n)
+
+k is the number of predictors in the model. n is the number of cases in the model.
+
+### 8.3.5. Assessing the contribution of predictors: the z-statistic
+
+The **z-statistic**, which follows the **normal distribution**, tells the individual contribution of predictors. It tells us whether the *b*-coefficient for that predictor is significantly different from zero. If the coefficient is significantly different from zero then we can assume that the predictor is making a significant contribution to the prediction of the outcome (Y). z is the value of the regression coefficient (*b*) divided by its associated standard error. z-statistic should be used a little cautiously, because when *b* is large, the standard error tends to become inflated, resulting in the z-statistic being underestimated.
+
+### 8.3.6. The odds ratio
+
+The value of the **odds ratio** is crucial to the interpretation of logistic regression. Odds ratio is the exponential of B and is an indicator of the change in odds resulting from a unit change in the predictor. The **odds** of an event occurring are defined as the probability of an event occurring divided by the probability of that event not occurring.
+
+odds = P(event) / P(no event)
+
+$\Delta$ odds = odds after a unit change in the predictor / original odds
+
+If the value of the proportionate change in odds is grater than 1 then it indicates that as the predictor increases, the odds of the outcome occurring increase.
+
+### 8.3.7. Methods of logistic regression
+
+#### 8.3.7.1. The forced entry method
+
+It is a default method that simply places predictors into the regression model in one block, and estimate parameters for each predictor.
+
+#### 8.3.7.2. Stepwise methods
+
+The forward method includes only a constant and then adds single predictors to the model based on the criterion that adding the variable must improve the AIC or BIC. The backward method begins the model with all predictors included. The computer then tests whether any of these predictors can be removed from the model without increasing the information criterion.
+
+#### 8.3.7.3. How do I select a method
+
+Stepwise methods are considered to have no value for theory testing. However, they are defensible when used in situations where casuality is not of interest and we merely wish to find a model to fit our data.
+
+If we do decide to use a stepwise method then the backward method is preferable to the forward method. This is because of **suppressor effects**, which occur when a predictor has a significant effect but only when another variable is held constant.
+
+## 8.4. Assumptions and things that can go wrong
+
+### 8.4.1. Assumptions
+
+-   **Linearity**: In ordinary regression we assumed that the outcome had linear relationships with the predictors. In logistic regression, the outcome is categorical so this assumption is violated. The linearity assumption in logistic regression, therefore, is that there is a linear relationship between any continuous predictors and the logit of the outcome variable.
+
+-   **Independence of errors**: The cases of data should not be related. For example, we cannot measure the same people at different points in time.
+
+-   **Multicollinearity**: Predictors should not be too highly correlated.
+
+### 8.4.2. Incomplete information from the predictors
+
+Whenever samples are broken down into categories and one or more combinations are empty it creates problems. These will probably be signalled by coefficients that have unreasonably large standard errors.
+
+### 8.4.3. Complete separation
+
+**Complete separation** is when the outcome variable is perfectly predicted by one variable or a combination of variables.
+
+## 8.5. Packages used in this chapter
+
+```{r}
+library(car); library(mlogit)
+```
+
+## 8.6. Binary logistic regression: an example that will make you feel eel
+
+-   Outcome(dependent variable): **Cured** (cured / not cured)
+
+-   Predictor (independent variable): **Intervention** (intervention / no treatment)
+
+-   Predictor (independent variable): **Duration** (the number of days before treatment that the patient that had the problem)
+
+### 8.6.1. Preparing the data
+
+```{r}
+eelData <- read.delim("eel.dat", header = TRUE)
+# The head() function shows the first six rows of the dataframe
+head(eelData)
+```
+
+When we read in data that are text strings like this, R helpfully converts them to factors. R creates levels of the factor by taking the text string in alphabetical order and assigning them ascending numerical values. So, *Cured* will be the baseline category because it is first. However, we might want *Not Cured* to be the baseline category. Fortunately, the `relevel()` function lets us specify the baseline category for a factor.
+
+```{r}
+eelData$Cured <- factor(eelData$Cured, ordered = FALSE)
+eelData$Cured <- relevel(eelData$Cured, "Not Cured")
+eelData$Intervention <- factor(eelData$Intervention, ordered = FALSE)
+eelData$Intervention <- relevel(eelData$Intervention, "No Treatment")
+```
+
+### 8.6.2. The main logistic regression analysis
+
+#### 8.6.2.1. Basic logistic regression analysis using R Commander
+
+Setting the baseline category to one that we want: **Data -\> Manage variables in active data set -\> Reorder factor levels...**
+
+To run binary logistic regression, choose **Statistics -\> Fit models -\> Generalized linear model...**
+
+When we use a generalized linear model we need to specify a family and link function. The family relates to the type of distribution that we assume. For linear regression, we would choose normal distribution. For logistic regression, we would choose binomial. We also need to choose a link function. For logistic regression, we choose the logit.
+
+### 8.6.3. Basic logistic regression analysis using R
+
+To do logistic regression, we use the `glm()` function. *glm* stands for 'generalized linear model' and the general form of this function is:
+
+`newModel <- glm(outcome ~ predictor(s), data = dataFrame, family = name of a distribution, na.action = an action)`
+
+```{r}
+eelModel.1 <- glm(Cured ~ Intervention, data = eelData, family = binomial())
+eelModel.2 <- glm(
+  Cured ~ Intervention + Duration, data = eelData, family = binomial()
+  )
+```
+
+The first command created a model called `eelModel.1` in which **Cured** is predicted from only **Intervention** (*Cured \~ Intervention)*based on a logit function.
+
+The second command created a model called `eelModel.2` in which **Cured** is predicted from both **Intervention** and **Duration** (*Cured \~ Intervention + Duration*)
+
+### 8.6.4. Interpreting a basic logistic regression
+
+To see the models that we have just generated, we need to execute the `summary()` function.
+
+```{r}
+summary(eelModel.1)
+summary(eelModel.2)
+```
+
+### 8.6.5. Model 1: Intervention only
+
+The overall fit of the model is assessed using the deviance statistic(-2LL). The larger values of the deviance statistic indicate poorer-fitting statistical models. **R** provides two deviance statistics: the null deviance and the residual deviance. The null deviance is the deviance of the model that contains no predictors other than the constant, which is -2LL(base). The residual deviance is the deviance for the model, which is -2LL(new).
+
+For the null model, -2LL=154.08, but when **Intervention** has been included this value has been reduced to 144.16. This reduction tells us that the model is better at predicting whether someone was cured than it was before **Intervention** was added.
+
+*Model chi-square statistic* assess how much better the model predicts the outcome variable. The value of the model chi-square statistic is equal to -2LL with **Intervention** included minus the value of -2LL when only the constant was in the model (154.08 - 144.16 = 9.92). The model chi-square is an analogue of the F-test for the linear regression. We can calculate this value and the degree of freedom associated with the chi-square statistic by executing:
+
+```{r}
+modelChi <- eelModel.1$null.deviance - eelModel.1$deviance
+modelChi
+chidf <- eelModel.1$df.null - eelModel.1$df.residual
+chidf
+```
+
+As we can see, the change in degrees of freedom is 1, which reflects the fact that we have only one variable in the model.
+
+To calculate the probability associated with this chi-square statistic we can use the `pchisq()` function. The probability we want is 1 minus the value of the `pchisq()` function, so we can execute:
+
+```{r}
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+```
+
+In other words, the p-value is .002, so we can reject the null hypothesis that the model is not better than chance at predicting the outcome. This value is the likelihood ratio p-value of the model because we only had one predictor in the model. We can report that including **Intervention** produced a significant improvement in the fit of the model, $\chi^2(1) = 9.93, p=.002$
+
+The coefficient in logistic regression is interpreted similarly as in linear regression, because it represents the change in the *logit* of the outcome variable associated with a one-unit change in the predictor variable. The z-statistic has a normal distribution and tells us whether the *b* coefficient for that predictor is significantly different from zero. We could say the **Intervention** was a significant predictor of being cured, b = 1.23, z = 3.07, p \< .002.
+
+Below is the various commands to calculate $R^2$ from -2LL and degree of freedom:
+
+```{r}
+# Hosmer and Lemeshow's measure
+R2.hl <- modelChi/eelModel.1$null.deviance
+R2.hl
+
+# Cox and Snell's R^2
+R.cs <- 1 - exp((eelModel.1$deviance - eelModel.1$null.deviance) / 113)
+R.cs
+
+# Nagelkerke's estimate
+R.n <- R.cs / (1-(exp(-eelModel.1$null.deviance / 113)))
+R.n
+```
+
+We can wrap up several commands into a function like below:
+
+```{r}
+logisticPseudoR2s <- function(LogModel){
+  dev <- LogModel$deviance
+  nullDev <- LogModel$null.deviance
+  modelN <- length(LogModel$fitted.values)
+  R.l <- 1 - dev / nullDev
+  R.cs <- 1 - exp(-(nullDev - dev) / modelN)
+  R.n <- R.cs / (1-(exp(-(nullDev / modelN))))
+  cat("Pseudo R^2 for logistic regression\n")
+  cat("Hosmer and Lemeshow R^2", round(R.l, 3), "\n")
+  cat("Cox and Snell R^2      ", round(R.cs, 3), "\n")
+  cat("Nagelkerke R^2         ", round(R.n, 3), "\n")
+}
+logisticPseudoR2s(eelModel.1)
+```
+
+The `cat()` function is used to print the text in quotes.
+
+To get the odds ratios, we must first calculate the odds of a patient being cured given that they didn't have the intervention. We then calculate the odds of a patient being cured given that they did have the intervention. The coefficients are stored in a variable called `coefficients`. We can access this variable as:
+
+```{r}
+eelModel.1$coefficients
+exp(eelModel.1$coefficients)
+exp(confint(eelModel.1))
+```
+
+The important thing about this confidence interval is that it doesn't cross 1. This is important because values greater than 1 mean that as the predictor variable increases, so do the odds of being cured. If the lower limit had been below 1 then it would tell us that there is a chance that in the population the direction of the relationship is the opposite to what we have observed.
+
+### 8.6.6. Model 2: Intervention and Duration as predictors
+
+```{r}
+summary(eelModel.2)
+modelChi <- eelModel.1$deviance - eelModel.2$deviance
+chidf <- eelModel.1$df.residual - eelModel.2$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+```
+
+We can see that the b estimate for **Duration** is -0.008, and the probability value associated with that variable is not significant (0.964). Comparing model 1 with model 2, we can see that the deviance for the two models is the same (144.16), suggesting that model 2 is not an improvement over model 1. In addition, we can see that the AIC is higher in model 2 (150.16) than model 1 (148.16), indicating that model 1 is the better model. We can also find that the difference between the models (`modelChi`) is 0.00198, with one degree of freedom (`chidf`) and a p-value (`chisq.prob`) of 0.964. Since this value is greater than .05, we can conclude that model 2 is not a significant improvement over model 1.
+
+With the `anova()` function, we can easily compare our two models by executing:
+
+```{r}
+anova(eelModel.1, eelModel.2)
+```
+
+### 8.6.7. Casewise diagnostics in logistic regression
+
+#### 8.6.7.1. Obtaining residuals
+
+To obtain residuals, we can use the `resid()` function and include the model name within it.
+
+The fitted values are the predicted probabilities of Y occurring given the values of each predictor for a given participant. Predicted probabilities are obtained with the `fitted()` function.
+
+For example, as a basic set of diagnostic statistics we might execute:
+
+```{r}
+eelData$predicted.probabilities <- fitted(eelModel.1)
+eelData$standardized.residuals <- rstandard(eelModel.1)
+eelData$studentized.residuals <- rstudent(eelModel.1)
+eelData$dfbeta <- dfbeta(eelModel.1)
+eelData$dffit <- dffits(eelModel.1)
+eelData$leverage <- hatvalues(eelModel.1)
+```
+
+#### 8.6.7.2. Predicted probabilities
+
+Let's take a look at the predicted probabilities. By using a `head()`function to look ate the first few cases:
+
+```{r}
+head(
+  eelData[, c("Cured", "Intervention", "Duration", "predicted.probabilities")]
+  )
+```
+
+We can find from the model that the only significant predictor of being cured was having the intervention. Assuming that the model is accurate and the intervention has some substantive significance, we could conclude that our intervention is the single best predictor of getting better. Furthermore, the duration of the constipation pre-intervention and its interaction with the intervention did not significantly predict whether a person got better.
+
+#### 8.6.7.3. Interpreting residuals
+
+It is important to examine the residuals to be sure that the model is good. The main purpose of examining residuals is to isolate points for which the model fits poorly (studentized residuals, standardized residuals, deviance statistics), and isolate points that exert an undue influence on the model (Cook's distance):
+
+```{r}
+eelData[, c("leverage", "studentized.residuals", "dfbeta")]
+```
+
+Note that all cases have DFBetas less than 1, and leverage statistics are very close to the calculated expected value of 0.018. These imply that there are no influential cases having an effect on the model.
+
+-   **Leverage**: Lies between 0 (no influence) and 1 (complete influence). The expected leverage is (k+1)/N, where k is the number of predictors and N is the sample size.
+
+-   **Studentized, Standardized residual**: Only 5% should lie outside +/- 1.96, and about 1% should lie outside +/- 2.58.
+
+-   **DFBeta for the constant, DFBeta for the first predictor**: Should be less than 1
+
+### 8.6.8. Calculating the effect size
+
+We can use the odds ratio as an effect size measure.
+
+## 8.7. How to report logistic regression
+
+We have to report the beta values and their standard errors and significance value and some general statistics about the model. Reporting the odds ratio and its confidence interval is also highly recommended. If we include the constant or the variables that were not significant predictors, it will also help the readers.
+
+## 8.8. Testing assumptions: another example
+
+`penalty.dat` contains four variables, each in a separate column
+
+-   Scored: This is our outcome variable. 0 = Penalty missed, 1 = Penalty scored
+
+-   PSWQ: This is the first predictor variable and it gives a measure of the degree to which a player worries.
+
+-   Previous: This is the percentage of penalties scored by a particular player in their carrier (previous success)
+
+-   Anxious: This is the third predictor and it is a measure of state anxiety before taking the penalty.
+
+```{r}
+# Self Test
+penaltyData<-read.delim("penalty.dat", header = TRUE)
+head(penaltyData)
+
+#Create the two hierarchical models:
+penaltyData$Scored <- factor(penaltyData$Scored, ordered = FALSE)
+penaltyData$Scored <- relevel(penaltyData$Scored, "Missed Penalty")
+
+penaltyModel.1 <- 
+  glm(Scored ~ Previous + PSWQ, data = penaltyData, family = binomial())
+penaltyModel.2 <- 
+  glm(
+    Scored ~ Previous + PSWQ + Anxious, data = penaltyData, family = binomial()
+    )
+
+summary(penaltyModel.1)
+summary(penaltyModel.2)
+
+# Model 1
+modelChi <- penaltyModel.1$null.deviance - penaltyModel.1$deviance
+chidf <- penaltyModel.1$df.null - penaltyModel.1$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+logisticPseudoR2s(penaltyModel.1)
+exp(penaltyModel.1$coefficients)
+exp(confint(penaltyModel.1))
+
+# Model 2
+modelChi <- penaltyModel.1$deviance - penaltyModel.2$deviance
+chidf <- penaltyModel.1$df.residual - penaltyModel.2$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+logisticPseudoR2s(penaltyModel.2)
+exp(penaltyModel.2$coefficients)
+exp(confint(penaltyModel.2))
+
+anova(penaltyModel.1, penaltyModel.2)
+```
+
+### 8.8.1 Testing for multicollinearity
+
+(From chapter 7.7.2.4.) Multicollinearity exists when there is a strong correlation between two or more predictors in a regression model. As collinearity increases, there are three problems that arise:
+
+-   **Untrustworthy *b*s**: The standard errors of the *b* coefficients increase as collinearity increases.
+
+-   **It limits the size of R**: If the two predictors are correlated, then the second predictor is likely to account for similar variance in the outcome to that accounted for by the first predictor. Since R is a measure of the multiple correlation between the predictors and the outcome and that $R^2$ indicates the variance in the outcome for which the predictors account, having uncorrelated predictors is beneficial.
+
+-   **Importance of predictors**: If the predictors are highly correlated, and each accounts for similar variance in the outcome, we can't know which of the two variables is important.
+
+We can get the VIF and tolerance as we did in Chapter 7 by entering the model name into the `vif()` function from the *car* package:
+
+```{r}
+vif(penaltyModel.2)
+1/vif(penaltyModel.2)
+```
+
+The first line gives us the VIF values and the second line gives us the tolerance. A VIF over 10 is usually considered problematic. Therefore, there is collinearity between state anxiety and previous experience of taking penalties, and this dependency results in the model becoming biased.
+
+Let's figure out whether the predictors actually have a correlation:
+
+```{r}
+# Self Test
+cor(penaltyData[, c("Previous", "PSWQ", "Anxious")])
+```
+
+The result shows that **Anxious** and **Previous** are highly negatively correlated (r = -.99). It is unclear which of the two variables predicts penalty success in the regression.
+
+If there is a multicollinearity, one obvious solution is to omit one of the variables. However, there is no way of knowing which variable to omit. The better solution is to replace the predictor to another equally important predictor that does not have such strong multicollinearity. Also, we can collect more data to see whether the multicollinearity can be lessened. Or, we can run a factor analysis (Chapter 17) on these predictors and to use the resulting factor scores as a predictor.
+
+### 8.8.2. Testing for linearity of the logit
+
+We have to check that each variable is linearly related to the log of the outcome variable (**Scored**). To test this assumption, we need to run the logistic regression but include predictors that are the interaction between each predictor and the log of itself. To create the interaction terms of each of the variables with its log, we can execute:
+
+```{r}
+penaltyData$logPSWQInt <- log(penaltyData$PSWQ) * penaltyData$PSWQ
+```
+
+This command creates a new variable called `logPSWQInt` in the `penaltyData` dataframe that is the variable `penaltyData$PSWQ` multiplied by the log of that variable `log(penaltyData$PSWQ))`.
+
+Similarly,:
+
+```{r}
+penaltyData$logAnxInt <- log(penaltyData$Anxious) * penaltyData$Anxious
+penaltyData$logPrevInt <- log(penaltyData$Previous + 1) * penaltyData$Previous
+# We added a constant (1) because 0 has no log value.
+
+head(penaltyData)
+```
+
+To test the assumption we need to redo the analysis exactly the same as before, except that we should put all variables in a single block (not hierarchically). We create the model by executing:
+
+```{r}
+penaltyTest.1 <- 
+  glm(
+    Scored ~ PSWQ + Anxious + Previous + logPSWQInt + logAnxInt + logPrevInt,
+    data = penaltyData, family = binomial()
+    )
+summary(penaltyTest.1)
+```
+
+We're interested only in whether the interaction terms are significant. Any interaction that is significant indicates that the main effect has violated the assumption of linearity of the logit. Therefore, we can say that the assumption of linearity of the logit has been met for **PSWQ**, **Anxious**, and **Previous.**
+
+Below is the real research:
+
+```{r}
+# Labcoat Leni's Real Research
+suicideData <- read.delim("Lacourse et al. (2001) Females.dat", header = TRUE)
+head(suicideData)
+
+suicideData$Marital_Status <- factor(suicideData$Marital_Status, ordered = FALSE)
+suicideData$Marital_Status <- relevel(suicideData$Marital_Status, "Together")
+suicideData$Suicide_Risk <- factor(suicideData$Suicide_Risk, ordered = FALSE)
+suicideData$Suicide_Risk <- relevel(suicideData$Suicide_Risk, "Non-Suicidal")
+# To reorder, click Data -> Convert character variables to factors
+
+suicideModel <-
+  glm(
+    Suicide_Risk ~ Age + Marital_Status + Mother_Negligence +
+    Father_Negligence + Self_Estrangement + Isolation + Normlessness +
+    Meaninglessness + Drug_Use + Metal + Worshipping + Vicarious,
+    data = suicideData, family = binomial()
+    )
+
+summary(suicideModel)
+
+modelChi <- suicideModel$null.deviance - suicideModel$deviance
+chidf <- suicideModel$df.null - suicideModel$df.residual
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+modelChi; chidf; chisq.prob
+
+exp(suicideModel$coefficients)
+exp(confint(suicideModel))
+```
+
+We can report that including all the predictors produced a significant improvement in the fit of the model, $\chi^2(12)=50.42, p<.0001$.
+
+The most significant predictor was drug use.
+
+## 8.9. Predicting several categories: multinomial logistic regression
+
+In **Chat-Up Lines.dat**, there is one outcome variable (**Success**) with three categories (no response, phone number, go home with recipient) and four predictors: funniness of the chat-up line (**Funny**), sexual content of the chat-up line (**Sex**), degree to which the chat-up line reflects good characteristics (**Good_Mate**) and the gender of the person being chatted up (**Female** - Scored as 1 = female, 0 = male)
+
+### 8.9.1. Running multinomial logistic regression in R
+
+The outcome (**Success**) and **Gender** are stored as text, therefore **R** should have imported these variables as factors. We can check this by using `is.factor()` function.
+
+```{r}
+chatData <- read.delim("Chat-Up Lines.dat", header = TRUE)
+is.factor(chatData$Success)
+is.factor(chatData$Gender)
+head(chatData)
+```
+
+Since the result is '`FALSE`', we should convert them into factor by using `as.factor()` function.
+
+```{r}
+as.factor(chatData$Success)
+as.factor(chatData$Gender)
+```
+
+The **Gender** is imported as a factor with 'female' as the baseline category. All of our predictions are based on females behaving differently than males, so it would be better to have 'male' as the baseline category by executing:
+
+```{r}
+chatData$Gender <- factor(chatData$Gender, ordered = FALSE)
+chatData$Success <- factor(chatData$Success, ordered = FALSE)
+chatData$Gender <- relevel(chatData$Gender, ref = 2)
+chatData$Success <- relevel(chatData$Success, ref = 3)
+levels(chatData$Gender)
+levels(chatData$Success)
+```
+
+This command resets the levels of the variable **Gender** such that the reference or baseline category is the category currently set as 2. Therefore, males become the reference category.
+
+Instead of having one row per person, we need to have one row per person per category of the outcome variable. Each row will contain TRUE if the person was assigned to that category, and FALSE if they weren't. `mlogit.data()` function converts our data into the correct format:
+
+```{r}
+mlChat <- mlogit.data(chatData, choice = "Success", shape = "wide")
+head(mlChat)
+```
+
+Now, we are ready to run the multinomial logistic regression, using the `mlogit()` function. The `mlogit()` function is similar to the `glm()` function, and takes the general form:
+
+`newModel <- mlogit(outcome ~ predictor(s), data = dataframe, na.action = an action, reflevel = a number representing the baseline category for the outcome)`
+
+In this example, `outcome` will be the variable **Success**. `reflevel` is a number representing the outcome category that we want to use as a baseline.
+
+The basic idea of `mlogit()` is the same as the `lm()` and `glm()` functions, but one important difference is that we need to specify the reference or baseline category.
+
+The next issue is what to include within the model. We are going to include the interaction terms **Sex x Gender** and **Funny x Gender** into the model. We can create the model by executing:
+
+```{r}
+chatModel <- mlogit(
+  Success ~ 1 | Good_Mate + Funny + Gender + Sex + Gender:Sex + Funny:Gender,
+  data = mlChat,
+  )
+```
+
+### 8.9.2. Interpreting the multinomial logistic regression output
+
+```{r}
+summary(chatModel)
+```
+
+From the output, we got a log-likelihood ratio of the overall model, which is a measure of how much unexplained variability there is in the data. Therefore, the difference or change in log-likelihood indicates how much new variance has been explained by the model. The chi-square test tests the decrease in unexplained variance from the baseline model to the final model, which is a difference of 139.26. By multiplying this by 2, we get the chi-square test, which is 278.52. This change is significant, which means that our final model explains a significant amount of the original variability. We also got a McFadden $R^2$, a measure of effect size.
+
+For the interpretation, we can exponentiate the coefficients using the `exp()` function. These coefficients are stored in a variable called `coefficients` attached to the model:
+
+```{r}
+exp(chatModel$coefficients)
+data.frame(exp(chatModel$coefficients))
+exp(confint(chatModel))
+```
+
+### 8.9.3. Reporting the results
+
+We can report the results as with binary logistic regression using a table.

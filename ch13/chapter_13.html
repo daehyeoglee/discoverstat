@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Daehyeog Lee">
+<meta name="dcterms.date" content="2023-01-19">
+
+<title>Chapter 13. Repeated-measured designs (GLM 4)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="chapter_13_files/libs/clipboard/clipboard.min.js"></script>
+<script src="chapter_13_files/libs/quarto-html/quarto.js"></script>
+<script src="chapter_13_files/libs/quarto-html/popper.min.js"></script>
+<script src="chapter_13_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="chapter_13_files/libs/quarto-html/anchor.min.js"></script>
+<link href="chapter_13_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="chapter_13_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="chapter_13_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="chapter_13_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="chapter_13_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Chapter 13. Repeated-measured designs (GLM 4)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Daehyeog Lee </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 19, 2023</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">January 31, 2024</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="what-will-this-chapter-tell-me" class="level2">
+<h2 class="anchored" data-anchor-id="what-will-this-chapter-tell-me">13.1. What will this chapter tell me?</h2>
+</section>
+<section id="introduction-to-repeated-measures-designs" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-to-repeated-measures-designs">13.2. Introduction to repeated-measures designs</h2>
+<p><strong>‘Repeated measures’</strong> is a term used when the same entities participate in all conditions of an experiment or provide data at multiple time points.</p>
+<p>The accuracy of the <em>F</em>-test in ANOVA depends upon the assumption that scores in different conditions are independent. When repeated measures are used, this assumption is violated: the outcome is likely to be related because they come from the same participants.</p>
+<p>Therefore, we need an additional assumption, which is that the relationship between pairs of experimental conditions is similar. In other words, the level of dependence between experimental conditions are roughly equal. This assumption is called the assumption of <strong>sphericity</strong>.</p>
+<section id="the-assumption-of-sphericity" class="level3">
+<h3 class="anchored" data-anchor-id="the-assumption-of-sphericity">13.2.1. The assumption of sphericity</h3>
+<p>Sphericity refers to the equality of variances of <em>the differences between treatment levels.</em></p>
+<p>The assumption of sphericity can be likened to the assumption of homogeneity of variance in between-group ANOVA. Sphericity is a more general condition of <strong>compound symmetry</strong>. Compound symmetry holds true when both the variances across conditions are equal and the covariances between pairs of conditions are equal. So, we assume that the variation within experimental conditions is fairly similar and that no two conditions are any more dependent than any other two. Therefore, we need at least three conditions for sphericity to be an issue.</p>
+</section>
+<section id="how-is-sphericity-measured" class="level3">
+<h3 class="anchored" data-anchor-id="how-is-sphericity-measured">13.2.2. How is sphericity measured?</h3>
+<p>If we were going to check the assumption of sphericity by hand, we could start by calculating the differences between pairs of scores in all combinations of the treatment levels.</p>
+<p><span class="math inline">\(Variance_{A-B} = Variance_{A-C} = Variance_{B-C}\)</span></p>
+</section>
+<section id="assessing-the-severity-of-departures-from-sphericity" class="level3">
+<h3 class="anchored" data-anchor-id="assessing-the-severity-of-departures-from-sphericity">13.2.3. Assessing the severity of departures from sphericity</h3>
+<p>We can assess the sphericity by using <strong>Mauchly’s test</strong>, which tests the hypothesis that the variances of the differences between conditions are equal. If Mauchly’s test statistic is non-significant then it is reasonable to conclude that the variances of differences are not significantly different.</p>
+</section>
+<section id="what-is-the-effect-of-violating-the-assumption-of-sphericity" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-the-effect-of-violating-the-assumption-of-sphericity">13.2.4. What is the effect of violating the assumption of sphericity?</h3>
+<p>The violation of the sphericity causes the loss of power. When sphericity is violates, the Bonferroni method seems to be generally the most robust of the univariate techniques, especially in terms of power and control of the Type I error rate.</p>
+</section>
+<section id="what-do-you-do-if-you-violate-sphericity" class="level3">
+<h3 class="anchored" data-anchor-id="what-do-you-do-if-you-violate-sphericity">13.2.5. What do you do if you violate sphericity?</h3>
+<p>If data violate the sphericity assumption, there are several corrections that can be applied to produce a valid <em>F</em>-ratio. These estimates give rise to a correction factor that is applied to the degrees of freedom used to assess the observed <em>F</em>-ratio.</p>
+<ul>
+<li><p><strong>Greenhouse-Geisser correction</strong> <span class="math inline">\(\epsilon\)</span> varies between <span class="math inline">\(1/(k-1)\)</span> and <span class="math inline">\(1\)</span>, where <span class="math inline">\(k\)</span> is the number of repeated-measures conditions. The closer <span class="math inline">\(\epsilon\)</span> is to 1, the more homogeneous the variances of differences. When the Greenhouse-Geisser estimate is greater than .75 too many false null hypotheses fail to be rejected.</p></li>
+<li><p><strong>Huynh-Feldt correction</strong> is used when estimates of sphericity are greater than .75.</p></li>
+<li><p><strong>MANOVA</strong> is not dependent upon the assumption of sphericity, but there are trade-offs in power between these univariate and multivariate tests.</p></li>
+<li><p><strong>Multilevel model</strong> dummy-codes our grouping variables to ensure that these coefficients only ever compare two things. When we have a large violation of sphericity (<span class="math inline">\(\epsilon &lt;.7\)</span>) and our sample size is greater than (<span class="math inline">\(a+10\)</span>) then multivariate procedures are more powerful, but with small sample sizes or when sphericity holds (<span class="math inline">\(\epsilon &gt;.7\)</span>) the univariate approach is preferred.</p></li>
+</ul>
+</section>
+</section>
+<section id="theory-of-one-way-repeated-measured-anova" class="level2">
+<h2 class="anchored" data-anchor-id="theory-of-one-way-repeated-measured-anova">13.3. Theory of one-way repeated-measured ANOVA</h2>
+<p>In independent ANOVA, the within-participant variance is our residual variance <span class="math inline">\(SS_R\)</span>; it is the variance created by individual differences in performance. However, when we carry out our experimental manipulation on the same people, the within-participant variance will be made up of two things: <strong>the effect of our manipulation</strong> and <strong>individual differences in performance</strong>. Because we did the same thing to everyone within a particular condition, any variation that cannot be explained by the manipulation we’ve carried out must be due to random factors outside our control, unrelated to our experimental manipulations.</p>
+<p>The <em>only</em> difference between repeated-measures and independent ANOVA is from where those sums of squares came: in repeated-measures ANOVA the model and residual sums of squares are both part of the within-participant variance.</p>
+<section id="the-total-sum-of-squares-ss_t" class="level3">
+<h3 class="anchored" data-anchor-id="the-total-sum-of-squares-ss_t">13.3.1. The total sum of squares <span class="math inline">\(SS_T\)</span></h3>
+<p>The total sum of squares is calculated in exactly the same way as in one-way independent ANOVA.</p>
+<p><span class="math inline">\(SS_T = s^2_{grand}(N-1)\)</span></p>
+</section>
+<section id="the-within-participant-sum-of-squares-ss_w" class="level3">
+<h3 class="anchored" data-anchor-id="the-within-participant-sum-of-squares-ss_w">13.3.2. The within-participant sum of squares <span class="math inline">\(SS_W\)</span></h3>
+<p>In independent ANOVA, the residual sum of squares <span class="math inline">\(SS_R\)</span> is an estimate of individual differences within a particular group.</p>
+<p>In repeated-measures designs, we’ve subjected people to more than one experimental condition. Therefore, we’re interested in the variation not within a group of people (as in independent ANOVA) but within an actual person.</p>
+<p><span class="math inline">\(SS_W = SS_M + SS_R\)</span></p>
+<p>We are looking at <span class="math inline">\(SS_W\)</span>, which is the variation in an individual’s scores and then adding these variances for all the people in the study. The degrees of freedom for each person are <span class="math inline">\(n-1\)</span>. To get the total degrees of freedom, we add the <em>df</em>s for all participants. So, with eight participants and four conditions, there are 3 <em>df</em>s for each participant and 8 x 3 = 24 degrees of freedom in total.</p>
+</section>
+<section id="the-model-sum-of-squares-ss_m" class="level3">
+<h3 class="anchored" data-anchor-id="the-model-sum-of-squares-ss_m">13.3.3. The model sum of squares <span class="math inline">\(SS_M\)</span></h3>
+<p>In independent ANOVA, we worked out how much variation could be explained by our experiment by looking at the means for each group and comparing these to the overall mean. So, we measured the variance resulting from the differences between group means and the overall mean. We do exactly the same thing with a repeated-measures design.</p>
+<p>For <span class="math inline">\(SS_M\)</span>, the degrees of freedom <span class="math inline">\(df_M\)</span> are again one less than the number of things used to calculate the sum of squares.</p>
+</section>
+<section id="the-residual-sum-of-squares-ss_r" class="level3">
+<h3 class="anchored" data-anchor-id="the-residual-sum-of-squares-ss_r">13.3.4. The residual sum of squares <span class="math inline">\(SS_R\)</span></h3>
+<p><span class="math inline">\(SS_R\)</span> tells us how much of the variation cannot be explained by the model, and it is calculated by subtracting <span class="math inline">\(SS_M\)</span> from <span class="math inline">\(SS_W\)</span>.</p>
+<p><span class="math inline">\(SS_R = SS_W - SS_M\)</span></p>
+<p><span class="math inline">\(df_R = df_W - df_M\)</span></p>
+</section>
+<section id="the-mean-squares" class="level3">
+<h3 class="anchored" data-anchor-id="the-mean-squares">13.3.5. The mean squares</h3>
+<p>Same as the calculation used in the independent ANOVA. We divide the <span class="math inline">\(SS_M\)</span> and <span class="math inline">\(SS_R\)</span> with <span class="math inline">\(df_M\)</span> and <span class="math inline">\(df_R\)</span>, respectively.</p>
+</section>
+<section id="the-f-ratio" class="level3">
+<h3 class="anchored" data-anchor-id="the-f-ratio">13.3.6. The <em>F</em>-ratio</h3>
+<p><span class="math inline">\(F = \frac{MS_M}{MS_R}\)</span></p>
+</section>
+<section id="the-between-participant-sum-of-squares" class="level3">
+<h3 class="anchored" data-anchor-id="the-between-participant-sum-of-squares">13.3.7. The between-participant sum of squares</h3>
+<p>The between-participant sum of squares is calculated by:</p>
+<p><span class="math inline">\(SS_B = SS_T - SS_W\)</span></p>
+<p>It reflects the differences between individuals.</p>
+</section>
+</section>
+<section id="one-way-repeated-measures-designs-using-r" class="level2">
+<h2 class="anchored" data-anchor-id="one-way-repeated-measures-designs-using-r">13.4. One-way repeated-measures designs using R</h2>
+<section id="packages-for-repeated-measures-designs-in-r" class="level3">
+<h3 class="anchored" data-anchor-id="packages-for-repeated-measures-designs-in-r">13.4.1. Packages for repeated measures designs in R</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car); <span class="fu">library</span>(compute.es); <span class="fu">library</span>(effects); <span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>lattice theme set by effectsTheme()
+See ?effectsTheme for details.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(multcomp); <span class="fu">library</span>(pastecs); <span class="fu">library</span>(WRS2); <span class="fu">library</span>(reshape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: mvtnorm</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: survival</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: TH.data</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: MASS</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'TH.data'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:MASS':
+
+    geyser</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here); <span class="fu">library</span>(ez); <span class="fu">library</span>(nlme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at /Users/leedh/self_study/discoverstat</code></pre>
+</div>
+</div>
+<p><code>lme()</code> enables us to do a regression in which observations can be correlated. We can forget about sphericity when using <code>lme()</code>.</p>
+</section>
+<section id="general-procedure-for-repeated-measures-designs" class="level3">
+<h3 class="anchored" data-anchor-id="general-procedure-for-repeated-measures-designs">13.4.2. General procedure for repeated-measures designs</h3>
+</section>
+<section id="repeated-measures-anova-using-r-commander" class="level3">
+<h3 class="anchored" data-anchor-id="repeated-measures-anova-using-r-commander">13.4.3. Repeated-measures ANOVA using R commander</h3>
+<p>We can’t do repeated-measures ANOVA using R Commander.</p>
+</section>
+<section id="entering-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="entering-the-data">13.4.4. Entering the data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>bushData <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="fu">here</span>(<span class="st">"ch13"</span>, <span class="st">"Bushtucker.dat"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bushData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  participant stick_insect kangaroo_testicle fish_eye witchetty_grub
+1          P1            8                 7        1              6
+2          P2            9                 5        2              5
+3          P3            6                 2        3              8
+4          P4            5                 3        1              9
+5          P5            8                 4        5              8
+6          P6            7                 5        6              7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>longBush <span class="ot">&lt;-</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">melt</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    bushData,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">"participant"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">measured =</span> <span class="fu">c</span>(</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"stick_insect"</span>, <span class="st">"kangaroo_testicle"</span>, <span class="st">"fish_eye"</span>, <span class="st">"witchetty_grub"</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(longBush)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  participant     variable value
+1          P1 stick_insect     8
+2          P2 stick_insect     9
+3          P3 stick_insect     6
+4          P4 stick_insect     5
+5          P5 stick_insect     8
+6          P6 stick_insect     7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(longBush) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Participant"</span>, <span class="st">"Animal"</span>, <span class="st">"Retch"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(longBush)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Participant       Animal Retch
+1          P1 stick_insect     8
+2          P2 stick_insect     9
+3          P3 stick_insect     6
+4          P4 stick_insect     5
+5          P5 stick_insect     8
+6          P6 stick_insect     7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Observing for each participant</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>longBush<span class="ot">&lt;-</span>longBush[<span class="fu">order</span>(longBush<span class="sc">$</span>Participant),]</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(longBush)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Participant            Animal Retch
+1           P1      stick_insect     8
+9           P1 kangaroo_testicle     7
+17          P1          fish_eye     1
+25          P1    witchetty_grub     6
+2           P2      stick_insect     9
+10          P2 kangaroo_testicle     5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>longBush<span class="sc">$</span>Animal <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  longBush<span class="sc">$</span>Animal,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Stick Insect"</span>, <span class="st">"Kangaroo Testicle"</span>, <span class="st">"Fish Eye"</span>, <span class="st">"Witchetty Grub"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, these four scores are not represented by four different rows rather than four columns as they were before.</p>
+</section>
+<section id="exploring-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="exploring-the-data">13.4.5. Exploring the data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>bar <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(longBush, <span class="fu">aes</span>(Animal, Retch))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>bar <span class="sc">+</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y =</span> mean, <span class="at">geom =</span> <span class="st">"bar"</span>, <span class="at">fill =</span> <span class="st">"White"</span>, <span class="at">colour =</span> <span class="st">"Black"</span>) <span class="sc">+</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> mean_cl_normal, <span class="at">geom =</span> <span class="st">"pointrange"</span>) <span class="sc">+</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Animal"</span>, <span class="at">y =</span> <span class="st">"Retch"</span>) <span class="sc">+</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">20</span>, <span class="at">by =</span> <span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The `fun.y` argument of `stat_summary()` is deprecated as of ggplot2 3.3.0.
+ℹ Please use the `fun` argument instead.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_13_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>boxplot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(longBush, <span class="fu">aes</span>(Animal, Retch))</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>boxplot <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Animal"</span>, <span class="at">y =</span> <span class="st">"Retch"</span>) <span class="sc">+</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">12</span>, <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_13_files/figure-html/unnamed-chunk-3-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="choosing-contrasts" class="level3">
+<h3 class="anchored" data-anchor-id="choosing-contrasts">13.4.6. Choosing contrasts</h3>
+<p>Let’s pretend that our first contrast might comparing the fish eye and kangaroo testicle (combined) to the witchetty grub and stick insect (combined). Then, we need a second contrast to separate the fish eye from the kangaroo testicle, and a third contrast to separate the witchetty grub from the stick insect.</p>
+<table class="table">
+<caption>Orthogonal contrast</caption>
+<thead>
+<tr class="header">
+<th>Group</th>
+<th style="text-align: center;">Contrast 1</th>
+<th style="text-align: center;">Contrast 2</th>
+<th style="text-align: center;">Contrast 3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Stick insect</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">-1</td>
+</tr>
+<tr class="even">
+<td>Kangaroo testicle</td>
+<td style="text-align: center;">-1</td>
+<td style="text-align: center;">-1</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td>Fish eye</td>
+<td style="text-align: center;">-1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td>Witchetty grub</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>PartvsWhole <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>TesticlevsEye <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>StickvsGrub <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(longBush<span class="sc">$</span>Animal) <span class="ot">&lt;-</span> <span class="fu">cbind</span>(PartvsWhole, TesticlevsEye, StickvsGrub)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>longBush<span class="sc">$</span>Animal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] Stick Insect      Kangaroo Testicle Fish Eye          Witchetty Grub   
+ [5] Stick Insect      Kangaroo Testicle Fish Eye          Witchetty Grub   
+ [9] Stick Insect      Kangaroo Testicle Fish Eye          Witchetty Grub   
+[13] Stick Insect      Kangaroo Testicle Fish Eye          Witchetty Grub   
+[17] Stick Insect      Kangaroo Testicle Fish Eye          Witchetty Grub   
+[21] Stick Insect      Kangaroo Testicle Fish Eye          Witchetty Grub   
+[25] Stick Insect      Kangaroo Testicle Fish Eye          Witchetty Grub   
+[29] Stick Insect      Kangaroo Testicle Fish Eye          Witchetty Grub   
+attr(,"contrasts")
+                  PartvsWhole TesticlevsEye StickvsGrub
+Stick Insect                1             0          -1
+Kangaroo Testicle          -1            -1           0
+Fish Eye                   -1             1           0
+Witchetty Grub              1             0           1
+Levels: Stick Insect Kangaroo Testicle Fish Eye Witchetty Grub</code></pre>
+</div>
+</div>
+</section>
+<section id="analysing-repeated-measures-two-ways-to-skin-a-.dat" class="level3">
+<h3 class="anchored" data-anchor-id="analysing-repeated-measures-two-ways-to-skin-a-.dat">13.4.7. Analysing repeated measures: two ways to skin a .dat</h3>
+<section id="the-easier-but-slightly-limited-way-repeated-measures-anova" class="level4">
+<h4 class="anchored" data-anchor-id="the-easier-but-slightly-limited-way-repeated-measures-anova">13.4.7.1. The easier (but slightly limited) way: repeated-measures ANOVA</h4>
+<p><code>ezANOVA</code> computes sphericity estimates and the aforementioned corrections for sphericity. It takes the general format of:<br>
+<code>newModel &lt;- ezANOVA(data = dataFrame, dv = .(outcome variable_, wid = .(variable that identifies participants), within = .(repeated measured predictors), between = .(between-group predictors), detailed = FALSE, type = 2)</code></p>
+<p><code>within</code> is a variable or list of variables representing the independent variables or predictors that were manipulated as repeated measures. In the current data this would be the variable <code>Animal</code>.</p>
+<p><code>between</code> is a variable or list of variables representing the independent variables or predictors that were manipulated as between-group variables. In the current data we don’t have a variable manipulated in this way.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>bushModel <span class="ot">&lt;-</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ezANOVA</span>(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> longBush,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">dv =</span> .(Retch),</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">wid =</span> .(Participant),</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">within =</span> .(Animal),</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">detailed =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="dv">3</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Converting "Participant" to factor for ANOVA.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>bushModel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$ANOVA
+       Effect DFn DFd     SSn     SSd          F            p p&lt;.05       ges
+1 (Intercept)   1   7 990.125  17.375 398.899281 1.973536e-07     * 0.8529127
+2      Animal   3  21  83.125 153.375   3.793806 2.557030e-02     * 0.3274249
+
+$`Mauchly's Test for Sphericity`
+  Effect        W          p p&lt;.05
+2 Animal 0.136248 0.04684581     *
+
+$`Sphericity Corrections`
+  Effect       GGe      p[GG] p[GG]&lt;.05       HFe      p[HF] p[HF]&lt;.05
+2 Animal 0.5328456 0.06258412           0.6657636 0.04833061         *</code></pre>
+</div>
+</div>
+<p>The Mauchly’s test for sphericity is significant, so we reject the assumption that the variances of the differences between levels are equal.</p>
+<p>The lower limit of <span class="math inline">\(\epsilon\)</span> will be 1/(4-1), or .33. The output shows that the calculated value of <span class="math inline">\(\epsilon\)</span> is .533 (GGe in the output). This is closer to the lower limit of .33 than it is to the upper limit of 1 and it therefore represents a substantial deviation from sphericity.</p>
+<p>The model sum of squares <span class="math inline">\(SS_M\)</span> is noted as SSn, and <span class="math inline">\(SS_R\)</span> as SSd.</p>
+<p>The <em>df</em> for the effect of <code>Animal</code> is <span class="math inline">\(k-1\)</span>, and the error <em>df</em> is <span class="math inline">\((n-1)(k-1)\)</span>, where <span class="math inline">\(k\)</span> is the number of levels of the independent variable, and <span class="math inline">\(n\)</span> is the number of participants.</p>
+<p>The <em>p[GG]</em> and <em>p[HF]</em> represent the corrected <em>p</em>-values using the Greenhouse-Geisser and Huynh-Feldt corrections. The Greenhouse-Geisser correction is more conservative than Huynh-Feldt correction.</p>
+<p>The <em>F</em>-ratio itself remains unchanged when adjusting the Greenhouse-Geisser and Huynh-Feldt correction. <strong>The <em>df</em> are adjusted by multiplying them by the estimate of sphericity.</strong> For example, the Greenhouse estimate of sphericity was .533. The original degrees of freedom for the model were 3. Therefore, the value is corrected by multiplying by the estimate of sphericity (3*.533 = 1.599)</p>
+<p>In terms of <em>post hoc</em> tests, we can use the <code>pairwise.t.test()</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairwise.t.test</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  longBush<span class="sc">$</span>Retch, longBush<span class="sc">$</span>Animal, <span class="at">paired =</span> <span class="cn">TRUE</span>, <span class="at">p.adjust.method =</span> <span class="st">"bonferroni"</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pairwise comparisons using paired t tests 
+
+data:  longBush$Retch and longBush$Animal 
+
+                  Stick Insect Kangaroo Testicle Fish Eye
+Kangaroo Testicle 0.0121       -                 -       
+Fish Eye          0.0056       1.0000            -       
+Witchetty Grub    1.0000       1.0000            1.0000  
+
+P value adjustment method: bonferroni </code></pre>
+</div>
+</div>
+<p>We can see that the time to retch was significantly longer after eating a stick insect compared to a kangaroo testicle (<em>p</em> = .012) and a fish eye (<em>p</em> = .006) but not compared to a witchetty grub.</p>
+</section>
+<section id="the-slightly-more-complicated-way-the-multilevel-approach" class="level4">
+<h4 class="anchored" data-anchor-id="the-slightly-more-complicated-way-the-multilevel-approach">13.4.7.2. The slightly more complicated way: the multilevel approach</h4>
+<p>A multilevel model is simply a regression or linear model that considers dependency in the data. It is an extension of regression that handles dependent data by explicitly modeling the dependency. One of the assumptions of regression was that residuals needed to be independent. Repeated-measures designs have dependent data, therefore dependent residuals.</p>
+<p><code>bushModel2 &lt;- aov(Retch ~ Animal, data = longBush)</code> takes no account of the fact that the predictor (<code>Animal</code>) is made up of data from the same people. Therefore, we need to factor this dependency into the model.</p>
+<p>The current context a random effect is an effect that can vary across different entities. For example, if we want to model the fact that people’s overall threshold to retch will vary, we can write this as<br>
+<code>random = ~ 1|Participant/Animal</code>. By including this term, we’re telling the model that data with the same value of <code>Participant</code> within different levels of <code>Animal</code> are dependent:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>bushModel2 <span class="ot">&lt;-</span> <span class="fu">lme</span>(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  Retch <span class="sc">~</span> Animal, <span class="at">random =</span> <span class="sc">~</span><span class="dv">1</span><span class="sc">|</span>Participant<span class="sc">/</span>Animal, <span class="at">data =</span> longBush, <span class="at">method =</span> <span class="st">"ML"</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>baseline <span class="ot">&lt;-</span> <span class="fu">lme</span>(</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  Retch <span class="sc">~</span> <span class="dv">1</span>, <span class="at">random =</span> <span class="sc">~</span><span class="dv">1</span><span class="sc">|</span>Participant<span class="sc">/</span>Animal, <span class="at">data =</span> longBush, <span class="at">method =</span> <span class="st">"ML"</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(baseline, bushModel2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           Model df      AIC      BIC    logLik   Test  L.Ratio p-value
+baseline       1  4 165.0875 170.9504 -78.54373                        
+bushModel2     2  7 158.3949 168.6551 -72.19747 1 vs 2 12.69253  0.0054</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bushModel2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed-effects model fit by maximum likelihood
+  Data: longBush 
+       AIC      BIC    logLik
+  158.3949 168.6551 -72.19747
+
+Random effects:
+ Formula: ~1 | Participant
+        (Intercept)
+StdDev: 7.75583e-05
+
+ Formula: ~1 | Animal %in% Participant
+        (Intercept)   Residual
+StdDev:    2.309935 0.01176116
+
+Fixed effects:  Retch ~ Animal 
+                      Value Std.Error DF   t-value p-value
+(Intercept)          5.5625 0.4365423 21 12.742178  0.0000
+AnimalPartvsWhole    1.3750 0.4365423 21  3.149752  0.0048
+AnimalTesticlevsEye -0.0625 0.6173641 21 -0.101237  0.9203
+AnimalStickvsGrub   -1.1875 0.6173641 21 -1.923500  0.0681
+ Correlation: 
+                    (Intr) AnmlPW AnmlTE
+AnimalPartvsWhole   0                   
+AnimalTesticlevsEye 0      0            
+AnimalStickvsGrub   0      0      0     
+
+Standardized Within-Group Residuals:
+          Min            Q1           Med            Q3           Max 
+-0.0104696743 -0.0046838017  0.0001377589  0.0041327662  0.0085410501 
+
+Number of Observations: 32
+Number of Groups: 
+            Participant Animal %in% Participant 
+                      8                      32 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>postHocs <span class="ot">&lt;-</span> <span class="fu">glht</span>(bushModel2, <span class="at">linfct =</span> <span class="fu">mcp</span>(<span class="at">Animal =</span> <span class="st">"Tukey"</span>))</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(postHocs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Simultaneous Tests for General Linear Hypotheses
+
+Multiple Comparisons of Means: Tukey Contrasts
+
+
+Fit: lme.formula(fixed = Retch ~ Animal, data = longBush, random = ~1 | 
+    Participant/Animal, method = "ML")
+
+Linear Hypotheses:
+                                        Estimate Std. Error z value Pr(&gt;|z|)   
+Kangaroo Testicle - Stick Insect == 0     -3.875      1.155  -3.355  0.00417 **
+Fish Eye - Stick Insect == 0              -4.000      1.155  -3.463  0.00318 **
+Witchetty Grub - Stick Insect == 0        -2.375      1.155  -2.056  0.16752   
+Fish Eye - Kangaroo Testicle == 0         -0.125      1.155  -0.108  0.99955   
+Witchetty Grub - Kangaroo Testicle == 0    1.500      1.155   1.299  0.56373   
+Witchetty Grub - Fish Eye == 0             1.625      1.155   1.407  0.49493   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+(Adjusted p values reported -- single-step method)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(postHocs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Simultaneous Confidence Intervals
+
+Multiple Comparisons of Means: Tukey Contrasts
+
+
+Fit: lme.formula(fixed = Retch ~ Animal, data = longBush, random = ~1 | 
+    Participant/Animal, method = "ML")
+
+Quantile = 2.5699
+95% family-wise confidence level
+ 
+
+Linear Hypotheses:
+                                        Estimate lwr     upr    
+Kangaroo Testicle - Stick Insect == 0   -3.8750  -6.8432 -0.9068
+Fish Eye - Stick Insect == 0            -4.0000  -6.9682 -1.0318
+Witchetty Grub - Stick Insect == 0      -2.3750  -5.3432  0.5932
+Fish Eye - Kangaroo Testicle == 0       -0.1250  -3.0932  2.8432
+Witchetty Grub - Kangaroo Testicle == 0  1.5000  -1.4682  4.4682
+Witchetty Grub - Fish Eye == 0           1.6250  -1.3432  4.5932</code></pre>
+</div>
+</div>
+<p>We can see that the time to retch was significantly longer after eating a stick insect compared to a kangaroo testicle (<em>p</em> = .004) and a fish eye (<em>p</em> = .003) but not compared to a witchetty grub.</p>
+</section>
+</section>
+<section id="robust-one-way-repeated-measures-anova" class="level3">
+<h3 class="anchored" data-anchor-id="robust-one-way-repeated-measures-anova">13.4.8. Robust one-way repeated-measures ANOVA</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bushData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  participant stick_insect kangaroo_testicle fish_eye witchetty_grub
+1          P1            8                 7        1              6
+2          P2            9                 5        2              5
+3          P3            6                 2        3              8
+4          P4            5                 3        1              9
+5          P5            8                 4        5              8
+6          P6            7                 5        6              7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>bushData2 <span class="ot">&lt;-</span> bushData[, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>)]</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bushData2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  stick_insect kangaroo_testicle fish_eye witchetty_grub
+1            8                 7        1              6
+2            9                 5        2              5
+3            6                 2        3              8
+4            5                 3        1              9
+5            8                 4        5              8
+6            7                 5        6              7</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="effect-sizes-for-repeated-measures-designs" class="level2">
+<h2 class="anchored" data-anchor-id="effect-sizes-for-repeated-measures-designs">13.5. Effect sizes for repeated measures designs</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>rcontrast <span class="ot">&lt;-</span> <span class="cf">function</span>(t, df)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(t<span class="sc">^</span><span class="dv">2</span><span class="sc">+</span>df))</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"r = "</span>, r))</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="fl">3.149752</span>, <span class="dv">21</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.566434937677424"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="sc">-</span><span class="fl">0.101237</span>, <span class="dv">21</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.0220863356562026"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="sc">-</span><span class="fl">1.923500</span>, <span class="dv">21</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.387030341310243"</code></pre>
+</div>
+</div>
+</section>
+<section id="reporting-one-way-repeated-measures-designs" class="level2">
+<h2 class="anchored" data-anchor-id="reporting-one-way-repeated-measures-designs">13.6. Reporting one-way repeated-measures designs</h2>
+<ul>
+<li><p>Mauchly’s test indicated that the assumption of sphericity had been violated, <span class="math inline">\(\chi^2(5) = 11.41, p &lt; .05\)</span> , therefore Greenhouse-Geisser corrected tests are reported (<span class="math inline">\(\epsilon = .53\)</span>). The results show that the time to retch was not significantly affected by the type of animal eaten, <em>F</em>(1.60, 11.19) = 3.79, <em>p</em> &gt; .05, <span class="math inline">\(\eta^2 = .327\)</span>.</p></li>
+<li><p>The type of animal consumed had a significant effect on the time taken to retch, <span class="math inline">\(\chi^2(3) = 12.69, p = .005\)</span>. Orthogonal contrasts revealed that retching times were significantly quicker for animal parts (testicle and eye) compared to whole animals (stick insect and witchetty grub), <span class="math inline">\(b = 1.38, t(21) = 3.15, p = .005\)</span>; there was no significant difference in the time to retch after eating a kangaroo testicle and a fish eye, <span class="math inline">\(b = -0.063, t(21) = -0.101, p = .920\)</span>, or between eating a witchetty grub or a stick insect, <span class="math inline">\(b = -1.188, t(21) = -1.924, p = .068\)</span>.</p></li>
+</ul>
+</section>
+<section id="factorial-repeated-measures-designs" class="level2">
+<h2 class="anchored" data-anchor-id="factorial-repeated-measures-designs">13.7. Factorial repeated-measures designs</h2>
+<p>Two independent variables: The type of drink (beer, wine, water), and the type of imagery used (positive, negative, neutral)</p>
+<section id="entering-the-data-1" class="level3">
+<h3 class="anchored" data-anchor-id="entering-the-data-1">13.7.1. Entering the data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>attitudeData <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="fu">here</span>(<span class="st">"ch13"</span>, <span class="st">"Attitude.dat"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(attitudeData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  beerpos beerneg beerneut winepos wineneg wineneut waterpos waterneg waterneu
+1       1       6        5      38      -5        4       10      -14       -2
+2      43      30        8      20     -12        4        9      -10      -13
+3      15      15       12      20     -15        6        6      -16        1
+4      40      30       19      28      -4        0       20      -10        2
+5       8      12        8      11      -2        6       27        5       -5
+6      17      17       15      17      -6        6        9       -6      -13
+  participant
+1          P1
+2          P2
+3          P3
+4          P4
+5          P5
+6          P6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>longAttitude <span class="ot">&lt;-</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">melt</span>(</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    attitudeData,</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">"participant"</span>,</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">measured =</span> <span class="fu">c</span>(</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"beerpos"</span>, <span class="st">"beerneg"</span>, <span class="st">"beerneut"</span>, <span class="st">"winepos"</span>, <span class="st">"wineneg"</span>, <span class="st">"wineneut"</span>,</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"waterpos"</span>, <span class="st">"waterneg"</span>, <span class="st">"waterneu"</span>, <span class="st">"participant"</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(longAttitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  participant variable value
+1          P1  beerpos     1
+2          P2  beerpos    43
+3          P3  beerpos    15
+4          P4  beerpos    40
+5          P5  beerpos     8
+6          P6  beerpos    17</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(longAttitude) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"participant"</span>, <span class="st">"groups"</span>, <span class="st">"attitude"</span>)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(longAttitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  participant  groups attitude
+1          P1 beerpos        1
+2          P2 beerpos       43
+3          P3 beerpos       15
+4          P4 beerpos       40
+5          P5 beerpos        8
+6          P6 beerpos       17</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>longAttitude<span class="sc">$</span>drink <span class="ot">&lt;-</span> <span class="fu">gl</span>(<span class="dv">3</span>, <span class="dv">60</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Beer"</span>, <span class="st">"Wine"</span>, <span class="st">"Water"</span>))</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(longAttitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  participant  groups attitude drink
+1          P1 beerpos        1  Beer
+2          P2 beerpos       43  Beer
+3          P3 beerpos       15  Beer
+4          P4 beerpos       40  Beer
+5          P5 beerpos        8  Beer
+6          P6 beerpos       17  Beer</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>longAttitude<span class="sc">$</span>imagery <span class="ot">&lt;-</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gl</span>(<span class="dv">3</span>, <span class="dv">20</span>, <span class="dv">180</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Positive"</span>, <span class="st">"Negative"</span>, <span class="st">"Neutral"</span>))</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(longAttitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  participant  groups attitude drink  imagery
+1          P1 beerpos        1  Beer Positive
+2          P2 beerpos       43  Beer Positive
+3          P3 beerpos       15  Beer Positive
+4          P4 beerpos       40  Beer Positive
+5          P5 beerpos        8  Beer Positive
+6          P6 beerpos       17  Beer Positive</code></pre>
+</div>
+</div>
+</section>
+<section id="exploring-the-data-1" class="level3">
+<h3 class="anchored" data-anchor-id="exploring-the-data-1">13.7.2. Exploring the data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>attitudeBoxplot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(longAttitude, <span class="fu">aes</span>(drink, attitude))</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>attitudeBoxplot <span class="sc">+</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>imagery, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Type of Drink"</span>, <span class="at">y =</span> <span class="st">"Mean Preference Score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter_13_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  longAttitude<span class="sc">$</span>attitude,</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(longAttitude<span class="sc">$</span>drink, longAttitude<span class="sc">$</span>imagery), stat.desc, <span class="at">basic =</span> <span class="cn">FALSE</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>: Beer
+: Positive
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+  18.5000000   21.0500000    2.9086758    6.0879284  169.2078947   13.0079935 
+    coef.var 
+   0.6179569 
+------------------------------------------------------------ 
+: Wine
+: Positive
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+  25.0000000   25.3500000    1.5066083    3.1533673   45.3973684    6.7377569 
+    coef.var 
+   0.2657892 
+------------------------------------------------------------ 
+: Water
+: Positive
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+  17.0000000   17.4000000    1.5818044    3.3107547   50.0421053    7.0740445 
+    coef.var 
+   0.4065543 
+------------------------------------------------------------ 
+: Beer
+: Negative
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+    0.000000     4.450000     3.869227     8.098386   299.418421    17.303711 
+    coef.var 
+    3.888474 
+------------------------------------------------------------ 
+: Wine
+: Negative
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+ -13.5000000  -12.0000000    1.3822179    2.8930153   38.2105263    6.1814664 
+    coef.var 
+  -0.5151222 
+------------------------------------------------------------ 
+: Water
+: Negative
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+ -10.0000000   -9.2000000    1.5210799    3.1836569   46.2736842    6.8024763 
+    coef.var 
+  -0.7393996 
+------------------------------------------------------------ 
+: Beer
+: Neutral
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+    8.000000    10.000000     2.302173     4.818503   106.000000    10.295630 
+    coef.var 
+    1.029563 
+------------------------------------------------------------ 
+: Wine
+: Neutral
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+  12.5000000   11.6500000    1.3959999    2.9218614   38.9763158    6.2431015 
+    coef.var 
+   0.5358885 
+------------------------------------------------------------ 
+: Water
+: Neutral
+      median         mean      SE.mean CI.mean.0.95          var      std.dev 
+    2.500000     2.350000     1.529147     3.200541    46.765789     6.838552 
+    coef.var 
+    2.910022 </code></pre>
+</div>
+</div>
+</section>
+<section id="setting-contrasts" class="level3">
+<h3 class="anchored" data-anchor-id="setting-contrasts">13.7.3. Setting contrasts</h3>
+<p>For <code>drink</code>, Our first contrast should compare the alcoholic drinks (beer&amp;wine) to water. Then the second contrast should separate the beer and wine to water.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Group</th>
+<th style="text-align: center;">Contrast 1</th>
+<th style="text-align: center;">Contrast 2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Beer</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">-1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Wine</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Water</td>
+<td style="text-align: center;">-2</td>
+<td style="text-align: center;">0</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>AlcoholvsWater <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>BeervsWine <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(longAttitude<span class="sc">$</span>drink) <span class="ot">&lt;-</span> <span class="fu">cbind</span>(AlcoholvsWater, BeervsWine)</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>longAttitude<span class="sc">$</span>drink</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer 
+ [13] Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer 
+ [25] Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer 
+ [37] Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer 
+ [49] Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer  Beer 
+ [61] Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine 
+ [73] Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine 
+ [85] Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine 
+ [97] Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine 
+[109] Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine  Wine 
+[121] Water Water Water Water Water Water Water Water Water Water Water Water
+[133] Water Water Water Water Water Water Water Water Water Water Water Water
+[145] Water Water Water Water Water Water Water Water Water Water Water Water
+[157] Water Water Water Water Water Water Water Water Water Water Water Water
+[169] Water Water Water Water Water Water Water Water Water Water Water Water
+attr(,"contrasts")
+      AlcoholvsWater BeervsWine
+Beer               1         -1
+Wine               1          1
+Water             -2          0
+Levels: Beer Wine Water</code></pre>
+</div>
+</div>
+<p>For <code>image</code>, our first contrast should compare negative imagery to other forms (positive&amp;neutral). Then the second contrast should separate the positive and neutral imagery.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Group</th>
+<th style="text-align: center;">Contrast 1</th>
+<th style="text-align: center;">Contrast 2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Positive</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">-1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Negative</td>
+<td style="text-align: center;">-2</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Neutral</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>NegativevsOther <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">1</span>)</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>PositivevsNeutral <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(longAttitude<span class="sc">$</span>imagery) <span class="ot">&lt;-</span> <span class="fu">cbind</span>(NegativevsOther, PositivevsNeutral)</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>longAttitude<span class="sc">$</span>imagery</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] Positive Positive Positive Positive Positive Positive Positive Positive
+  [9] Positive Positive Positive Positive Positive Positive Positive Positive
+ [17] Positive Positive Positive Positive Negative Negative Negative Negative
+ [25] Negative Negative Negative Negative Negative Negative Negative Negative
+ [33] Negative Negative Negative Negative Negative Negative Negative Negative
+ [41] Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral 
+ [49] Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral 
+ [57] Neutral  Neutral  Neutral  Neutral  Positive Positive Positive Positive
+ [65] Positive Positive Positive Positive Positive Positive Positive Positive
+ [73] Positive Positive Positive Positive Positive Positive Positive Positive
+ [81] Negative Negative Negative Negative Negative Negative Negative Negative
+ [89] Negative Negative Negative Negative Negative Negative Negative Negative
+ [97] Negative Negative Negative Negative Neutral  Neutral  Neutral  Neutral 
+[105] Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral 
+[113] Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral 
+[121] Positive Positive Positive Positive Positive Positive Positive Positive
+[129] Positive Positive Positive Positive Positive Positive Positive Positive
+[137] Positive Positive Positive Positive Negative Negative Negative Negative
+[145] Negative Negative Negative Negative Negative Negative Negative Negative
+[153] Negative Negative Negative Negative Negative Negative Negative Negative
+[161] Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral 
+[169] Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral  Neutral 
+[177] Neutral  Neutral  Neutral  Neutral 
+attr(,"contrasts")
+         NegativevsOther PositivevsNeutral
+Positive               1                -1
+Negative              -2                 0
+Neutral                1                 1
+Levels: Positive Negative Neutral</code></pre>
+</div>
+</div>
+</section>
+<section id="factorial-repeated-measures-anova" class="level3">
+<h3 class="anchored" data-anchor-id="factorial-repeated-measures-anova">13.7.4. Factorial repeated-measures ANOVA</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>attitudeModel <span class="ot">&lt;-</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ezANOVA</span>(</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> longAttitude,</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">dv =</span> .(attitude),</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">wid =</span> .(participant),</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">within =</span> .(imagery, drink),</span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="dv">3</span>,</span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">detailed =</span> <span class="cn">TRUE</span></span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Converting "participant" to factor for ANOVA.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>attitudeModel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$ANOVA
+         Effect DFn DFd       SSn      SSd          F            p p&lt;.05
+1   (Intercept)   1  19 11218.006 1920.106 111.005411 2.255322e-09     *
+2       imagery   2  38 21628.678 3352.878 122.564825 2.680197e-17     *
+3         drink   2  38  2092.344 7785.878   5.105981 1.086293e-02     *
+4 imagery:drink   4  76  2624.422 2906.689  17.154922 4.589040e-10     *
+        ges
+1 0.4126762
+2 0.5753191
+3 0.1158687
+4 0.1411741
+
+$`Mauchly's Test for Sphericity`
+         Effect         W            p p&lt;.05
+2       imagery 0.6621013 2.445230e-02     *
+3         drink 0.2672411 6.952302e-06     *
+4 imagery:drink 0.5950440 4.356587e-01      
+
+$`Sphericity Corrections`
+         Effect       GGe        p[GG] p[GG]&lt;.05       HFe        p[HF]
+2       imagery 0.7474407 1.757286e-13         * 0.7968420 3.142804e-14
+3         drink 0.5771143 2.976868e-02         * 0.5907442 2.881391e-02
+4 imagery:drink 0.7983979 1.900249e-08         * 0.9785878 6.809640e-10
+  p[HF]&lt;.05
+2         *
+3         *
+4         *</code></pre>
+</div>
+</div>
+<p>The significance values of Mauchly’s sphericity test indicate that both the main effects of <code>drink</code> and <code>imagery</code> have violated this assumption and so the <em>F</em>-values should be corrected. For the interaction, the assumption of sphericity is met (<em>p</em> = .436) so we need not correct the <em>F</em>-ratio for this.</p>
+<section id="the-effect-of-drink" class="level4">
+<h4 class="anchored" data-anchor-id="the-effect-of-drink">13.7.4.1. The effect of drink</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>drinkBar <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(longAttitude, <span class="fu">aes</span>(drink, attitude))</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>drinkBar <span class="sc">+</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y =</span> mean, <span class="at">geom =</span> <span class="st">"bar"</span>, <span class="at">fill =</span> <span class="st">"White"</span>, <span class="at">colour =</span> <span class="st">"Black"</span>) <span class="sc">+</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">20</span>, <span class="dv">40</span>) <span class="sc">+</span></span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> mean_cl_boot, <span class="at">geom =</span> <span class="st">"pointrange"</span>) <span class="sc">+</span></span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Type of Drink"</span>, <span class="at">y =</span> <span class="st">"Mean Attitude"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3 rows containing non-finite values (`stat_summary()`).
+Removed 3 rows containing non-finite values (`stat_summary()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_13_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="the-effect-of-imagery" class="level4">
+<h4 class="anchored" data-anchor-id="the-effect-of-imagery">13.7.4.2. The effect of imagery</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>imageryBar <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(longAttitude, <span class="fu">aes</span>(imagery, attitude))</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>imageryBar <span class="sc">+</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y =</span> mean, <span class="at">geom =</span> <span class="st">"bar"</span>, <span class="at">fill =</span> <span class="st">"White"</span>, <span class="at">colour =</span> <span class="st">"Black"</span>) <span class="sc">+</span></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">20</span>, <span class="dv">40</span>) <span class="sc">+</span></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> mean_cl_boot, <span class="at">geom =</span> <span class="st">"pointrange"</span>) <span class="sc">+</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Type of Imagery"</span>, <span class="at">y =</span> <span class="st">"Mean Attitude"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3 rows containing non-finite values (`stat_summary()`).
+Removed 3 rows containing non-finite values (`stat_summary()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_13_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Because we have a significant interaction effect it does not makes sense to interpret this main effect because it is superseded by the interaction between <code>drink</code> and <code>imagery</code>.</p>
+</section>
+<section id="the-interaction-effect-drink-x-imagery" class="level4">
+<h4 class="anchored" data-anchor-id="the-interaction-effect-drink-x-imagery">13.7.4.3. The interaction effect (drink x imagery)</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>attitudeInt <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(longAttitude, <span class="fu">aes</span>(drink, attitude, <span class="at">colour =</span> imagery))</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>attitudeInt <span class="sc">+</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>) <span class="sc">+</span></span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y =</span> mean, <span class="at">geom =</span> <span class="st">"line"</span>, <span class="fu">aes</span>(<span class="at">group=</span> imagery)) <span class="sc">+</span></span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> mean_cl_boot, <span class="at">geom =</span> <span class="st">"errorbar"</span>, <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">20</span>, <span class="dv">40</span>) <span class="sc">+</span></span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Type of Drink"</span>, <span class="at">y =</span> <span class="st">"Mean Attitude"</span>, <span class="at">colour =</span> <span class="st">"Type of Imagery"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3 rows containing non-finite values (`stat_summary()`).
+Removed 3 rows containing non-finite values (`stat_summary()`).
+Removed 3 rows containing non-finite values (`stat_summary()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="chapter_13_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The interaction is likely to reflect the fact that negative imagery has a different effect than both positive and neutral imagery.</p>
+<p>To get <em>post hoc</em> tests for the interaction term we need to use a variable that combines <code>imagery</code> and <code>drink</code> into a single coding variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairwise.t.test</span>(</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  longAttitude<span class="sc">$</span>attitude,</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>  longAttitude<span class="sc">$</span>groups,</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">paired =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">p.adjust.method =</span> <span class="st">"bonferroni"</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pairwise comparisons using paired t tests 
+
+data:  longAttitude$attitude and longAttitude$groups 
+
+         beerpos beerneg beerneut winepos wineneg wineneut waterpos waterneg
+beerneg  0.00217 -       -        -       -       -        -        -       
+beerneut 0.01982 1.00000 -        -       -       -        -        -       
+winepos  1.00000 0.01105 0.00310  -       -       -        -        -       
+wineneg  5.6e-08 0.00265 2.0e-07  1.9e-10 -       -        -        -       
+wineneut 0.39905 1.00000 1.00000  2.2e-05 2.3e-07 -        -        -       
+waterpos 1.00000 0.47584 1.00000  0.07300 1.3e-09 0.10547  -        -       
+waterneg 2.9e-06 0.18860 0.00010  3.2e-10 1.00000 1.1e-07  4.9e-11  -       
+waterneu 0.00212 1.00000 0.74838  4.3e-10 0.00041 8.1e-05  9.0e-07  0.00068 
+
+P value adjustment method: bonferroni </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="factorial-repeated-measures-designs-as-a-glm" class="level3">
+<h3 class="anchored" data-anchor-id="factorial-repeated-measures-designs-as-a-glm">13.7.5. Factorial repeated-measures designs as a GLM</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Baseline model</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>baseline <span class="ot">&lt;-</span></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lme</span>(</span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>    attitude <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">random =</span> <span class="sc">~</span><span class="dv">1</span><span class="sc">|</span>participant<span class="sc">/</span>drink<span class="sc">/</span>imagery,</span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> longAttitude,</span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"ML"</span></span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The random part of model (<code>random = ~1|participant/drink/imagery</code>) simply tells <strong>R</strong> that the variables <code>drink</code> and <code>imagery</code> are nested within the variable <code>participant</code>.</p>
+<p>If we want to see the overall effect of each predictor then we need to add them one at a time:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>baseline <span class="ot">&lt;-</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lme</span>(</span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>    attitude <span class="sc">~</span> drink,</span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">random =</span> <span class="sc">~</span><span class="dv">1</span><span class="sc">|</span>participant<span class="sc">/</span>drink<span class="sc">/</span>imagery,</span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> longAttitude,</span>
+<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"ML"</span></span>
+<span id="cb81-7"><a href="#cb81-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb81-8"><a href="#cb81-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-9"><a href="#cb81-9" aria-hidden="true" tabindex="-1"></a><span class="co"># or,</span></span>
+<span id="cb81-10"><a href="#cb81-10" aria-hidden="true" tabindex="-1"></a>drinkModel <span class="ot">&lt;-</span> <span class="fu">update</span>(baseline, .<span class="sc">~</span>. <span class="sc">+</span> drink)</span>
+<span id="cb81-11"><a href="#cb81-11" aria-hidden="true" tabindex="-1"></a>imageryModel <span class="ot">&lt;-</span> <span class="fu">update</span>(drinkModel, .<span class="sc">~</span>. <span class="sc">+</span> imagery)</span>
+<span id="cb81-12"><a href="#cb81-12" aria-hidden="true" tabindex="-1"></a>attitudeModel <span class="ot">&lt;-</span> <span class="fu">update</span>(imageryModel, .<span class="sc">~</span>. <span class="sc">+</span> drink<span class="sc">:</span>imagery)</span>
+<span id="cb81-13"><a href="#cb81-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-14"><a href="#cb81-14" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(baseline, drinkModel, imageryModel, attitudeModel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              Model df      AIC      BIC    logLik   Test   L.Ratio p-value
+baseline          1  7 1498.461 1520.812 -742.2306                         
+drinkModel        2  7 1498.461 1520.812 -742.2306                         
+imageryModel      3  9 1350.529 1379.265 -666.2644 2 vs 3 151.93237  &lt;.0001
+attitudeModel     4 13 1316.512 1358.020 -645.2560 3 vs 4  42.01676  &lt;.0001</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(attitudeModel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed-effects model fit by maximum likelihood
+  Data: longAttitude 
+       AIC     BIC   logLik
+  1316.512 1358.02 -645.256
+
+Random effects:
+ Formula: ~1 | participant
+         (Intercept)
+StdDev: 0.0007427825
+
+ Formula: ~1 | drink %in% participant
+        (Intercept)
+StdDev:     6.04414
+
+ Formula: ~1 | imagery %in% drink %in% participant
+        (Intercept)  Residual
+StdDev:     7.21704 0.2802761
+
+Fixed effects:  attitude ~ drink + imagery + drink:imagery 
+                                                 Value Std.Error  DF   t-value
+(Intercept)                                   7.894444 0.9726047 114  8.116807
+drinkAlcoholvsWater                           2.188889 0.6877353  38  3.182749
+drinkBeervsWine                              -1.750000 1.1911926  38 -1.469116
+imageryNegativevsOther                        6.738889 0.3905470 114 17.255000
+imageryPositivevsNeutral                     -6.633333 0.6764473 114 -9.806135
+drinkAlcoholvsWater:imageryNegativevsOther    0.190278 0.2761584 114  0.689017
+drinkBeervsWine:imageryNegativevsOther        3.237500 0.4783205 114  6.768475
+drinkAlcoholvsWater:imageryPositivevsNeutral  0.445833 0.4783205 114  0.932081
+drinkBeervsWine:imageryPositivevsNeutral     -0.662500 0.8284753 114 -0.799662
+                                             p-value
+(Intercept)                                   0.0000
+drinkAlcoholvsWater                           0.0029
+drinkBeervsWine                               0.1500
+imageryNegativevsOther                        0.0000
+imageryPositivevsNeutral                      0.0000
+drinkAlcoholvsWater:imageryNegativevsOther    0.4922
+drinkBeervsWine:imageryNegativevsOther        0.0000
+drinkAlcoholvsWater:imageryPositivevsNeutral  0.3533
+drinkBeervsWine:imageryPositivevsNeutral      0.4256
+ Correlation: 
+                                             (Intr) drnkAW drnkBW imgrNO imgrPN
+drinkAlcoholvsWater                          0                                 
+drinkBeervsWine                              0      0                          
+imageryNegativevsOther                       0      0      0                   
+imageryPositivevsNeutral                     0      0      0      0            
+drinkAlcoholvsWater:imageryNegativevsOther   0      0      0      0      0     
+drinkBeervsWine:imageryNegativevsOther       0      0      0      0      0     
+drinkAlcoholvsWater:imageryPositivevsNeutral 0      0      0      0      0     
+drinkBeervsWine:imageryPositivevsNeutral     0      0      0      0      0     
+                                             dAW:NO dBW:NO dAW:PN
+drinkAlcoholvsWater                                              
+drinkBeervsWine                                                  
+imageryNegativevsOther                                           
+imageryPositivevsNeutral                                         
+drinkAlcoholvsWater:imageryNegativevsOther                       
+drinkBeervsWine:imageryNegativevsOther       0                   
+drinkAlcoholvsWater:imageryPositivevsNeutral 0      0            
+drinkBeervsWine:imageryPositivevsNeutral     0      0      0     
+
+Standardized Within-Group Residuals:
+          Min            Q1           Med            Q3           Max 
+-0.0867343887 -0.0208413120  0.0007681076  0.0251110036  0.1036376714 
+
+Number of Observations: 180
+Number of Groups: 
+                        participant              drink %in% participant 
+                                 20                                  60 
+imagery %in% drink %in% participant 
+                                180 </code></pre>
+</div>
+</div>
+<section id="alcohol-vs.-water-negative-vs.-other-imagery" class="level4">
+<h4 class="anchored" data-anchor-id="alcohol-vs.-water-negative-vs.-other-imagery">13.7.5.1. Alcohol vs.&nbsp;water, negative vs.&nbsp;other imagery</h4>
+<p>The decreased liking found when negative imagery is used is the same for both alcoholic drinks and water. The effect of negative imagery in lowering attitudes is comparable in alcoholic and non-alcoholic drinks, <span class="math inline">\(b = 0.19, t(114) = 0.69, p = .492\)</span>.</p>
+</section>
+<section id="beer-vs.-wine-negative-vs.-other-imagery" class="level4">
+<h4 class="anchored" data-anchor-id="beer-vs.-wine-negative-vs.-other-imagery">13.7.5.2. Beer vs.&nbsp;wine, negative vs.&nbsp;other imagery</h4>
+<p>The decreased liking found when negative imagery is used is different in beer and wine. The effect of negative imagery in lowering attitudes to beer was significantly smaller than for wine, <span class="math inline">\(b = 3.24, t(114) = 6.77, p &lt; .001\)</span>.</p>
+</section>
+<section id="alcohol-vs.-water-positive-vs.-neutral-imagery" class="level4">
+<h4 class="anchored" data-anchor-id="alcohol-vs.-water-positive-vs.-neutral-imagery">13.7.5.3. Alcohol vs.&nbsp;water, positive vs.&nbsp;neutral imagery</h4>
+<p>The increased liking found when positive imagery is used is similar for both alcoholic drinks and water. Positive imagery has a similar effect in increasing attitudes in both alcoholic and non-alcoholic drinks, <span class="math inline">\(b = 0.45, t(114) = 0.93, p = .353\)</span>.</p>
+</section>
+<section id="beer-vs.-wine-positive-vs.-neutral-imagery" class="level4">
+<h4 class="anchored" data-anchor-id="beer-vs.-wine-positive-vs.-neutral-imagery">13.7.5.4. Beer vs.&nbsp;wine, positive vs.&nbsp;neutral imagery</h4>
+<p>The increased liking found when positive imagery is used is comparable in beer and wine. The effect of positive imagery in increasing attitudes to beer was not significantly different to that for wine, <span class="math inline">\(b = -0.66, t(114) = -0.80, p = .426\)</span>.</p>
+</section>
+<section id="limitations-of-these-contrasts" class="level4">
+<h4 class="anchored" data-anchor-id="limitations-of-these-contrasts">13.7.5.5. Limitations of these contrasts</h4>
+<p>If we need more comparisons, we could run <em>post hoc</em> tests.</p>
+</section>
+</section>
+<section id="robust-factorial-repeated-measures-anova" class="level3">
+<h3 class="anchored" data-anchor-id="robust-factorial-repeated-measures-anova">13.7.6. Robust factorial repeated-measures ANOVA</h3>
+<p>There aren’t any functions that deal with factorial repeated-measures designs.</p>
+</section>
+</section>
+<section id="effect-sizes-for-factorial-repeated-measures-designs" class="level2">
+<h2 class="anchored" data-anchor-id="effect-sizes-for-factorial-repeated-measures-designs">13.8. Effect sizes for factorial repeated-measures designs</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>rcontrast <span class="ot">&lt;-</span> <span class="cf">function</span>(t, df)</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(t<span class="sc">^</span><span class="dv">2</span><span class="sc">+</span>df))</span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"r = "</span>, r))</span>
+<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb85-6"><a href="#cb85-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-7"><a href="#cb85-7" aria-hidden="true" tabindex="-1"></a><span class="co"># alcohol vs water</span></span>
+<span id="cb85-8"><a href="#cb85-8" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="fl">3.18</span>, <span class="dv">38</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.458457001137587"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="co"># beer vs wine</span></span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="sc">-</span><span class="fl">1.47</span>, <span class="dv">38</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.231961343984559"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="co"># negative vs other</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="fl">17.26</span>, <span class="dv">114</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.850434536664415"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="co"># positive vs neutral</span></span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="sc">-</span><span class="fl">9.81</span>, <span class="dv">114</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.67657408926345"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="co"># alcohol vs water with negative vs other imagery</span></span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="fl">0.69</span>, <span class="dv">114</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.0644898962213597"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="co"># beer vs wine with negative vs oother imagery</span></span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="fl">6.77</span>, <span class="dv">114</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.535495195928629"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="co"># alcohol vs water with positive vs neutral imagery</span></span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="fl">0.93</span>, <span class="dv">114</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.0867739323982253"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="co"># beer vs wine with positive vs neutral imagery</span></span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rcontrast</span>(<span class="sc">-</span><span class="fl">0.80</span>, <span class="dv">114</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "r =  0.0747174253416562"</code></pre>
+</div>
+</div>
+</section>
+<section id="reporting-the-results-from-factorial-repeated-measures-designs" class="level2">
+<h2 class="anchored" data-anchor-id="reporting-the-results-from-factorial-repeated-measures-designs">13.9. Reporting the results from factorial repeated-measures designs</h2>
+<ul>
+<li><p>Mauchly’s test indicated that the assumption of sphericity had been violated for the main effects of drink, <span class="math inline">\(W = 0.267, p &lt; .001, \epsilon = .58\)</span> and imagery, <span class="math inline">\(W = 0.662, p &lt; .05, \epsilon = .75\)</span>. Therefore degrees of freedom were corrected using Greenhouse-Geisser estimates of sphericity.</p></li>
+<li><p>All effects are reported as significant at <span class="math inline">\(p &lt; .05\)</span>. There was a significant main effect of the type of drink on ratings of the drink, <span class="math inline">\(F(1.15, 21.93) = 5.11\)</span>.</p></li>
+<li><p>There was also a significant main effect of the type of imagery on ratings of the drinks, <span class="math inline">\(F(1.50, 28.40) = 122.57\)</span>.</p></li>
+<li><p>There was a significant interaction interaction effect between the type of drink and the type of imagery used, <span class="math inline">\(F(4, 76) = 17.16\)</span>. This indicates that imagery had different effects on people’s ratings, depending on which type of drink was used. Bonferroni <em>post hoc</em> tests revealed that fore beer there were significant differences between positive imagery and both negative (<span class="math inline">\(p = .002\)</span>) and neutral (<span class="math inline">\(p = .020\)</span>), but not between negative and neutral (<span class="math inline">\(p = 1.00\)</span>); for wine, there were significant differences between positive imagery and both negative (<span class="math inline">\(p &lt; .001\)</span>) and neutral (<span class="math inline">\(p &lt; .001\)</span>), and between negative and neutral (<span class="math inline">\(p &lt; .001\)</span>); and for water, there were significant differences between positive imagery and both negative (<span class="math inline">\(p &lt; .001\)</span>) and neutral (<span class="math inline">\(p &lt; .001\)</span>), and between negative and neutral (<span class="math inline">\(p &lt; .001\)</span>). Theses findings suggest that beer is unusual in that negative imagery does appear to reduce attitudes compared to neutral imagery.</p></li>
+<li><p>The type of drink had a significant effect on attitudes, <span class="math inline">\(\chi^2(2) = 9.1, p = .010\)</span>, as did the type of imagery used in the advert, <span class="math inline">\(\chi^2(2) = 151.9, p &lt; .001\)</span>. Most important, the drink x imagery interaction was significant, <span class="math inline">\(\chi^2(4) = 42.0, p &lt; .001\)</span>. Contrasts revealed that (1) the effect of negative imagery (compared to other forms) in lowering attitudes is comparable in alcoholic and non-alcoholic drinks, <span class="math inline">\(b = 0.19, t(114) = 0.69, p = .492\)</span>; (2) the effect of negative imagery (compared to other forms) in lowering attitudes to beer was significantly smaller than for wine, $b = 3.24, t(114) = 6.77, p &lt; .001; (3) positive imagery has a similar effect in increasing attitudes (compared to neutral imagery) in both alcoholic and non-alcoholic drinks, <span class="math inline">\(b = 0.45, t(114) = 0.93, p = .353\)</span>; and (4) the effect of positive imagery (compared to neutral) in increasing attitudes to beer was not significantly different from that for wine, <span class="math inline">\(b = -0.66, t(114) = -0.80, p = .426\)</span>.</p></li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

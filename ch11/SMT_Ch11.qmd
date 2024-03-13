@@ -1,0 +1,215 @@
+---
+title: "SMT_Ch11"
+author: "Daehyeog Lee"
+format: html
+editor: visual
+---
+
+```{r}
+library(car); library(compute.es); library(effects); library(ggplot2)
+library(multcomp); library(pastecs); library(WRS2); library(reshape)
+library(here)
+```
+
+## Task 1
+
+```{r}
+stalkerData <- read.delim(here("ch11", "Stalker.dat"), header = TRUE)
+head(stalkerData)
+stalkerData$group <-
+  factor(
+    stalkerData$group,
+    levels = c(1:2),
+    labels = c("Cruel to be Kind Therapy", "Psychodyshamic Therapy")
+    )
+restructuredData <-
+  melt(stalkerData, id = c("group"), measured = c("stalk1", "stalk2"))
+names(restructuredData) <- c("group", "Time", "Stalk")
+
+boxplot <- ggplot(restructuredData, aes(group, Stalk))
+boxplot +
+  geom_boxplot() +
+  facet_wrap(~Time) +
+  labs(x = "Type of Therapy", y = "Number of Hours Spent Stalking")
+
+# Execute ANOVA when the covariate is not included
+stalkerModel.1 <- aov(stalk2 ~ group, data = stalkerData)
+summary(stalkerModel.1)
+```
+
+There was no difference in the hours spend stalking after therapy for the two therapy groups.
+
+```{r}
+# Perform Levene's test to check the assumption of homogeneity of variance
+leveneTest(
+  stalkerData$stalk2, interaction(stalkerData$group, stalkerData$stalk1)
+  )
+```
+
+The output is significant, which means the the assumption of homogeneity of variance has been violated.
+
+```{r}
+# Check that the covariate is independent from the experimental manipulation
+# The covariate should be roughly equal across levels of the
+# independent variables
+checkIndependenceModel <- aov(stalk1 ~ group, data = stalkerData)
+summary(checkIndependenceModel)
+```
+
+The main effect of `stalk1` is not significant, which means that the average level of baseline stalking behavior was roughly the same in the two experimental groups. Therefore, it is appropriate to use baseline stalking behavior as a covariate in the analysis.
+
+```{r}
+# Create the ANCOVA model
+contrasts(stalkerData$group) <- c(-1, 1)
+stalkerModel.1 <- aov(stalk2 ~ stalk1 + group, data = stalkerData)
+Anova(stalkerModel.1, type = 'III')
+```
+
+It is clear that the covariate (`stalk1`) significantly predicted the dependent variable (`stalk2`), so the hours spend stalking after therapy (`stalk2`) depend on the extent of the initial problem (`stalk1`).
+
+When the effect of initial stalking behavior is removed, the effect of therapy was still significant (*p* = 0.23).
+
+```{r}
+# To interpret the result of the main effect of therapy,
+# we need to look at adjusted means.
+adjustedMeans.1 <- effect("group", stalkerModel.1, se = TRUE)
+summary(adjustedMeans.1)
+adjustedMeans.1$se
+```
+
+Stalking behavior was lower after the `Cruel to be Kind Therapy` compared to `Psychodyshamic Therapy`.
+
+```{r}
+# Getting the regression parameter
+summary.lm(stalkerModel.1)
+```
+
+The *b*-value of stalk1 is positive, which means that as the natural tendency for stalking (baseline) increases, so does the tendency for stalking behavior after the experimental manipulation.
+
+The effect size partial ${\eta}^2$ of the experimental varuable can be calculated as 480.3 / (480.3 + 4111.7) = .10
+
+The effect size partial ${\eta}^2$ of the covariate can be calculated as 4414.6 / (4414.6 + 4111.7) = .52
+
+The relationship between the covariate (initial stalking behavior) and the stalking behavior after therapy is strong.
+
+Therefore, the result should be:
+
+-   Levene's test was significant, *F*(37, 12) = 6.58e+29, *p* \< .001, indicating that the assumption of homogeneity of variance had been violated. The main effect of therapy was significant, *F*(1, 47) = 5.49, *p* \< .05, partial ${\eta}^2$ = .10, indicating that the time spent stalking was lower after using a cattle prod (*M* = 55.30, *SE* = 1.87) compared to after psychodyshamic therapy (*M* = 61.50, *SE* = 1.87)
+
+-   The covariate was also significant, *F*(1, 47) = 50.46, *p* \< .001, partial ${\eta}^2$ = .52, indicating that level of stalking before therapy had a significant effect on level of stalking after therapy (there was a positive relationship between these two variables). All significant values are reported at *p* \< .05.
+
+```{r}
+CruelGroup <- subset(stalkerData, group == "Cruel to be Kind Therapy",)
+PsychoGroup <- subset(stalkerData, group == "Psychodyshamic Therapy",)
+covGrp1 <- CruelGroup$stalk1
+dvGrp1 <- CruelGroup$stalk2
+covGrp2 <- PsychoGroup$stalk1
+dvGrp2 <- PsychoGroup$stalk2
+ancboot(covGrp1, dvGrp1, covGrp2, dvGrp2, nboot = 2000)
+```
+
+## Task 2
+
+```{r}
+hangoverData <- read.delim(here("ch11", "HangoverCure.dat"), header = TRUE)
+head(hangoverData)
+hangoverData$drink <-
+  factor(
+    hangoverData$drink, levels = c(1:3), labels = c("Water", "Lucozade", "Cola")
+    )
+```
+
+```{r}
+# Conduct one-way ANOVA WITHOUT covariate
+hangoverModel <- aov(well ~ drink, data = hangoverData)
+summary(hangoverModel)
+```
+
+When the covariate is not included, there was no difference in how well people feel when they have different drinks.
+
+```{r}
+# Levene's test
+leveneTest(
+  hangoverData$well, interaction(hangoverData$drink, hangoverData$drunk)
+  )
+```
+
+Levene's test is not significant, which means that the variances of these data are very similar.
+
+```{r}
+# Check whether the covariate is independent from the experimental manipulation
+checkIndependenceModel2 <- aov(drunk ~ drink, data = hangoverData)
+summary(checkIndependenceModel2)
+```
+
+The main effect of drunk is not significant, which means that the effect of covariance was roughly the same in the three experimental groups. The result indicates that it is appropriate to use `drunk` as a covariate in the analysis.
+
+```{r}
+# Set the constrast orthogonally, and create the ANCOVA model.
+# First contrast: Compare drinking Lucozade(2) to drinking Water(1) and Cola(3)
+# Second contrast: Compare drinking water(1) to cola(3)
+contrasts(hangoverData$drink) <- cbind(c(-1, 2, -1), c(1, 0, -1))
+hangoverModel <- aov(well ~ drunk + drink, data = hangoverData)
+Anova(hangoverModel, type = 'III')
+```
+
+ANCOVA Result:
+
+-   The covariate (`drunk`) significantly predicts the dependent variable (`well`).
+
+-   When the effect of covariate is removed, the effect of `drink` becomes significant.
+
+```{r}
+# Getting the adjusted means
+aMeans <- effect("drink", hangoverModel, se = TRUE)
+summary(aMeans)
+```
+
+Adjusted means result:
+
+-   The significant ANCOVA reflects a difference between the water and the Lucozade groups.
+
+-   The cola and water groups appear to have fairly similar adjusted means, indicating that cola is no better than water at helping the hangover.
+
+```{r}
+# Getting the regression parameter for the covariate
+summary.lm(hangoverModel)
+```
+
+Regression parameter result:
+
+-   `drunk` (*b* = -0.55): The more drunk a person was the night before, the less well the felt the next day.
+
+-   The first dummy variable `drink1` compares drinking Lucozade to drinking Water and Cola. The *t*-statistic is significant, which means that the effect of Lucozade was significantly different from Cola and Water. (Also proved by adjusted means result)
+
+-   The second dummy variable `drink2` compares water and Cola, and the *t*-statistic is not significant. It means that the effect of drinking Cola was not significantly different from drinking water.
+
+Calculating the effect size:
+
+-   Main effect of drink: Partial ${\eta_{drink}}^2 = 3.46/(3.46+4.41) = 0.44$
+
+-   Main effect of covariate: Partial ${\eta_{drunk}}^2 = 11.187/(11.187+4.41) = 0.72$
+
+```{r}
+# Planned contrast
+t <- c(-5.281, 2.870, -0.338)
+df <- 13 # Total sample size(15) - 2
+
+rcontrast <- function(t, df)
+  {
+  r <- sqrt(t^2/(t^2+df))
+  print(paste("r = ", r))
+  }
+
+rcontrast(t, df)
+```
+
+Effect size of the planned contrast result:
+
+$r_{LucozadeVsWaterAndCola} = 0.62$ , $r_{WaterVsCola} = 0.09$
+
+Overall result
+
+-   **(Main effect)** The covariate, drunkness, was significantly related to the how ill the person felt the next day, *F*(1, 11) = 27.89, *p* \< .001, ${\eta}^2 = .72$. There was also a significant effect of the type of drink on how well the person felt after controlling for how drunk they were the night before, *F*(2, 11) = 4.32, *p* \< .05, ${\eta}^2 = .44$.
+
+-   **(Contrasts)** Planned contrasts revealed that having Lucozade significantly improved how well you felt compared to having cola or water, *t*(13) = 2.87, *p* \< .05, *r* = .62, but having cola was no better than having water, *t*(13) = 0.34, *ns*, *r* = .09. We can conclude that cola and water have the same effects on hangovers but Lucozade seems significantly better at curing hangovers than cola.
