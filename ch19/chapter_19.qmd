@@ -9,6 +9,8 @@ editor: visual
 
 ## 19.0. ###Git practice###
 
+Some changes
+
 ## 19.1. What will this chapter tell me?
 
 ## 19.2. Hierarchical data
